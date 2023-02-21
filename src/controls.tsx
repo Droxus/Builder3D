@@ -3,12 +3,14 @@ import { MapControls, OrbitControls } from 'three/examples/jsm/controls/OrbitCon
 
 import * as ThreeScene from './threeScene'
 
+import texturePath from '../textures/deepslate_diamond_ore.png'
+
 export let controls: MapControls
 
 const textureLoader = new THREE.TextureLoader();
-textureLoader.setPath( `${window.location}/textures/` );
 
-const textureCube = textureLoader.load( 'deepslate_diamond_ore.png' );
+// const textureCube = textureLoader.load( `${window.location}/textures/deepslate_diamond_ore.png` );
+const textureCube = textureLoader.load( texturePath );
 
 textureCube.minFilter = THREE.NearestFilter;
 textureCube.magFilter = THREE.NearestFilter;
