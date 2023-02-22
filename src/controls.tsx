@@ -8,24 +8,16 @@ import * as ThreeScene from './threeScene'
 export let controls: MapControls
 
 const textureLoader = new THREE.TextureLoader();
-
-const textureCube = textureLoader.load( `${window.location}/textures/deepslate_diamond_ore.png` );
 // const textureCube = textureLoader.load( texturePath );
-
-textureCube.minFilter = THREE.NearestFilter;
-textureCube.magFilter = THREE.NearestFilter;
-
-export function createCube(){
+function createCube(x: number, y: number, z: number){
+  textureLoader.load( `${window.location}/textures/deepslate_diamond_ore.png`, (textureCube) => {
     const cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({ map: textureCube}))
     ThreeScene.scene.add( cube );
-    cube.position.set(0, 0, 0)
+    cube.position.set(x, y, z)
+    textureCube.minFilter = THREE.NearestFilter;
+    textureCube.magFilter = THREE.NearestFilter;
+  })
   }
-// export function addLighting(){
-//     const light = new THREE.DirectionalLight( 0xffffff, 1 );
-//     light.position.set( 0, 10, 0 );
-//     light.castShadow = true;
-//     ThreeScene.scene.add( light );
-//   }
 let shiftDown = false;
 export function createControls(){
   controls = new OrbitControls( ThreeScene.camera, ThreeScene.renderer.domElement );
@@ -68,5 +60,36 @@ export function createControls(){
   };
   controls.screenSpacePanning = false
   controls.minDistance = 1
-  controls.maxDistance = 100
+  controls.maxDistance = 200
+
+  document.querySelector('canvas')?.addEventListener('click', blockAdd)
+  document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
+  createCube(0, 0, 0)
+}
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+function findPlace(event: { clientX: number; clientY: number; }){
+  pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  raycaster.setFromCamera( pointer, ThreeScene.camera );
+  let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
+  return intersects[0]
+}
+function blockAdd(event: { clientX: number; clientY: number; }){
+  if (!shiftDown){
+    let placeInfo = findPlace(event)
+    if (placeInfo){
+      createCube(Math.round(placeInfo.point.x), Math.ceil(placeInfo.point.y), Math.round(placeInfo.point.z))
+    }
+  }
+}
+function blockRemove(event: { clientX: number; clientY: number; }){
+  if (!shiftDown){
+    let placeInfo = findPlace(event)
+    if (placeInfo){
+      if (placeInfo.object.name !== "helpPlane"){
+        ThreeScene.scene.remove(placeInfo.object)
+      }
+    }
+  }
 }
