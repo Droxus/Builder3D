@@ -9,14 +9,14 @@ export let controls: MapControls
 
 const textureLoader = new THREE.TextureLoader();
 // const textureCube = textureLoader.load( texturePath );
-const textureCube = textureLoader.load( 'textures/deepslate_diamond_ore.png')
 function createCube(x: number, y: number, z: number){
-  // textureLoader.load( `${window.location}/textures/deepslate_diamond_ore.png`)
+  textureLoader.load( `${window.location}textures/deepslate_diamond_ore.png`, (textureCube) => {
     const cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({ map: textureCube}))
     ThreeScene.scene.add( cube );
     cube.position.set(x, y, z)
     textureCube.minFilter = THREE.NearestFilter;
     textureCube.magFilter = THREE.NearestFilter;
+  })
   }
 let shiftDown = false;
 export function createControls(){
