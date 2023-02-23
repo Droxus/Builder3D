@@ -17,17 +17,25 @@ export let controls: MapControls
 // let textureCube: any = new THREE.TextureLoader().load(texture)
 
 
-let textures: any = {};
+// let textures: any = {};
 
-for (const textureData of texturesData.textures) {
-  const texture = new THREE.TextureLoader().load(textureData.path);
-  textures[textureData.name] = texture;
-}
+// for (const textureData of texturesData.textures) {
+//   const texture = new THREE.TextureLoader().load(textureData.path);
+//   textures[textureData.name] = texture;
+// }
 
-console.log(textures)
+// console.log(textures)
+
+const loader = new THREE.TextureLoader()
+
+let textureCube: any = undefined
+loader.load('src/assets/textures/deepslate_diamond_ore.png', (texture) =>  {
+  if (texture){
+    textureCube = texture
+  }
+})
 
 function createCube(x: number, y: number, z: number){
-  let textureCube: any = textures.texture1
   console.log(textureCube)
     let cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube } ))
     ThreeScene.scene.add( cube );
