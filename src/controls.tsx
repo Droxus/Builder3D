@@ -8,7 +8,7 @@ import * as ThreeScene from './threeScene'
 
 export let controls: MapControls
 const textureUrls = [
-  './textures/deepslate_diamond_ore.png',
+  './src/textures/deepslate_diamond_ore.png',
   // './textures/texture2.jpg',
   // './textures/texture3.jpg',
   // add more texture URLs here...
