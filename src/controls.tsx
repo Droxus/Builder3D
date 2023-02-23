@@ -5,18 +5,43 @@ import * as ThreeScene from './threeScene'
 
 // import texturePath from './textures/deepslate_diamond_ore.png'
 
-export let controls: MapControls
 
+export let controls: MapControls
+const textureUrls = [
+  './textures/deepslate_diamond_ore.png',
+  // './textures/texture2.jpg',
+  // './textures/texture3.jpg',
+  // add more texture URLs here...
+];
+let textures: any = []
 const textureLoader = new THREE.TextureLoader();
-// const textureCube = textureLoader.load( texturePath );
+textureUrls.forEach((url) => {
+  loadTexture(url)
+  console.log(url)
+})
+function loadTexture(url: string){
+      textureLoader.load(url, (texture) => {
+        textures.push(texture)
+        checkIfAllTexturesLoaded()
+      });
+}
+function checkIfAllTexturesLoaded(){
+  if (textures.length >= textureUrls.length) {
+    textureCube = textures[0]
+    console.log(textureCube)
+  }
+}
+let textureCube: any = undefined
 function createCube(x: number, y: number, z: number){
-  textureLoader.load( `${window.location}textures/deepslate_diamond_ore.png`, (textureCube) => {
-    const cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({ map: textureCube}))
+  console.log(textureCube)
+    let cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube } ))
     ThreeScene.scene.add( cube );
     cube.position.set(x, y, z)
-    textureCube.minFilter = THREE.NearestFilter;
-    textureCube.magFilter = THREE.NearestFilter;
-  })
+    if (textureCube){
+      textureCube.minFilter = THREE.NearestFilter;
+      textureCube.magFilter = THREE.NearestFilter;
+
+    }
   }
 let shiftDown = false;
 export function createControls(){
