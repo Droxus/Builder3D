@@ -3,37 +3,33 @@ import { MapControls, OrbitControls } from 'three/examples/jsm/controls/OrbitCon
 
 import * as ThreeScene from './threeScene'
 
-import texturesData from './texturePath.json';
-
-// import texture from './textures/deepslate_diamond_ore.png';
-
-// import * as textures from 'textures/deepslate_diamond_ore.png'
-
-// import texturePath from './textures/deepslate_diamond_ore.png'
-
-
 export let controls: MapControls
-// // console.log(textures)
-// let textureCube: any = new THREE.TextureLoader().load(texture)
-
-
-// let textures: any = {};
-
-// for (const textureData of texturesData.textures) {
-//   const texture = new THREE.TextureLoader().load(textureData.path);
-//   textures[textureData.name] = texture;
-// }
-
-// console.log(textures)
 
 const loader = new THREE.TextureLoader()
 
 let textureCube: any = undefined
-loader.load('src/assets/textures/deepslate_diamond_ore.png', (texture) =>  {
+let texturePath = await import('./assets/textures/deepslate_diamond_ore.png')
+console.log(texturePath.default)
+loader.load( texturePath.default, (texture) =>  {
   if (texture){
     textureCube = texture
   }
 })
+// let textureCube: any
+// const texture = await new Promise((resolve, reject) => {
+//   const loader = new THREE.TextureLoader();
+//   loader.load('/src/assets/textures/deepslate_diamond_ore.png', (texture) => {
+//     console.log()
+//     const url = URL.createObjectURL(texture.image);
+//     texture.image.onload = () => {
+//       URL.revokeObjectURL(url);
+//       resolve(texture);
+//     };
+//     texture.image.onerror = reject;
+//   });
+// });
+
+
 
 function createCube(x: number, y: number, z: number){
   console.log(textureCube)

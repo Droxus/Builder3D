@@ -6,7 +6,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/Builder3D/',
   build: {
-    outDir: './docs'
+    outDir: './docs',
+    target: 'esnext'
   },
   plugins: [react()],
   resolve: {
