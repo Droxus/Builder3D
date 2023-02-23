@@ -1,0 +1,6 @@
+{
+    "textures": [
+      { "name": "texture1", "path": "src/textures/deepslate_diamond_ore.png" },
+      { "name": "texture2", "path": "src/textures/diamond_ore.png" }
+    ]
+}

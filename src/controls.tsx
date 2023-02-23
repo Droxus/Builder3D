@@ -3,36 +3,31 @@ import { MapControls, OrbitControls } from 'three/examples/jsm/controls/OrbitCon
 
 import * as ThreeScene from './threeScene'
 
+import texturesData from './texturePath.json';
+
+// import texture from './textures/deepslate_diamond_ore.png';
+
+// import * as textures from 'textures/deepslate_diamond_ore.png'
+
 // import texturePath from './textures/deepslate_diamond_ore.png'
 
 
 export let controls: MapControls
-const textureUrls = [
-  './src/textures/deepslate_diamond_ore.png',
-  // './textures/texture2.jpg',
-  // './textures/texture3.jpg',
-  // add more texture URLs here...
-];
-let textures: any = []
-const textureLoader = new THREE.TextureLoader();
-textureUrls.forEach((url) => {
-  loadTexture(url)
-  console.log(url)
-})
-function loadTexture(url: string){
-      textureLoader.load(url, (texture) => {
-        textures.push(texture)
-        checkIfAllTexturesLoaded()
-      });
+// // console.log(textures)
+// let textureCube: any = new THREE.TextureLoader().load(texture)
+
+
+let textures: any = {};
+
+for (const textureData of texturesData.textures) {
+  const texture = new THREE.TextureLoader().load(textureData.path);
+  textures[textureData.name] = texture;
 }
-function checkIfAllTexturesLoaded(){
-  if (textures.length >= textureUrls.length) {
-    textureCube = textures[0]
-    console.log(textureCube)
-  }
-}
-let textureCube: any = undefined
+
+console.log(textures)
+
 function createCube(x: number, y: number, z: number){
+  let textureCube: any = textures.texture1
   console.log(textureCube)
     let cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube } ))
     ThreeScene.scene.add( cube );
@@ -43,6 +38,7 @@ function createCube(x: number, y: number, z: number){
 
     }
   }
+
 let shiftDown = false;
 export function createControls(){
   controls = new OrbitControls( ThreeScene.camera, ThreeScene.renderer.domElement );
