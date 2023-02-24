@@ -1,8 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  z-index: 10;
 }
 
 .logo {
@@ -50,4 +54,5 @@ canvas {
   padding: 0;
   overflow: hidden;
   z-index: 1;
+  cursor: grab;
 }

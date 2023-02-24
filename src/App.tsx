@@ -7,7 +7,9 @@ function App() {
 
   return (
     <div className="App">
-      
+      <div id='leftBlock'>
+        <h1 className="text-5xl font-bold underline text-center">Sleep</h1>
+      </div>
     </div>
   )
 }
