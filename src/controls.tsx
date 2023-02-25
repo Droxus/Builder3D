@@ -3,9 +3,13 @@ import { MapControls, OrbitControls } from 'three/examples/jsm/controls/OrbitCon
 
 import * as ThreeScene from './threeScene'
 
+// import * as SceneInterface from './sceneInterface'
+
 export let controls: MapControls
 
 const loader = new THREE.TextureLoader()
+
+// SceneInterface.getAllTextures()
 
 let textureCube: any = undefined
 let texturePath = await import('./assets/textures/deepslate_diamond_ore.png')

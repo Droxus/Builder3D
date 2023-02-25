@@ -2,13 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
   text-align: center;
-  z-index: 10;
+  z-index: 5;
+  pointer-events: none;
 }
-
+.App > * {
+  pointer-events: all;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -53,6 +56,6 @@ canvas {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  z-index: 1;
+  z-index: 2;
   cursor: grab;
 }
