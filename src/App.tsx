@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 // import reactLogo from './assets/react.svg'
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 'react'
 import './App.css'
+import * as Controls from './controls'
 
-export let allTextures: any = []
-let blockNames
+export let pickedTexture: any = 'deepslate_diamond_ore.png'
 
+let startOfTextureName = 20
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {
@@ -17,9 +18,7 @@ function updateAllTextures() {
   })
 }
 type Item = {
-  id: number;
   name: string;
-  url: string;
   path: string;
 };
 const AllBlocks = () => {
@@ -28,29 +27,37 @@ const AllBlocks = () => {
   useEffect(() => {
     // Simulating an API call that returns an array of items
     const fetchData = async () => {
-      const response = await fetch('../src/textures.json');
-      const data = await response.json();
+      const response = await import('../textures.json');
+      const data = response.default;
       setItems(data);
     };
     fetchData();
   }, []);
 
   return (
-    <div>
+    <div className='grid grid-cols-4'>
       {items.map((item) => (
-        <div key={item.name}>
-          <img src={item.path} alt="block" width="32px" />
-          <label>{item.name}</label>
+        <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center'>
+          {/* <img src={item.path} alt="block" className='w-12 h-12 object-cover rounded-lg' /> */}
+          <img src={item.path} alt="block" className='w-12 h-12 select-none'/>
+          <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
         </div>
       ))}
     </div>
   );
 };
 
+function onTexturePick(event: any){
+  // console.log(event.currentTarget.querySelector('label').innerText)
+  pickedTexture = event.currentTarget.querySelector('label').innerText
+  pickedTexture = event.currentTarget.querySelector('img').getAttribute('src').slice(startOfTextureName)
+  Controls.loadPickedTexture(pickedTexture)
+}
+
 function App() {
   return (
     <div className="App h-full w-full">
-      <div className='leftBlock h-full w-14% bg-gray-400 overflow-scroll overflow-x-hidden'>
+      <div className='leftBlock relative h-full w-14% bg-gray-300 overflow-scroll overflow-x-hidden'>
         <AllBlocks />
       </div>
     </div>

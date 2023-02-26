@@ -2,23 +2,40 @@ import * as THREE from 'three';
 import { MapControls, OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import * as ThreeScene from './threeScene'
+import * as App from './App'
 
 export let controls: MapControls
 
 const loader = new THREE.TextureLoader()
 
+let isFirstPick = true
+
 let textureCube: any = undefined
-let texturePath = await import('./assets/textures/deepslate_diamond_ore.png')
+loadPickedTexture('deepslate_diamond_ore.png')
+export async function loadPickedTexture(newTexture: string){
+let pathToTextures = `./assets/textures/${newTexture}`
+let texturePath = await import(pathToTextures)
 loader.load( texturePath.default, (texture) =>  {
   if (texture){
     textureCube = texture
     if (textureCube){
       textureCube.minFilter = THREE.NearestFilter;
       textureCube.magFilter = THREE.NearestFilter;
+      hoverBlock.material.map = textureCube
+      hoverBlock.material.opacity = 0.5
+      hoverBlock.material.transparent = true
+      hoverBlock.material.wireframe = false
+      hoverBlock.material.needsUpdate = true
     }
-    createCube(0, 0, 0)
+    if (isFirstPick){
+      createControls()
+      createCube(0, 0, 0)
+      isFirstPick = false
+    }
   }
 })
+}
+
 function createCube(x: number, y: number, z: number){
     let cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube } ))
     cube.name = "block"

@@ -29,9 +29,6 @@ export function createScene(){
     plane.position.set(0, -0.5 , 0)
     plane.name = "helpPlane"
     scene.add( plane );
-
-    Controls.createControls()
-
     animate();
     function animate() {
         requestAnimationFrame(animate)
