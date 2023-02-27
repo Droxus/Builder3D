@@ -13,8 +13,9 @@ let isFirstPick = true
 let textureCube: any = undefined
 loadPickedTexture('deepslate_diamond_ore.png')
 export async function loadPickedTexture(newTexture: string){
-let pathToTextures = `./assets/textures/${newTexture}`
-let texturePath = await import(pathToTextures)
+const isDevelopment = window.location.hostname === 'localhost';
+let pathToTextures = `${isDevelopment ? '.' :process.env.PUBLIC_URL}/assets/textures/${newTexture}`
+let texturePath = await import(/* @vite-ignore */  pathToTextures)
 loader.load( texturePath.default, (texture) =>  {
   if (texture){
     textureCube = texture
