@@ -47,10 +47,7 @@ const AllBlocks = () => {
 };
 
 function onTexturePick(event: any){
-  pickedTexture = event.currentTarget.querySelector('label').innerText
-  let startOfTextureName = event.currentTarget.querySelector('img').getAttribute('src').lastIndexOf('/')
-  pickedTexture = event.currentTarget.querySelector('img').getAttribute('src').slice(startOfTextureName)
-  Controls.loadPickedTexture(pickedTexture)
+  Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
 }
 
 function App() {

@@ -11,11 +11,9 @@ const loader = new THREE.TextureLoader()
 let isFirstPick = true
 
 let textureCube: any = undefined
-loadPickedTexture('deepslate_diamond_ore.png')
+loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/deepslate_diamond_ore.png')
 export async function loadPickedTexture(newTexture: string){
-let pathToTextures = `./assets/textures/${newTexture}`
-let texturePath = await import(/* @vite-ignore */  pathToTextures)
-loader.load( texturePath.default, (texture) =>  {
+loader.load( newTexture, (texture) =>  {
   if (texture){
     textureCube = texture
     if (textureCube){
