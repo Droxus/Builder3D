@@ -6,7 +6,6 @@ import * as Controls from './controls'
 
 export let pickedTexture: any = 'deepslate_diamond_ore.png'
 
-let startOfTextureName = 20
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {
@@ -19,7 +18,7 @@ function updateAllTextures() {
 }
 type Item = {
   name: string;
-  path: string;
+  download_url: string;
 };
 const AllBlocks = () => {
   const [items, setItems] = useState<Item[]>([]);
@@ -39,7 +38,7 @@ const AllBlocks = () => {
       {items.map((item) => (
         <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center'>
           {/* <img src={item.path} alt="block" className='w-12 h-12 object-cover rounded-lg' /> */}
-          <img src={item.path} alt="block" className='w-12 h-12 select-none'/>
+          <img src={item.download_url} alt="block" className='w-12 h-12 select-none'/>
           <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
         </div>
       ))}
@@ -48,8 +47,8 @@ const AllBlocks = () => {
 };
 
 function onTexturePick(event: any){
-  // console.log(event.currentTarget.querySelector('label').innerText)
   pickedTexture = event.currentTarget.querySelector('label').innerText
+  let startOfTextureName = event.currentTarget.querySelector('img').getAttribute('src').lastIndexOf('/')
   pickedTexture = event.currentTarget.querySelector('img').getAttribute('src').slice(startOfTextureName)
   Controls.loadPickedTexture(pickedTexture)
 }
