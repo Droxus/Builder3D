@@ -97,12 +97,13 @@ export function createControls(){
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 function findPlace(event: { clientX: number; clientY: number; }, isDeleting: boolean){
-  pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-  raycaster.setFromCamera( pointer, ThreeScene.camera );
-  let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
-  intersects = intersects.filter(e => e.object.name !== "hoverBlock")
-  return intersects[0]
+    const rect = ThreeScene.renderer.domElement.getBoundingClientRect();
+    pointer.x = ( (event.clientX - rect.left) / (document.querySelector('canvas') as HTMLCanvasElement)?.width  ) * 2 - 1;
+    pointer.y = - ( (event.clientY - rect.top) / window.innerHeight ) * 2 + 1;
+    raycaster.setFromCamera( pointer, ThreeScene.camera );
+    let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
+    intersects = intersects.filter(e => e.object.name !== "hoverBlock")
+    return intersects[0]
 }
 function blockAdd(event: { clientX: number; clientY: number; }){
   if (!shiftDown){

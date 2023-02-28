@@ -9,11 +9,25 @@
   z-index: 5;
   pointer-events: none;
 }
-.App > * {
+::-webkit-scrollbar {
+  width: 2px;
+}
+::-webkit-scrollbar-thumb {
+  background: #737373;
+  border-radius: 1px;
+}
+::-webkit-scrollbar-corner{
+  display: none;
+}
+.threeSceneInterface * {
   pointer-events: all;
+  user-select: none;
 }
 img{
   image-rendering: pixelated;
+  pointer-events: none;
+}
+.textures{
   pointer-events: none;
 }
 .logo {
@@ -52,11 +66,11 @@ img{
   color: #888;
 }
 canvas {
-  width: 100%;
+  width: 86%;
   height: 100%;
   position: absolute;
   top: 0;
-  left: 0;
+  left: 14%;
   margin: 0;
   padding: 0;
   overflow: hidden;

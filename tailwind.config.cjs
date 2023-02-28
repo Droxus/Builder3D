@@ -8,6 +8,9 @@ module.exports = {
     extend: {
       width: {
         '14%': '14%',
+      },
+      height: {
+        'texturePick' : 'calc(100% + 112px)'
       }
     },
   },

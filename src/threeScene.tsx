@@ -9,12 +9,12 @@ export let gridHelper: any
 export function createScene(){
     scene = new THREE.Scene();
     
-    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera = new THREE.PerspectiveCamera( 60, (window.innerWidth * 0.86) / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 3, 8)
     camera.rotation.order = 'YXZ'
     
     renderer = new THREE.WebGLRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize((window.innerWidth * 0.86), window.innerHeight );
     // renderer.toneMapping = THREE.LinearToneMapping
     renderer.toneMappingExposure = 1
     renderer.shadowMap.enabled = true
@@ -43,9 +43,21 @@ export function createScene(){
     },true);
     
     function onResize(){
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const rect = renderer.domElement.getBoundingClientRect();
+      // pointer.x = ( (event.clientX - rect.left) / (document.querySelector('canvas') as HTMLCanvasElement)?.width  ) * 2 - 1;
+      // pointer.y = - ( (event.clientY - rect.top) / window.innerHeight ) * 2 + 1;
+      // console.log(rect)
+      // camera.aspect = window.innerWidth * 0.86 / window.innerHeight;
+      // camera.updateProjectionMatrix();
+      // Controls.controls.update()
+      // renderer.setSize( window.innerWidth * 0.86, window.innerHeight );
+      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+      // const { width, height } = renderer.domElement.getBoundingClientRect();
+      // canvas.width = window.innerWidth * 0.86
+      // rect.width = window.innerWidth * 0.86
+      // rect.height = window.innerHeight
+      renderer.setSize((window.innerWidth-rect.left), window.innerHeight );
+      camera.aspect = (window.innerWidth-rect.left) / window.innerHeight
       camera.updateProjectionMatrix();
-      Controls.controls.update()
-      renderer.setSize( window.innerWidth, window.innerHeight );
     }
 }
