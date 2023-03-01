@@ -33,10 +33,9 @@ const AllBlocks = () => {
   }, []);
 
   return (
-    <div className='grid grid-cols-4'>
+    <div className='grid grid-cols-4 w-full'>
       {items.map((item) => (
         <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center'>
-          {/* <img src={item.path} alt="block" className='w-12 h-12 object-cover rounded-lg' /> */}
           <img src={item.download_url} alt="block" className='textures w-3/4 h-auto aspect-square select-none pointer-events-none'/>
           <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
         </div>
@@ -59,12 +58,23 @@ function App() {
     const initialValue = 'My first build';
     setInputValue(initialValue);
   }
+  const [scaleValue, setScaleInputValue] = useState("");
+
+  const scaleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setScaleInputValue(event.target.value);
+    // console.log(event.target.value)
+    // Controls.controls.distance = 0.1
+  };
+  if (!inputValue){
+    const initialScaleValue = '100';
+    setScaleInputValue(initialScaleValue);
+  }
   return (
     <div className="App h-full w-full">
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
         <div className='bg-neutral-400 z-30 grid grid-cols-[14%_25%_1fr_34%] text-black'>
           <div className='flex items-center'>
-            <img className='ml-5 aspect-square h-9 w-auto' src="src/assets/img/logo.svg" alt="" />
+            <img className='ml-5 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/logo.svg" alt="" />
             <label className='text-xl ml-4 font-medium'>Builder 3D</label>
           </div>
           <div className='flex items-center'>
@@ -89,7 +99,7 @@ function App() {
           <div className='pt-20 relative z-10'>
             <div className='grid grid-cols-[1fr_40px] border-neutral-500 border-b-2'>
               <input className='bg-transparent px-2 h-10 outline-none text-center text-lg' type="text" placeholder='Find Block' />
-              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="src/assets/img/search.svg" alt="" /></button>
+              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/search.svg" alt="" /></button>
             </div>
             <div className='mt-2 flex'>
               <button className='flex-1'>Blocks</button>
@@ -111,6 +121,22 @@ function App() {
                 <button className='flex-1'>Remove</button>
               </div>
             </div>
+          </div>
+        </div>
+        <div className=' absolute top-full left-full -translate-x-120 -translate-y-14 w-120 h-10 flex items-center backdrop-blur-sm bg-black/1 text-neutral-500 font-normal'>
+          <div className=' h-8 w-40 flex items-center '>
+            <label className=' w-12'>Scale</label>
+            <input id='scale' className=' w-14 bg-transparent text-right' type="number" value={scaleValue} onChange={scaleInputChange} />
+            <label>%</label>
+          </div>
+          <div className=' h-8 w-80 flex items-center'>
+            <label className=' w-24'>Position</label>
+            <label>x:</label>
+            <input className=' w-16 bg-transparent text-center' type="number" />
+            <label>y:</label>
+            <input className=' w-16 bg-transparent text-center' type="number" />
+            <label>z:</label>
+            <input className=' w-16 bg-transparent text-center' type="number" />
           </div>
         </div>
       </div>

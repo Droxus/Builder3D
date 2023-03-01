@@ -44,20 +44,9 @@ export function createScene(){
     
     function onResize(){
       const rect = renderer.domElement.getBoundingClientRect();
-      // pointer.x = ( (event.clientX - rect.left) / (document.querySelector('canvas') as HTMLCanvasElement)?.width  ) * 2 - 1;
-      // pointer.y = - ( (event.clientY - rect.top) / window.innerHeight ) * 2 + 1;
-      // console.log(rect)
-      // camera.aspect = window.innerWidth * 0.86 / window.innerHeight;
-      // camera.updateProjectionMatrix();
-      // Controls.controls.update()
-      // renderer.setSize( window.innerWidth * 0.86, window.innerHeight );
-      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-      // const { width, height } = renderer.domElement.getBoundingClientRect();
-      // canvas.width = window.innerWidth * 0.86
-      // rect.width = window.innerWidth * 0.86
-      // rect.height = window.innerHeight
       renderer.setSize((window.innerWidth-rect.left), window.innerHeight );
       camera.aspect = (window.innerWidth-rect.left) / window.innerHeight
       camera.updateProjectionMatrix();
+      Controls.controls.update()
     }
 }
