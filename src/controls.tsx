@@ -90,6 +90,8 @@ export function createControls(){
 
   document.querySelector('canvas')?.addEventListener('mousemove', showBlockHover)
   ThreeScene.scene.add(hoverBlock)
+  
+  controls.addEventListener( 'change', () => {App.controlsParametersChange()} )
 
   document.querySelector('canvas')?.addEventListener('click', blockAdd)
   document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 // import reactLogo from './assets/react.svg'
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 'react'
 import './App.css'
 import * as Controls from './controls'
+import * as ThreeScene from './threeScene'
 
 export let pickedTexture: any = 'deepslate_diamond_ore.png'
 
@@ -47,7 +48,7 @@ const AllBlocks = () => {
 function onTexturePick(event: any){
   Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
 }
-
+export let controlsParametersChange: any
 function App() {
   const [inputValue, setInputValue] = useState("");
 
@@ -58,16 +59,50 @@ function App() {
     const initialValue = 'My first build';
     setInputValue(initialValue);
   }
+
   const [scaleValue, setScaleInputValue] = useState("");
 
   const scaleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setScaleInputValue(event.target.value);
-    // console.log(event.target.value)
-    // Controls.controls.distance = 0.1
+      setScaleInputValue(String(Math.max(Math.min(Number(event.target.value), Controls.controls.maxDistance), Controls.controls.minDistance)));
+      ThreeScene.camera.position.setLength(Number(Math.max(Math.min(Controls.controls.maxDistance - Number(event.target.value) + 0.5, Controls.controls.maxDistance), Controls.controls.minDistance)));
   };
-  if (!inputValue){
-    const initialScaleValue = '100';
-    setScaleInputValue(initialScaleValue);
+  controlsParametersChange = function(){
+    setScaleInputValue(String(Math.round(Controls.controls.maxDistance - Controls.controls.getDistance() + 0.5)));
+    setPositionXInputValue(String(Math.round(Controls.controls.target.x)));
+    setPositionYInputValue(String(Math.round(Controls.controls.target.y)));
+    setPositionZInputValue(String(Math.round(Controls.controls.target.z)));
+  }
+  if (!scaleValue){
+    setScaleInputValue('192');
+  }
+
+  const [positionXValue, setPositionXInputValue] = useState("");
+  const [positionYValue, setPositionYInputValue] = useState("");
+  const [positionZValue, setPositionZInputValue] = useState("");
+
+  const positionXChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPositionXInputValue(String(Math.max(Math.min(Number(event.target.value), 10000), -10000)));
+    Controls.controls.target.set(Number(Math.max(Math.min(Number(event.target.value), 10000), -10000)), Controls.controls.target.y, Controls.controls.target.z);
+    Controls.controls.update()
+  };
+  const positionYChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPositionYInputValue(String(Math.max(Math.min(Number(event.target.value), 10000), -10000)));
+      Controls.controls.target.set(Controls.controls.target.x, Number(Math.max(Math.min(Number(event.target.value), 10000), -10000)), Controls.controls.target.z);
+      Controls.controls.update()
+  };
+  const positionZChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPositionZInputValue(String(Math.max(Math.min(Number(event.target.value), 10000), -10000)));
+      Controls.controls.target.set(Controls.controls.target.x, Controls.controls.target.y, Number(Math.max(Math.min(Number(event.target.value), 10000), -10000)));
+      Controls.controls.update()
+  };
+  if (!positionXValue){
+    setPositionXInputValue('0');
+  }
+  if (!positionYValue){
+    setPositionYInputValue('3');
+  }
+  if (!positionZValue){
+    setPositionZInputValue('8');
   }
   return (
     <div className="App h-full w-full">
@@ -126,17 +161,17 @@ function App() {
         <div className=' absolute top-full left-full -translate-x-120 -translate-y-14 w-120 h-10 flex items-center backdrop-blur-sm bg-black/1 text-neutral-500 font-normal'>
           <div className=' h-8 w-40 flex items-center '>
             <label className=' w-12'>Scale</label>
-            <input id='scale' className=' w-14 bg-transparent text-right' type="number" value={scaleValue} onChange={scaleInputChange} />
+            <input id='scaleInput' className=' w-14 bg-transparent text-right' type="number" value={scaleValue} onChange={scaleInputChange} />
             <label>%</label>
           </div>
           <div className=' h-8 w-80 flex items-center'>
             <label className=' w-24'>Position</label>
             <label>x:</label>
-            <input className=' w-16 bg-transparent text-center' type="number" />
+            <input className=' w-16 bg-transparent text-center' type="number" value={positionXValue} onChange={positionXChange} />
             <label>y:</label>
-            <input className=' w-16 bg-transparent text-center' type="number" />
+            <input className=' w-16 bg-transparent text-center' type="number" value={positionYValue} onChange={positionYChange}  />
             <label>z:</label>
-            <input className=' w-16 bg-transparent text-center' type="number" />
+            <input className=' w-16 bg-transparent text-center' type="number" value={positionZValue} onChange={positionZChange}  />
           </div>
         </div>
       </div>
@@ -145,3 +180,4 @@ function App() {
 }
 
 export default App
+
