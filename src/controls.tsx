@@ -42,7 +42,6 @@ function createCube(x: number, y: number, z: number){
   }
 
 let shiftDown = false; 
-let isBuilingMode = true
 let hoverBlock = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { color: 'white', wireframe: true } ))
 hoverBlock.name = "hoverBlock"
 export function createControls(){
@@ -68,11 +67,13 @@ export function createControls(){
   document.addEventListener('keyup', event => {
     if (event.keyCode === 16) {
       shiftDown = false;
-      controls.mouseButtons = {
-        LEFT: undefined,
-        MIDDLE: 1,
-        RIGHT: undefined
-      };
+      if (App.mode !== 'Inspect'){
+        controls.mouseButtons = {
+          LEFT: undefined,
+          MIDDLE: 1,
+          RIGHT: undefined
+        };
+      }
     }
   });
   controls.mouseButtons = {
@@ -93,41 +94,43 @@ export function createControls(){
   
   controls.addEventListener( 'change', () => {App.controlsParametersChange()} )
 
+  document.querySelector('canvas')?.addEventListener('auxclick', blockget)
   document.querySelector('canvas')?.addEventListener('click', blockAdd)
   document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
 }
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-function findPlace(event: { clientX: number; clientY: number; }, isDeleting: boolean){
-    const rect = ThreeScene.renderer.domElement.getBoundingClientRect();
-    pointer.x = ( (event.clientX - rect.left) / (document.querySelector('canvas') as HTMLCanvasElement)?.width  ) * 2 - 1;
-    pointer.y = - ( (event.clientY - rect.top) / window.innerHeight ) * 2 + 1;
+function findPlace(event: { clientX: number; clientY: number; }){
+    pointer.x = ((event.clientX - (window.innerWidth*0.14)) / (window.innerWidth*0.86)  ) * 2 - 1;
+    pointer.y = - ( (event.clientY) / window.innerHeight ) * 2 + 1;
     raycaster.setFromCamera( pointer, ThreeScene.camera );
     let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
     intersects = intersects.filter(e => e.object.name !== "hoverBlock")
     return intersects[0]
 }
 function blockAdd(event: { clientX: number; clientY: number; }){
-  if (!shiftDown){
-    let placeInfo = findPlace(event, false)
+  if (!shiftDown && App.mode !== 'Inspect'){
+    let placeInfo = findPlace(event)
     if (placeInfo){
       if (placeInfo.object.name == "helpPlane"){
         createCube(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
       } else {
-        if (isBuilingMode){
+        if (App.mode == 'Build'){
           if (placeInfo.face){
             createCube(Math.round(placeInfo.object.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.position.z + placeInfo.face.normal.z))
           }
         } else {
-          createCube(Math.round(placeInfo.object.position.x), Math.abs(Math.round(placeInfo.object.position.y+0.001)), Math.round(placeInfo.object.position.z))
+          if (placeInfo.face){
+            createCube(Math.round(placeInfo.object.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.position.z + placeInfo.face.normal.z))
+          }
         }
       }
     }
   }
 }
 function blockRemove(event: { clientX: number; clientY: number; }){
-  if (!shiftDown){
-    let placeInfo = findPlace(event, true)
+  if (!shiftDown && App.mode !== 'Inspect'){
+    let placeInfo = findPlace(event)
     if (placeInfo){
       if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
         ThreeScene.scene.remove(placeInfo.object)
@@ -136,13 +139,14 @@ function blockRemove(event: { clientX: number; clientY: number; }){
   }
 }
 function showBlockHover(event: { clientX: number; clientY: number; }){
-  if (!shiftDown){
-    let placeInfo = findPlace(event, false)
+  if (!shiftDown && App.mode !== 'Inspect'){
+    hoverBlock.material.visible = true
+    let placeInfo = findPlace(event)
     if (placeInfo){
       if (placeInfo.object.name == "helpPlane"){
         hoverBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
       } else {
-        if (isBuilingMode){
+        if (App.mode == 'Build'){
           hoverBlock.material.map = textureCube
           hoverBlock.material.opacity = 0.5
           hoverBlock.material.transparent = true
@@ -152,10 +156,84 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
             hoverBlock.position.set(Math.round(placeInfo.object.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.position.z + placeInfo.face.normal.z))
           }
         } else {
+          hoverBlock.material.map = null
+          hoverBlock.material.opacity = 1
+          hoverBlock.material.transparent = true
+          hoverBlock.material.wireframe = true
+          hoverBlock.material.needsUpdate = true
           hoverBlock.position.set(Math.round(placeInfo.object.position.x), Math.abs(Math.round(placeInfo.object.position.y+0.001)), Math.round(placeInfo.object.position.z))
         }
       }
 
     }
+  } else {
+    hoverBlock.material.visible = false
   }
+}
+interface MaterialObject3D extends THREE.Object3D {
+  material: THREE.Material;
+}
+interface MappingObject3D extends THREE.Material {
+  map: THREE.Mapping
+}
+function blockget(event: { clientX: number; clientY: number; }){
+    let placeInfo = findPlace(event)
+    if (placeInfo){
+      if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
+        const object3D = placeInfo.object
+        const materialObject3D = object3D as MaterialObject3D;
+        const material = materialObject3D.material;
+        const material3D = material as MappingObject3D
+        const map = material3D.map 
+        textureCube = map
+      }
+    }
+}
+export function modeSwitch(){
+    switch (App.mode) {
+      case 'Build':
+        controls.mouseButtons = {
+          LEFT: undefined,
+          MIDDLE: 1,
+          RIGHT: undefined
+        };
+        document.querySelector('canvas')?.removeEventListener('click', blockAdd)
+        document.querySelector('canvas')?.removeEventListener('contextmenu', blockRemove)
+        document.querySelector('canvas')?.removeEventListener('click', blockRemove)
+        document.querySelector('canvas')?.removeEventListener('contextmenu', blockAdd)
+        document.querySelector('canvas')?.addEventListener('click', blockAdd)
+        document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
+        hoverBlock.material.map = textureCube
+        hoverBlock.material.opacity = 0.5
+        hoverBlock.material.transparent = true
+        hoverBlock.material.wireframe = false
+        hoverBlock.material.needsUpdate = true
+        break;
+      case 'Inspect':
+          hoverBlock.material.visible = false
+          controls.mouseButtons = {
+            LEFT: 0,
+            MIDDLE: 1,
+            RIGHT: 2
+          };
+        break;
+      case 'Remove':
+        controls.mouseButtons = {
+          LEFT: undefined,
+          MIDDLE: 1,
+          RIGHT: undefined
+        };
+        document.querySelector('canvas')?.removeEventListener('click', blockAdd)
+        document.querySelector('canvas')?.removeEventListener('contextmenu', blockRemove)
+        document.querySelector('canvas')?.removeEventListener('click', blockRemove)
+        document.querySelector('canvas')?.removeEventListener('contextmenu', blockAdd)
+        document.querySelector('canvas')?.addEventListener('click', blockRemove)
+        document.querySelector('canvas')?.addEventListener('contextmenu', blockAdd)
+        hoverBlock.material.map = null
+        hoverBlock.material.opacity = 1
+        hoverBlock.material.transparent = true
+        hoverBlock.material.wireframe = true
+        hoverBlock.material.needsUpdate = true
+        break;
+    }
 }

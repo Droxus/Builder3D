@@ -37,7 +37,7 @@ const AllBlocks = () => {
     <div className='grid grid-cols-4 w-full'>
       {items.map((item) => (
         <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center'>
-          <img src={item.download_url} alt="block" className='textures w-3/4 h-auto aspect-square select-none pointer-events-none'/>
+          <img src={item.download_url} alt="block" className='textures w-2.5vw h-2.5vw aspect-square select-none pointer-events-none'/>
           <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
         </div>
       ))}
@@ -48,6 +48,7 @@ const AllBlocks = () => {
 function onTexturePick(event: any){
   Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
 }
+export let mode: string = 'Build'
 export let controlsParametersChange: any
 function App() {
   const [inputValue, setInputValue] = useState("");
@@ -104,6 +105,15 @@ function App() {
   if (!positionZValue){
     setPositionZInputValue('8');
   }
+  const [selectedModeBtn, setSelectedModeBtn] = useState('');
+  if (!selectedModeBtn){
+    setSelectedModeBtn('Build')
+  }
+  function onModeSwitch(event: any){
+    setSelectedModeBtn(event.target.innerText)
+    mode = event.target.innerText
+    Controls.modeSwitch()
+  }
   return (
     <div className="App h-full w-full">
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
@@ -151,9 +161,9 @@ function App() {
             <div className='pt-4'>
               <label className=' text-lg'>Mods</label>
               <div className='flex mt-2'>
-                <button className='flex-1'>Build</button>
-                <button className='flex-1'>Inspect</button>
-                <button className='flex-1'>Remove</button>
+                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Build' ? ' bg-slate-900' : 'bg-transparent'}`} onClick={onModeSwitch}>Build</button>
+                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Inspect' ? ' bg-slate-900' : 'bg-transparent'}`} onClick={onModeSwitch}>Inspect</button>
+                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Remove' ? ' bg-slate-900' : 'bg-transparent'}`} onClick={onModeSwitch}>Remove</button>
               </div>
             </div>
           </div>
@@ -167,7 +177,7 @@ function App() {
           <div className=' h-8 w-80 flex items-center'>
             <label className=' w-24'>Position</label>
             <label>x:</label>
-            <input className=' w-16 bg-transparent text-center' type="number" value={positionXValue} onChange={positionXChange} />
+            <input className='modsButton w-16 bg-transparent text-center' type="number" value={positionXValue} onChange={positionXChange} />
             <label>y:</label>
             <input className=' w-16 bg-transparent text-center' type="number" value={positionYValue} onChange={positionYChange}  />
             <label>z:</label>
