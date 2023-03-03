@@ -100,18 +100,18 @@ function App() {
     setPositionXInputValue('0');
   }
   if (!positionYValue){
-    setPositionYInputValue('3');
+    setPositionYInputValue('0');
   }
   if (!positionZValue){
-    setPositionZInputValue('8');
+    setPositionZInputValue('0');
   }
   const [selectedModeBtn, setSelectedModeBtn] = useState('');
   if (!selectedModeBtn){
     setSelectedModeBtn('Build')
   }
   function onModeSwitch(event: any){
-    setSelectedModeBtn(event.target.innerText)
-    mode = event.target.innerText
+    setSelectedModeBtn(event.currentTarget.querySelector('label').innerText)
+    mode = event.currentTarget.querySelector('label').innerText
     Controls.modeSwitch()
   }
   return (
@@ -119,7 +119,7 @@ function App() {
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
         <div className=' bg-fourthcolor z-30 grid grid-cols-[300px_25%_1fr_34%] text-firstcolor'>
           <div className='flex items-center'>
-            <img className='ml-5 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/whiteLogo.svg" alt="" />
+            <img className='ml-5 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/whiteLogo.svg" alt="" />
             <label className='text-xl ml-4 font-medium text-thirdcolor'>Builder 3D</label>
           </div>
           <div className='flex items-center'>
@@ -164,21 +164,21 @@ function App() {
               <div className='flex mt-2 h-full'>
                 <button className={` flex-1 rounded-none ${selectedModeBtn == 'Build' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/build.svg" alt="" />
+                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/build.svg" alt="" />
                   </div>
-                  Build
+                  <label>Build</label>
                 </button>
                 <button className={` flex-1 rounded-none ${selectedModeBtn == 'Inspect' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/inspect.svg" alt="" />
+                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/inspect.svg" alt="" />
                   </div>
-                  Inspect
+                  <label>Inspect</label>
                 </button>
                 <button className={` flex-1 rounded-none ${selectedModeBtn == 'Remove' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/remove.svg" alt="" />
+                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/remove.svg" alt="" />
                   </div>
-                  Remove
+                  <label>Remove</label>
                 </button>
               </div>
             </div>
