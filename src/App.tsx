@@ -37,7 +37,7 @@ const AllBlocks = () => {
     <div className='grid grid-cols-4 w-full'>
       {items.map((item) => (
         <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center'>
-          <img src={item.download_url} alt="block" className='textures w-2.5vw h-2.5vw aspect-square select-none pointer-events-none'/>
+          <img src={item.download_url} alt="block" className='textures w-14 h-14 aspect-square select-none pointer-events-none'/>
           <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
         </div>
       ))}
@@ -117,17 +117,17 @@ function App() {
   return (
     <div className="App h-full w-full">
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
-        <div className='bg-neutral-400 z-30 grid grid-cols-[14%_25%_1fr_34%] text-black'>
+        <div className=' bg-fourthcolor z-30 grid grid-cols-[300px_25%_1fr_34%] text-firstcolor'>
           <div className='flex items-center'>
-            <img className='ml-5 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/logo.svg" alt="" />
-            <label className='text-xl ml-4 font-medium'>Builder 3D</label>
+            <img className='ml-5 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/whiteLogo.svg" alt="" />
+            <label className='text-xl ml-4 font-medium text-thirdcolor'>Builder 3D</label>
           </div>
           <div className='flex items-center'>
             <button className='h-full w-24 '>Undo</button>
             <button className='h-full w-24'>Redo</button>
             <button className=' h-full w-24 '>Create</button>
           </div>
-          <div className='flex items-center justify-center'>
+          <div className='flex items-center justify-center text-thirdcolor'>
             <button className='outline-none'>Droxus228</button>
             <label className=' mx-2'>/</label>
             <input className=' bg-transparent outline-none' type="text" value={inputValue} onChange={handleInputChange} />
@@ -140,9 +140,10 @@ function App() {
             <button className=' h-full w-24 '>Share</button>
           </div>
         </div>
-        <div className='leftBlock absolute grid grid-rows-[200px_1fr_200px] h-full w-14% bg-neutral-300'>
+        <div className='leftBlock absolute grid grid-rows-[200px_1fr_200px] h-full w-300  bg-firstcolor text-secondcolor'>
           <div className='pt-20 relative z-10'>
-            <div className='grid grid-cols-[1fr_40px] border-neutral-500 border-b-2'>
+            <div className='grid grid-cols-[40px_1fr_40px] border-fourthcolor border-b-2'>
+              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f49bd3b0400ae10036bbf4da1a187c7b7ce1647d/src/assets/img/cross.svg" alt="" /></button>
               <input className='bg-transparent px-2 h-10 outline-none text-center text-lg' type="text" placeholder='Find Block' />
               <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/search.svg" alt="" /></button>
             </div>
@@ -151,24 +152,39 @@ function App() {
               <button className='flex-1'>Slabs</button>
               <button className='flex-1'>Stairs</button>
             </div>
-            <div className='h-28 bg-gradient-to-b from-neutral-300 to-transparent'></div>
+            <div className='h-28 bg-gradient-to-b from-firstcolor to-transparent'></div>
           </div>
           <div className='texturePickBlock relative h-texturePick overflow-scroll overflow-x-hidden z-1 -mt-8 py-16'>
             <AllBlocks />
           </div>
           <div className='z-20 -mt-8'>
-            <div className='h-28 bg-gradient-to-t from-neutral-300 to-transparent'></div>
-            <div className='pt-4'>
-              <label className=' text-lg'>Mods</label>
-              <div className='flex mt-2'>
-                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Build' ? ' bg-slate-900' : 'bg-transparent'}`} onClick={onModeSwitch}>Build</button>
-                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Inspect' ? ' bg-slate-900' : 'bg-transparent'}`} onClick={onModeSwitch}>Inspect</button>
-                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Remove' ? ' bg-slate-900' : 'bg-transparent'}`} onClick={onModeSwitch}>Remove</button>
+            <div className='h-28 bg-gradient-to-t from-firstcolor to-transparent'></div>
+            <div className=' pt-4 h-21'>
+              <label className=' text-lg font-medium'>Mods</label>
+              <div className='flex mt-2 h-full'>
+                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Build' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
+                  <div className='w-full flex justify-center'>
+                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/build.svg" alt="" />
+                  </div>
+                  Build
+                </button>
+                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Inspect' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
+                  <div className='w-full flex justify-center'>
+                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/inspect.svg" alt="" />
+                  </div>
+                  Inspect
+                </button>
+                <button className={` flex-1 rounded-none ${selectedModeBtn == 'Remove' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
+                  <div className='w-full flex justify-center'>
+                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/remove.svg" alt="" />
+                  </div>
+                  Remove
+                </button>
               </div>
             </div>
           </div>
         </div>
-        <div className=' absolute top-full left-full -translate-x-120 -translate-y-14 w-120 h-10 flex items-center backdrop-blur-sm bg-black/1 text-neutral-500 font-normal'>
+        <div className=' absolute top-full left-full -translate-x-120 -translate-y-14 w-120 h-10 flex items-center backdrop-blur-sm bg-black/1 text-firstcolor font-normal'>
           <div className=' h-8 w-40 flex items-center '>
             <label className=' w-12'>Scale</label>
             <input id='scaleInput' className=' w-14 bg-transparent text-right' type="number" value={scaleValue} onChange={scaleInputChange} />

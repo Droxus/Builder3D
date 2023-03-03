@@ -101,7 +101,7 @@ export function createControls(){
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 function findPlace(event: { clientX: number; clientY: number; }){
-    pointer.x = ((event.clientX - (window.innerWidth*0.14)) / (window.innerWidth*0.86)  ) * 2 - 1;
+    pointer.x = ((event.clientX - (300)) / (window.innerWidth-300)  ) * 2 - 1;
     pointer.y = - ( (event.clientY) / window.innerHeight ) * 2 + 1;
     raycaster.setFromCamera( pointer, ThreeScene.camera );
     let intersects = raycaster.intersectObjects( ThreeScene.scene.children );

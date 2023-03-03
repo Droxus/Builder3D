@@ -9,13 +9,13 @@ export let gridHelper: any
 export function createScene(){
     scene = new THREE.Scene();
     
-    camera = new THREE.PerspectiveCamera( 60, (window.innerWidth * 0.86) / window.innerHeight, 0.1, 1000 );
+    camera = new THREE.PerspectiveCamera( 60, (window.innerWidth-300) / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 3, 8)
     camera.rotation.order = 'YXZ'
     
     renderer = new THREE.WebGLRenderer();
-    renderer.setSize((window.innerWidth * 0.86), window.innerHeight );
-    renderer.setPixelRatio((window.innerWidth * 0.86) / window.innerHeight)
+    renderer.setSize((window.innerWidth-300), window.innerHeight );
+    renderer.setPixelRatio((window.innerWidth-300) / window.innerHeight)
     renderer.toneMappingExposure = 1
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
@@ -44,9 +44,9 @@ export function createScene(){
     
     function onResize(){
       const rect = renderer.domElement.getBoundingClientRect();
-      renderer.setSize((window.innerWidth*0.86), window.innerHeight );
-      renderer.setPixelRatio((window.innerWidth*0.86) / window.innerHeight )
-      camera.aspect = (window.innerWidth*0.86) / window.innerHeight
+      renderer.setSize((window.innerWidth-300), window.innerHeight );
+      renderer.setPixelRatio((window.innerWidth-300) / window.innerHeight )
+      camera.aspect = (window.innerWidth-300) / window.innerHeight
       camera.updateProjectionMatrix();
       Controls.controls.update()
     }
