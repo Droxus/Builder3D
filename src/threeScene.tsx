@@ -13,7 +13,7 @@ export function createScene(){
     camera.position.set(0, 3, 8)
     camera.rotation.order = 'YXZ'
     
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize((window.innerWidth-300), window.innerHeight );
     renderer.setPixelRatio((window.innerWidth-300) / window.innerHeight)
     renderer.toneMappingExposure = 1
@@ -24,7 +24,7 @@ export function createScene(){
     gridHelper.position.set(8.5, -0.5, 8.5)
     scene.add( gridHelper );
 
-    const plane = new THREE.Mesh( new THREE.PlaneGeometry( 100000, 100000 ), new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide, visible: false} ) );
+    const plane = new THREE.Mesh( new THREE.BoxGeometry( 100000, 100000, 0.00001 ), new THREE.MeshBasicMaterial( {color: 0xffff00, visible: false} ) );
     plane.rotation.set(Math.PI/2, 0, 0)
     plane.position.set(0, -0.5 , 0)
     plane.name = "helpPlane"

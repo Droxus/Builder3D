@@ -6,14 +6,14 @@ import * as Controls from './controls'
 import * as ThreeScene from './threeScene'
 
 export let pickedTexture: any = 'deepslate_diamond_ore.png'
-
+export let noCubeBlocks: any = []
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {
   fetch('https://api.github.com/repos/Droxus/Builder3D/contents/src/assets/textures').then((response) => {
       return response.json()
     }).then((data) => {
-      console.log(data)
+      // console.log(data)
       console.log('All textures reloaded')
   })
 }
@@ -24,10 +24,14 @@ type Item = {
 const AllBlocks = () => {
   const [items, setItems] = useState<Item[]>([]);
   useEffect(() => {
-    // Simulating an API call that returns an array of items
     const fetchData = async () => {
       const response = await import('../textures.json');
-      const data = response.default;
+      let data = response.default;
+      data = data.filter(e => e.name.slice(-7) !== '.mcmeta')
+
+      const noCubeBlocksResponse = await import('../noCubeBlocks.json');
+      noCubeBlocks = noCubeBlocksResponse.default
+      // console.log(data)
       setItems(data);
     };
     fetchData();
@@ -47,6 +51,7 @@ const AllBlocks = () => {
 
 function onTexturePick(event: any){
   Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
+  pickedTexture = event.currentTarget.querySelector('label').innerText
 }
 export let mode: string = 'Build'
 export let controlsParametersChange: any
@@ -154,7 +159,7 @@ function App() {
             </div>
             <div className='h-28 bg-gradient-to-b from-firstcolor to-transparent'></div>
           </div>
-          <div className='texturePickBlock relative h-texturePick overflow-scroll overflow-x-hidden z-1 -mt-8 py-16'>
+          <div className='texturePickBlock relative h-texturePick overflow-scroll overflow-x-hidden z-1 -mt-8 py-24'>
             <AllBlocks />
           </div>
           <div className='z-20 -mt-8'>
@@ -164,19 +169,19 @@ function App() {
               <div className='flex mt-2 h-full'>
                 <button className={` flex-1 rounded-none ${selectedModeBtn == 'Build' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/build.svg" alt="" />
+                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/build.svg" alt="" />
                   </div>
                   <label>Build</label>
                 </button>
                 <button className={` flex-1 rounded-none ${selectedModeBtn == 'Inspect' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/inspect.svg" alt="" />
+                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/inspect.svg" alt="" />
                   </div>
                   <label>Inspect</label>
                 </button>
                 <button className={` flex-1 rounded-none ${selectedModeBtn == 'Remove' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/remove.svg" alt="" />
+                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/remove.svg" alt="" />
                   </div>
                   <label>Remove</label>
                 </button>
