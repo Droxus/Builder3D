@@ -40,8 +40,9 @@ const AllBlocks = () => {
   return (
     <div className='grid grid-cols-4 w-full'>
       {items.map((item) => (
-        <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center'>
-          <img src={item.download_url} alt="block" className='textures w-14 h-14 aspect-square select-none pointer-events-none'/>
+        <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer'>
+          {/* <div className={'textures w-14 h-14 aspect-square select-none pointer-events-none ' + `bg-[url(${item.download_url})]`}></div> */}
+          <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
           <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
         </div>
       ))}

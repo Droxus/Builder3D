@@ -10,8 +10,6 @@ const loader = new THREE.TextureLoader()
 
 let isFirstPick = true
 
-let isCube = true
-
 let textureCube: any = undefined
 loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/deepslate_diamond_ore.png')
 export async function loadPickedTexture(newTexture: string){
@@ -22,6 +20,20 @@ loader.load( newTexture, (texture) =>  {
     if (textureCube){
       textureCube.minFilter = THREE.NearestFilter;
       textureCube.magFilter = THREE.NearestFilter;
+
+      textureCube.wrapS = THREE.RepeatWrapping;
+      textureCube.wrapT = THREE.RepeatWrapping;
+      const geometryWidth = 16; 
+      const geometryHeight = 16; 
+      const textureWidth = textureCube.image.width;
+      const textureHeight = textureCube.image.height;
+      const textureAspect = textureWidth / textureHeight;
+      const geometryAspect = geometryWidth / geometryHeight; 
+      if (textureAspect > geometryAspect) {
+        textureCube.repeat.set(geometryWidth / textureWidth, 1);
+      } else {
+        textureCube.repeat.set(1, geometryHeight / textureHeight);
+      }
       setHoverTextures()
     }
     if (isFirstPick){
@@ -31,6 +43,15 @@ loader.load( newTexture, (texture) =>  {
     }
   }
 })
+}
+function isFullBlock(): boolean{
+  let isCube: boolean = true
+  App.noCubeBlocks.forEach((item: string) => {
+      if (App.pickedTexture.includes(item) && !App.pickedTexture.includes('block')) {
+        return isCube = false
+      }
+  })
+  return isCube
 }
 function setHoverTextures(){
   let materials = new THREE.MeshBasicMaterial({
@@ -42,14 +63,16 @@ function setHoverTextures(){
     side: THREE.DoubleSide,
     alphaTest: 0.5
   });
-  if (isCube){
+  if (isFullBlock()){
     hoverBlock.material.visible = false
+    hoverBlock.visible = true
     hoverHalfBlock.visible = false
     hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
   } else {
       hoverHalfBlock.visible = false
       hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
       hoverBlock.material.visible = false
+      hoverBlock.visible = true
   }
   hoverBlock.material = materials
   hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material = materials);
@@ -73,14 +96,8 @@ function setHoverTextures(){
   }
 }
 function createCube(x: number, y: number, z: number){
-  // let isCube2 = App.noCubeBlocks.map((e: any) => e.name).join().includes(App.pickedTexture)
-  // let isCube2 = App.noCubeBlocks.join().includes(App.pickedTexture)
-  // let isCube2 = App.noCubeBlocks.join()
-  // console.log(isCube2)
   let cube: any
-  // noCubeBlocks
-  // console.log(textureCube)
-    if (isCube){
+    if (isFullBlock()){
       cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true } ))
     } else {
       let firstPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
@@ -232,7 +249,7 @@ function blockRemove(event: { clientX: number; clientY: number; }){
 }
 let hover
 function showBlockHover(event: { clientX: number; clientY: number; }){
-  if (isCube){
+  if (isFullBlock()){
     hover = hoverBlock
     hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
     hoverHalfBlock.visible = false
@@ -362,6 +379,7 @@ export function modeSwitch(){
         break;
       case 'Inspect':
           hoverBlock.material.visible = false
+          hoverBlock.visible = false
           hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
           hoverHalfBlock.visible = false
           controls.mouseButtons = {
