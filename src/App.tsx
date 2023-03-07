@@ -17,6 +17,9 @@ function updateAllTextures() {
       console.log('All textures reloaded')
   })
 }
+export function setNewPickedTexture(newTexture: string){
+  pickedTexture = newTexture
+}
 type Item = {
   name: string;
   download_url: string;
@@ -41,7 +44,6 @@ const AllBlocks = () => {
     <div className='grid grid-cols-4 w-full'>
       {items.map((item) => (
         <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer'>
-          {/* <div className={'textures w-14 h-14 aspect-square select-none pointer-events-none ' + `bg-[url(${item.download_url})]`}></div> */}
           <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
           <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
         </div>
@@ -149,9 +151,9 @@ function App() {
         <div className='leftBlock absolute grid grid-rows-[200px_1fr_200px] h-full w-300  bg-firstcolor text-secondcolor'>
           <div className='pt-20 relative z-10'>
             <div className='grid grid-cols-[40px_1fr_40px] border-fourthcolor border-b-2'>
-              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f49bd3b0400ae10036bbf4da1a187c7b7ce1647d/src/assets/img/cross.svg" alt="" /></button>
+              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/fd5e56d6a00e6a668b7cf59840205b0e2f85e098/src/assets/img/crossBlocks.svg" alt="" /></button>
               <input className='bg-transparent px-2 h-10 outline-none text-center text-lg' type="text" placeholder='Find Block' />
-              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/a416881d778c508fe7211f86fe9d52ef3a6730c1/src/assets/img/search.svg" alt="" /></button>
+              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/fd5e56d6a00e6a668b7cf59840205b0e2f85e098/src/assets/img/searchBlocks.svg" alt="" /></button>
             </div>
             <div className='mt-2 flex'>
               <button className='flex-1'>Blocks</button>

@@ -10,11 +10,17 @@ const loader = new THREE.TextureLoader()
 
 let isFirstPick = true
 
-let textureCube: any = undefined
+let textureCube: any = undefined, textureMaterials: any = undefined
+
+interface textureName extends THREE.Object3D {
+  textureName: string;
+}
+
 loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/deepslate_diamond_ore.png')
 export async function loadPickedTexture(newTexture: string){
 loader.load( newTexture, (texture) =>  {
   if (texture){
+
     textureCube = texture
     texture.format = THREE.RGBAFormat
     if (textureCube){
@@ -34,7 +40,8 @@ loader.load( newTexture, (texture) =>  {
       } else {
         textureCube.repeat.set(1, geometryHeight / textureHeight);
       }
-      setHoverTextures()
+      // textureCube = textureMaterials
+      // setHoverTextures()
     }
     if (isFirstPick){
       createControls()
@@ -74,7 +81,7 @@ function setHoverTextures(){
       hoverBlock.material.visible = false
       hoverBlock.visible = true
   }
-  hoverBlock.material = materials
+  hoverBlock.material = textureMaterials
   hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material = materials);
   (hoverHalfBlock.children[2] as MaterialObject3D).material = new THREE.MeshBasicMaterial({
     wireframe: false,
@@ -96,19 +103,70 @@ function setHoverTextures(){
   }
 }
 function createCube(x: number, y: number, z: number){
-  let cube: any
+  let cube: any, helpedCube: any
     if (isFullBlock()){
-      cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true } ))
+      let sideMaterial, topMaterial, bottomMaterial;
+      bottomMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true });
+      topMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true });
+      sideMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true });
+  
+  
+      const textures = [
+        textureCube,
+        textureCube,
+        textureCube
+      ];
+      
+      let geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
+      
+      let material = new THREE.MeshBasicMaterial({
+        map: textures[1] // Set default texture
+      });
+  
+      geometry.groups.forEach((group, i) => {
+        if (i === 0) {
+          group.materialIndex = 0; // Top face
+        } else if (i === 1 || i === 2 || i === 4 || i === 5) {
+          group.materialIndex = 1; // Side faces
+        } else {
+          group.materialIndex = 2; // Bottom face
+        }
+      });
+      
+      cube = new THREE.Mesh(geometry, material);
+      ThreeScene.scene.add(cube);
+      
+      cube.position.set(0, 2, 0)
+        material.map = textures[0]; // Top face texture
+        if (material.map){
+          material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+          material.map.repeat.set(1, 1); // Repeat texture 2x2 times
+        }
+          
+          material.side = THREE.DoubleSide; // Make sure both sides of the material are visible
+          
+          material.map = textures[1]; // Side faces texture
+          if (material.map){
+            material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+            material.map.repeat.set(1, 1); // Repeat texture 2x2 times
+          }
+          material.map = textures[2]; // Bottom face texture
+          if (material.map){
+            material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+            material.map.repeat.set(1, 1); // Repeat texture 2x2 times
+          }
     } else {
       let firstPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
       let secondPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
-      let helpedCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube, opacity: 0, transparent: true, depthWrite: false } ))
+      helpedCube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { map: textureCube, opacity: 0, transparent: true, depthWrite: false } ))
       secondPlane.rotation.set(0, Math.PI / 2, 0)
-      cube = new THREE.Group()
-      cube.add(firstPlane)
-      cube.add(secondPlane)
-      cube.add(helpedCube)
+      cube = new THREE.Group();
+      cube.add(firstPlane);
+      cube.add(secondPlane);
+      cube.add(helpedCube);
+      (helpedCube as textureName).textureName = App.pickedTexture;
     }
+    cube.textureName = App.pickedTexture
     cube.name = "block"
     ThreeScene.scene.add( cube );
     cube.position.set(x, y, z)
@@ -358,6 +416,8 @@ function blockget(event: { clientX: number; clientY: number; }){
         const material3D = material as MappingObject3D
         const map = material3D.map 
         textureCube = map
+        App.setNewPickedTexture((placeInfo.object as textureName).textureName)
+        setHoverTextures()
       }
     }
 }
