@@ -7,6 +7,7 @@ import * as ThreeScene from './threeScene'
 
 export let pickedTexture: any = 'deepslate_diamond_ore.png'
 export let noCubeBlocks: any = []
+export let allTextures: any = []
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {
@@ -31,6 +32,7 @@ const AllBlocks = () => {
       const response = await import('../textures.json');
       let data = response.default;
       data = data.filter(e => e.name.slice(-7) !== '.mcmeta')
+      allTextures = data
 
       const noCubeBlocksResponse = await import('../noCubeBlocks.json');
       noCubeBlocks = noCubeBlocksResponse.default

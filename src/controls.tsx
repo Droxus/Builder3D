@@ -10,7 +10,7 @@ const loader = new THREE.TextureLoader()
 
 let isFirstPick = true
 
-let textureCube: any = undefined, textureMaterials: any = undefined
+let textureCube: any = undefined, textureCubeTop: any, textureCubeBottom: any
 
 interface textureName extends THREE.Object3D {
   textureName: string;
@@ -20,36 +20,69 @@ loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/a
 export async function loadPickedTexture(newTexture: string){
 loader.load( newTexture, (texture) =>  {
   if (texture){
-
-    textureCube = texture
-    texture.format = THREE.RGBAFormat
-    if (textureCube){
-      textureCube.minFilter = THREE.NearestFilter;
-      textureCube.magFilter = THREE.NearestFilter;
-
-      textureCube.wrapS = THREE.RepeatWrapping;
-      textureCube.wrapT = THREE.RepeatWrapping;
-      const geometryWidth = 16; 
-      const geometryHeight = 16; 
-      const textureWidth = textureCube.image.width;
-      const textureHeight = textureCube.image.height;
-      const textureAspect = textureWidth / textureHeight;
-      const geometryAspect = geometryWidth / geometryHeight; 
-      if (textureAspect > geometryAspect) {
-        textureCube.repeat.set(geometryWidth / textureWidth, 1);
-      } else {
-        textureCube.repeat.set(1, geometryHeight / textureHeight);
-      }
-      // textureCube = textureMaterials
-      // setHoverTextures()
-    }
-    if (isFirstPick){
-      createControls()
-      createCube(0, 0, 0)
-      isFirstPick = false
-    }
+    onTextureSwitch(texture)
   }
 })
+}
+function onTextureSwitch(texture: any){
+  textureCubeBottom = undefined
+  textureCubeTop = undefined
+    let isLoadedAllNotSideTextures = 0  
+
+    if (App.pickedTexture.includes('side')){
+      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; isLoadedAllNotSideTextures++; setTextureCube()}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube()})
+      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; isLoadedAllNotSideTextures++; setTextureCube()}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube()})
+    } else if (App.pickedTexture.includes('log')) {
+      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; isLoadedAllNotSideTextures++; setTextureCube()}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube()})
+      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; isLoadedAllNotSideTextures++; setTextureCube()}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube()})
+    }else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))){
+      loader.load( textureCubeTop = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop;isLoadedAllNotSideTextures += 2; setTextureCube()}, () => {}, () => {isLoadedAllNotSideTextures += 2; setTextureCube()})
+    } else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))){
+      loader.load( textureCubeBottom = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom;isLoadedAllNotSideTextures += 2; setTextureCube()}, () => {}, () => {isLoadedAllNotSideTextures += 2; setTextureCube()})
+    }
+    setTextureCube()
+    function setTextureCube(){
+      if (isLoadedAllNotSideTextures > 1 || isFirstPick){
+        textureCube = texture
+        if (!textureCubeBottom){
+          textureCubeBottom = textureCubeTop || textureCube
+        }
+        if (!textureCubeTop){
+          textureCubeTop = textureCubeBottom || textureCube
+        }
+        let texturesArr = [textureCubeBottom, textureCubeTop, textureCube]
+        // console.log(textureCubeTop, textureCubeBottom)
+        texture.format = THREE.RGBAFormat
+
+        texturesArr.forEach((e:any) => {
+          if (e){
+            e.minFilter = THREE.NearestFilter;
+            e.magFilter = THREE.NearestFilter;
+            e.wrapS = THREE.RepeatWrapping;
+            e.wrapT = THREE.RepeatWrapping;
+          }
+        })
+
+          const geometryWidth = 16; 
+          const geometryHeight = 16; 
+          const textureWidth = textureCube.image.width;
+          const textureHeight = textureCube.image.height;
+          const textureAspect = textureWidth / textureHeight;
+          const geometryAspect = geometryWidth / geometryHeight; 
+          if (textureAspect > geometryAspect) {
+            textureCube.repeat.set(geometryWidth / textureWidth, 1);
+          } else {
+            textureCube.repeat.set(1, geometryHeight / textureHeight);
+          }
+          // textureCube = textureMaterials
+          // setHoverTextures()
+        if (isFirstPick){
+          createControls()
+          createCube(0, 0, 0)
+          isFirstPick = false
+        }
+      }
+    }
 }
 function isFullBlock(): boolean{
   let isCube: boolean = true
@@ -81,7 +114,7 @@ function setHoverTextures(){
       hoverBlock.material.visible = false
       hoverBlock.visible = true
   }
-  hoverBlock.material = textureMaterials
+  hoverBlock.material = textureCube
   hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material = materials);
   (hoverHalfBlock.children[2] as MaterialObject3D).material = new THREE.MeshBasicMaterial({
     wireframe: false,
@@ -103,37 +136,40 @@ function setHoverTextures(){
   }
 }
 function createCube(x: number, y: number, z: number){
+  // let textureCube: any = undefined, textureCubeTop: any, textureCubeBottom: any
   let cube: any, helpedCube: any
     if (isFullBlock()){
       let sideMaterial, topMaterial, bottomMaterial;
-      bottomMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true });
-      topMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true });
+      bottomMaterial = new THREE.MeshBasicMaterial({ map: textureCubeBottom || textureCubeTop || textureCube, transparent: true });
+      topMaterial = new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true });
       sideMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true });
   
   
       const textures = [
-        textureCube,
-        textureCube,
+        textureCubeBottom || textureCubeTop || textureCube,
+        textureCubeTop || textureCubeBottom || textureCube,
         textureCube
       ];
       
+      // console.log(textures)
+
       let geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
       
       let material = new THREE.MeshBasicMaterial({
-        map: textures[1] // Set default texture
+        map: textures[2] // Set default texture
       });
   
       geometry.groups.forEach((group, i) => {
-        if (i === 0) {
+        if (i === 2) {
           group.materialIndex = 0; // Top face
-        } else if (i === 1 || i === 2 || i === 4 || i === 5) {
+        } else if (i === 0 || i === 1 || i === 4 || i === 5) {
           group.materialIndex = 1; // Side faces
         } else {
           group.materialIndex = 2; // Bottom face
         }
       });
       
-      cube = new THREE.Mesh(geometry, material);
+      cube = new THREE.Mesh(geometry, [topMaterial, sideMaterial, bottomMaterial]);
       ThreeScene.scene.add(cube);
       
       cube.position.set(0, 2, 0)
@@ -413,11 +449,15 @@ function blockget(event: { clientX: number; clientY: number; }){
         const object3D = placeInfo.object
         const materialObject3D = object3D as MaterialObject3D;
         const material = materialObject3D.material;
-        const material3D = material as MappingObject3D
-        const map = material3D.map 
-        textureCube = map
+        const material3D = material as any
+        if (Array.isArray(material3D)){
+          textureCube = material3D[1].map
+        } else {
+          textureCube = material3D.map
+        }
         App.setNewPickedTexture((placeInfo.object as textureName).textureName)
-        setHoverTextures()
+        onTextureSwitch(textureCube)
+        // setHoverTextures()
       }
     }
 }
