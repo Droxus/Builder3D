@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, DetailedHTMLProps, LabelHTMLAttributes } from 'react'
 // import reactLogo from './assets/react.svg'
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 'react'
 import './App.css'
@@ -33,10 +33,9 @@ const AllBlocks = () => {
       let data = response.default;
       data = data.filter(e => e.name.slice(-7) !== '.mcmeta')
       allTextures = data
-
+      data = data.filter((e: any) => !e.name.includes('top') && !e.name.includes('bottom') && !e.name.includes('anvil') && !e.name.includes('bell') && !e.name.includes('candle'))
       const noCubeBlocksResponse = await import('../noCubeBlocks.json');
       noCubeBlocks = noCubeBlocksResponse.default
-      // console.log(data)
       setItems(data);
     };
     fetchData();
@@ -46,8 +45,10 @@ const AllBlocks = () => {
     <div className='grid grid-cols-4 w-full'>
       {items.map((item) => (
         <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer'>
-          <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
-          <label className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ')}</label>
+          <div className='w-full h-14 flex justify-center'>
+            <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
+          </div>
+          <label id={item.name.slice(0, item.name.length-4).replaceAll('_', ' ')} className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ').replaceAll('side', '').replaceAll('log', '').replaceAll('front', '').replaceAll('end', '') }</label>
         </div>
       ))}
     </div>
@@ -56,7 +57,7 @@ const AllBlocks = () => {
 
 function onTexturePick(event: any){
   Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
-  pickedTexture = event.currentTarget.querySelector('label').innerText
+  pickedTexture = event.currentTarget.querySelector('label').getAttribute('id')
 }
 export let mode: string = 'Build'
 export let controlsParametersChange: any

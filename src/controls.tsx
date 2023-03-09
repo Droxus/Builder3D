@@ -51,7 +51,6 @@ function onTextureSwitch(texture: any){
           textureCubeTop = textureCubeBottom || textureCube
         }
         let texturesArr = [textureCubeBottom, textureCubeTop, textureCube]
-        // console.log(textureCubeTop, textureCubeBottom)
         texture.format = THREE.RGBAFormat
 
         texturesArr.forEach((e:any) => {
@@ -74,8 +73,7 @@ function onTextureSwitch(texture: any){
           } else {
             textureCube.repeat.set(1, geometryHeight / textureHeight);
           }
-          // textureCube = textureMaterials
-          // setHoverTextures()
+          setHoverTextures()
         if (isFirstPick){
           createControls()
           createCube(0, 0, 0)
@@ -94,103 +92,84 @@ function isFullBlock(): boolean{
   return isCube
 }
 function setHoverTextures(){
-  let materials = new THREE.MeshBasicMaterial({
-    wireframe: false,
-    opacity: 0.5,
-    transparent: true,
-    map: textureCube,
-    depthWrite: false,
-    side: THREE.DoubleSide,
-    alphaTest: 0.5
-  });
   if (isFullBlock()){
-    hoverBlock.material.visible = false
+    let materials = [
+      new THREE.MeshBasicMaterial({ map: textureCubeBottom || textureCubeTop || textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 }),
+      new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 }),
+      new THREE.MeshBasicMaterial({ map: textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 })
+    ]
+    hoverBlock.material = materials
     hoverBlock.visible = true
     hoverHalfBlock.visible = false
-    hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
   } else {
       hoverHalfBlock.visible = false
-      hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
-      hoverBlock.material.visible = false
       hoverBlock.visible = true
+      hoverHalfBlock.children.forEach(child => {
+        (child as MaterialObject3D).material = new THREE.MeshBasicMaterial({
+            wireframe: false,
+            opacity: 0.5,
+            transparent: true,
+            map: textureCube,
+            depthWrite: false,
+            side: THREE.DoubleSide,
+            alphaTest: 0.5
+          });
+        });
+        (hoverHalfBlock.children[2] as MaterialObject3D).material = new THREE.MeshBasicMaterial({
+          wireframe: false,
+          opacity: 0,
+          transparent: true,
+          map: textureCube,
+          depthWrite: false
+        });
   }
-  hoverBlock.material = textureCube
-  hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material = materials);
-  (hoverHalfBlock.children[2] as MaterialObject3D).material = new THREE.MeshBasicMaterial({
-    wireframe: false,
-    opacity: 0,
-    transparent: true,
-    map: textureCube,
-    depthWrite: false
-  });
   if (App.mode == 'Remove'){
-    hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
-    hoverHalfBlock.visible = false
-    hoverBlock.material = new THREE.MeshBasicMaterial({
-      wireframe: true,
-      opacity: 1,
-      transparent: true,
-      map: null
-    });
+    hoverBlock.material.forEach(e => e.map = null)
+    hoverBlock.material.forEach(e => e.opacity = 1)
+    hoverBlock.material.forEach(e => e.transparent = true)
+    hoverBlock.material.forEach(e => e.wireframe = true)
+    hoverBlock.material.forEach(e => e.needsUpdate = true)
     hoverBlock.visible = true
+    hoverBlock.material.forEach(e => e.visible = true)
   }
 }
 function createCube(x: number, y: number, z: number){
-  // let textureCube: any = undefined, textureCubeTop: any, textureCubeBottom: any
   let cube: any, helpedCube: any
     if (isFullBlock()){
+      if (textureCube){
+        textureCube.wrapS = textureCube.wrapT = THREE.RepeatWrapping;
+        textureCube.repeat.set(16 / textureCube.image.width, 16 / textureCube.image.height);
+      }
+      if (textureCubeTop){
+        textureCubeTop.wrapS = textureCubeTop.wrapT = THREE.RepeatWrapping;
+        textureCubeTop.repeat.set(16 / textureCube.image.width, 16 / textureCube.image.height);
+      }
+      if (textureCubeBottom){
+        textureCubeBottom.wrapS = textureCubeBottom.wrapT = THREE.RepeatWrapping;
+        textureCubeBottom.repeat.set(16 / textureCube.image.width, 16 / textureCube.image.height);
+      }
       let sideMaterial, topMaterial, bottomMaterial;
-      bottomMaterial = new THREE.MeshBasicMaterial({ map: textureCubeBottom || textureCubeTop || textureCube, transparent: true });
-      topMaterial = new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true });
-      sideMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true });
-  
-  
+      bottomMaterial = new THREE.MeshBasicMaterial({ map: textureCubeBottom || textureCubeTop || textureCube, transparent: true, side: THREE.DoubleSide });
+      topMaterial = new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true, side: THREE.DoubleSide });
+      sideMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true, side: THREE.DoubleSide });
       const textures = [
         textureCubeBottom || textureCubeTop || textureCube,
         textureCubeTop || textureCubeBottom || textureCube,
         textureCube
       ];
-      
-      // console.log(textures)
-
       let geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
-      
-      let material = new THREE.MeshBasicMaterial({
-        map: textures[2] // Set default texture
-      });
-  
       geometry.groups.forEach((group, i) => {
         if (i === 2) {
-          group.materialIndex = 0; // Top face
+          group.materialIndex = 0;
         } else if (i === 0 || i === 1 || i === 4 || i === 5) {
-          group.materialIndex = 1; // Side faces
+          group.materialIndex = 1;
         } else {
-          group.materialIndex = 2; // Bottom face
+          group.materialIndex = 2;
         }
       });
       
       cube = new THREE.Mesh(geometry, [topMaterial, sideMaterial, bottomMaterial]);
       ThreeScene.scene.add(cube);
-      
-      cube.position.set(0, 2, 0)
-        material.map = textures[0]; // Top face texture
-        if (material.map){
-          material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-          material.map.repeat.set(1, 1); // Repeat texture 2x2 times
-        }
-          
-          material.side = THREE.DoubleSide; // Make sure both sides of the material are visible
-          
-          material.map = textures[1]; // Side faces texture
-          if (material.map){
-            material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-            material.map.repeat.set(1, 1); // Repeat texture 2x2 times
-          }
-          material.map = textures[2]; // Bottom face texture
-          if (material.map){
-            material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-            material.map.repeat.set(1, 1); // Repeat texture 2x2 times
-          }
     } else {
       let firstPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
       let secondPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
@@ -209,7 +188,20 @@ function createCube(x: number, y: number, z: number){
   }
 
 let shiftDown = false; 
-let hoverBlock = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( { color: 'white', wireframe: true } ))
+let materialsForHoverBlock = [new THREE.MeshBasicMaterial( { color: 'white', wireframe: true }), 
+  new THREE.MeshBasicMaterial( { color: 'white', wireframe: true }), 
+  new THREE.MeshBasicMaterial( { color: 'white', wireframe: true })
+]
+let hoverBlock = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), materialsForHoverBlock )
+hoverBlock.geometry.groups.forEach((group, i) => {
+  if (i === 2) {
+    group.materialIndex = 1;
+  } else if (i === 0 || i === 1 || i === 4 || i === 5) {
+    group.materialIndex = 2;
+  } else {
+    group.materialIndex = 0;
+  }
+});
 let hoverHalfBlock = new THREE.Group()
 let firstPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( {transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
 let secondPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( {transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
@@ -345,26 +337,21 @@ let hover
 function showBlockHover(event: { clientX: number; clientY: number; }){
   if (isFullBlock()){
     hover = hoverBlock
-    hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
     hoverHalfBlock.visible = false
   } else {
     hover = hoverHalfBlock
-    hoverBlock.material.visible = false
     hoverBlock.visible = false
   }
   if (App.mode == 'Remove'){
     hover = hoverBlock
-    hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
     hoverHalfBlock.visible = false
-    hoverBlock.material.visible = true
     hoverBlock.visible = true
   }
   if (!shiftDown && App.mode !== 'Inspect'){
     if (hover.children.length > 0){
-      hover.children.forEach(e => (e as MaterialObject3D).material.visible = true)
+      if (hover.children)
       hover.visible = true
     } else {
-      (hover as MaterialObject3D).material.visible = true
     }
     let placeInfo = findPlace(event)
     if (placeInfo){
@@ -388,9 +375,9 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
                 transparent: true,
                 map: textureCube,
                 depthWrite: false
-              });
+              })
             } else {
-              (hover as MaterialObject3D).material = materials
+              (hover as MaterialsObject3D).material.forEach(e => e = materials)
             }
           if (placeInfo.face){
             if (placeInfo.object.parent && placeInfo.object.parent.children.length == 3){
@@ -412,9 +399,9 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
             map: null
           });
           if (hover.children.length > 0){
-            hover.children.forEach(e => (e as MaterialObject3D).material = materials)
+            hover.children.forEach(e => (e as MaterialsObject3D).material.forEach(e => e = materials))
           } else {
-            (hover as MaterialObject3D).material = materials
+            (hover as MaterialsObject3D).material.forEach(e => e = materials)
           }
           if (placeInfo.object.parent && placeInfo.object.parent.children.length == 3){
             hover.position.set(Math.round(placeInfo.object.parent.position.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001)), Math.round(placeInfo.object.parent.position.z))
@@ -425,16 +412,13 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
       }
 
     }
-  } else {
-    if (hover.children.length > 0){
-      hover.children.forEach(e => (e as MaterialObject3D).material.visible = true)
-    } else {
-      (hover as MaterialObject3D).material.visible = true
-    }
   }
 }
 interface GeometryObject3D extends THREE.Object3D {
   geometry: THREE.PlaneGeometry | THREE.BoxGeometry;
+}
+interface MaterialsObject3D extends THREE.Object3D {
+  material: THREE.Material[];
 }
 interface MaterialObject3D extends THREE.Object3D {
   material: THREE.Material;
@@ -457,7 +441,7 @@ function blockget(event: { clientX: number; clientY: number; }){
         }
         App.setNewPickedTexture((placeInfo.object as textureName).textureName)
         onTextureSwitch(textureCube)
-        // setHoverTextures()
+        setHoverTextures()
       }
     }
 }
@@ -478,9 +462,7 @@ export function modeSwitch(){
         setHoverTextures()
         break;
       case 'Inspect':
-          hoverBlock.material.visible = false
           hoverBlock.visible = false
-          hoverHalfBlock.children.forEach(e => (e as MaterialObject3D).material.visible = false)
           hoverHalfBlock.visible = false
           controls.mouseButtons = {
             LEFT: 0,
@@ -500,13 +482,7 @@ export function modeSwitch(){
         document.querySelector('canvas')?.removeEventListener('contextmenu', blockAdd)
         document.querySelector('canvas')?.addEventListener('click', blockRemove)
         document.querySelector('canvas')?.addEventListener('contextmenu', blockAdd)
-        hoverBlock.material.map = null
-        hoverBlock.material.opacity = 1
-        hoverBlock.material.transparent = true
-        hoverBlock.material.wireframe = true
-        hoverBlock.material.needsUpdate = true
-        hoverBlock.visible = true
-        hoverBlock.material.visible = true
+        setHoverTextures()
         break;
     }
 }
