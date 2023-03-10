@@ -10,10 +10,10 @@
   pointer-events: none;
 }
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 3px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #737373;
+  background: #454545;
   border-radius: 1px;
 }
 ::-webkit-scrollbar-corner{

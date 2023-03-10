@@ -33,7 +33,7 @@ const AllBlocks = () => {
       let data = response.default;
       data = data.filter(e => e.name.slice(-7) !== '.mcmeta')
       allTextures = data
-      data = data.filter((e: any) => !e.name.includes('top') && !e.name.includes('bottom') && !e.name.includes('anvil') && !e.name.includes('bell') && !e.name.includes('candle'))
+      data = data.filter((e: any) => !e.name.includes('top') && !e.name.includes('bottom') && !e.name.includes('anvil') && !e.name.includes('bell') && !e.name.includes('candle')  && !e.name.includes('redstone_dust'))
       const noCubeBlocksResponse = await import('../noCubeBlocks.json');
       noCubeBlocks = noCubeBlocksResponse.default
       setItems(data);
@@ -128,22 +128,22 @@ function App() {
   return (
     <div className="App h-full w-full">
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
-        <div className=' bg-fourthcolor z-30 grid grid-cols-[300px_25%_1fr_34%] text-firstcolor'>
+        <div className=' bg-fourthcolor z-50 grid grid-cols-[300px_25%_1fr_34%] text-firstcolor'>
           <div className='flex items-center'>
             <img className='ml-5 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/whiteLogo.svg" alt="" />
             <label className='text-xl ml-4 font-medium text-thirdcolor'>Builder 3D</label>
           </div>
-          <div className='flex items-center'>
+          <div className='flex items-center shadow-forTopBlock'>
             <button className='h-full w-24 '>Undo</button>
             <button className='h-full w-24'>Redo</button>
             <button className=' h-full w-24 '>Create</button>
           </div>
-          <div className='flex items-center justify-center text-thirdcolor'>
+          <div className='flex items-center justify-center text-thirdcolor shadow-forTopBlock'>
             <button className='outline-none'>Droxus228</button>
             <label className=' mx-2'>/</label>
             <input className=' bg-transparent outline-none' type="text" value={inputValue} onChange={handleInputChange} />
           </div>
-          <div className='flex items-center justify-end'>
+          <div className='flex items-center justify-end shadow-forTopBlock'>
             <button className='h-full w-24 '>Save</button>
             <button className='h-full w-24'>Scene</button>
             <button className=' h-full w-24 '>Import</button>
@@ -151,25 +151,25 @@ function App() {
             <button className=' h-full w-24 '>Share</button>
           </div>
         </div>
-        <div className='leftBlock absolute grid grid-rows-[200px_1fr_200px] h-full w-300  bg-firstcolor text-secondcolor'>
-          <div className='pt-20 relative z-10'>
-            <div className='grid grid-cols-[40px_1fr_40px] border-fourthcolor border-b-2'>
+        <div className='leftBlock absolute grid grid-rows-[185px_1fr_135px] h-full w-300  bg-firstcolor text-secondcolor'>
+          <div className='pt-20 relative z-30 shadow-forLeftBlockTwo bg-firstcolor'>
+            <div className='grid grid-cols-[40px_1fr_40px] border-fourthcolor border-b-2 bg-firstcolor'>
               <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/fd5e56d6a00e6a668b7cf59840205b0e2f85e098/src/assets/img/crossBlocks.svg" alt="" /></button>
               <input className='bg-transparent px-2 h-10 outline-none text-center text-lg' type="text" placeholder='Find Block' />
               <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/fd5e56d6a00e6a668b7cf59840205b0e2f85e098/src/assets/img/searchBlocks.svg" alt="" /></button>
             </div>
-            <div className='mt-2 flex'>
+            <div className='mt-2 flex '>
               <button className='flex-1'>Blocks</button>
               <button className='flex-1'>Slabs</button>
               <button className='flex-1'>Stairs</button>
             </div>
-            <div className='h-28 bg-gradient-to-b from-firstcolor to-transparent'></div>
+            {/* <div className='h-28 bg-gradient-to-b from-firstcolor to-transparent'></div> */}
           </div>
-          <div className='texturePickBlock relative h-texturePick overflow-scroll overflow-x-hidden z-1 -mt-8 py-24'>
+          <div className='texturePickBlock relative h-full overflow-scroll overflow-x-hidden z-10 mt-0 py-24 shadow-forLeftBlockThree'>
             <AllBlocks />
           </div>
-          <div className='z-20 -mt-8'>
-            <div className='h-28 bg-gradient-to-t from-firstcolor to-transparent'></div>
+          <div className='z-30 -mt-0 bg-firstcolor shadow-forLeftBlockTwo'>
+            {/* <div className='h-28 bg-gradient-to-t from-firstcolor to-transparent'></div> */}
             <div className=' pt-4 h-21'>
               <label className=' text-lg font-medium'>Mods</label>
               <div className='flex mt-2 h-full'>

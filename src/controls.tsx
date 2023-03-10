@@ -224,18 +224,18 @@ export function createControls(){
   controls.enableDamping = true
   controls.dampingFactor = .05
   controls.enablePan = true;
-
+  controls.enableZoom = false;
   document.addEventListener('keydown', event => {
     if (event.keyCode === 16) {
       shiftDown = true;
       hoverBlock.visible = false
-      hoverHalfBlock.visible = false
       if (App.mode !== 'Inspect'){
       controls.mouseButtons = {
         LEFT: 2,
         MIDDLE: 1,
         RIGHT: 0
       };
+      controls.enableZoom = true;
     }
     }
   });
@@ -247,15 +247,17 @@ export function createControls(){
       if (App.mode !== 'Inspect'){
         controls.mouseButtons = {
           LEFT: undefined,
-          MIDDLE: 1,
+          MIDDLE: undefined,
           RIGHT: undefined
         };
+        setHoverTextures()
+        controls.enableZoom = false;
       }
     }
   });
   controls.mouseButtons = {
     LEFT: undefined,
-    MIDDLE: 1,
+    MIDDLE: undefined,
     RIGHT: undefined
   };
   controls.touches = {
@@ -277,6 +279,7 @@ export function createControls(){
       blockget(event)
     }
   })
+  document.querySelector('canvas')?.addEventListener('wheel', blockRotate)
   document.querySelector('canvas')?.addEventListener('click', blockAdd)
   document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
 }
@@ -331,6 +334,18 @@ function blockRemove(event: { clientX: number; clientY: number; }){
         }
       }
     }
+  }
+}
+// let rotationStage = [
+//   {x: Math.PI/0.5, y: Math.PI/0.5, z: Math.PI/0.5, used: true},
+//   {x: Math.PI/0.5, y: Math.PI/2, z: Math.PI/2, used: false},
+//   {x: Math.PI/0.5, y: Math.PI/1, z: Math.PI/1, used: false},
+//   {x: Math.PI/0.5, y: Math.PI * 1.5, z: Math.PI * 1.5, used: false},
+// ]
+function blockRotate(){
+  // console.log('aaa')
+  if (!shiftDown){
+    hoverBlock.rotation.set(hoverBlock.rotation.x  + Math.PI/2, hoverBlock.rotation.y, hoverBlock.rotation.z)
   }
 }
 let hover
@@ -450,7 +465,7 @@ export function modeSwitch(){
       case 'Build':
         controls.mouseButtons = {
           LEFT: undefined,
-          MIDDLE: 1,
+          MIDDLE: undefined,
           RIGHT: undefined
         };
         document.querySelector('canvas')?.removeEventListener('click', blockAdd)
@@ -460,6 +475,7 @@ export function modeSwitch(){
         document.querySelector('canvas')?.addEventListener('click', blockAdd)
         document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
         setHoverTextures()
+        controls.enableZoom = false;
         break;
       case 'Inspect':
           hoverBlock.visible = false
@@ -469,11 +485,12 @@ export function modeSwitch(){
             MIDDLE: 1,
             RIGHT: 2
           };
+          controls.enableZoom = true;
         break;
       case 'Remove':
         controls.mouseButtons = {
           LEFT: undefined,
-          MIDDLE: 1,
+          MIDDLE: undefined,
           RIGHT: undefined
         };
         document.querySelector('canvas')?.removeEventListener('click', blockAdd)
@@ -483,6 +500,7 @@ export function modeSwitch(){
         document.querySelector('canvas')?.addEventListener('click', blockRemove)
         document.querySelector('canvas')?.addEventListener('contextmenu', blockAdd)
         setHoverTextures()
+        controls.enableZoom = false;
         break;
     }
 }
