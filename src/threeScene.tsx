@@ -32,7 +32,9 @@ export function createScene(){
     animate();
     function animate() {
         requestAnimationFrame(animate)
-        // Controls.controls.update()
+        if (Controls.controls){
+          Controls.controls.update()
+        }
         renderer.render( scene, camera );
     };
     
@@ -48,6 +50,5 @@ export function createScene(){
       renderer.setPixelRatio((window.innerWidth-300) / window.innerHeight )
       camera.aspect = (window.innerWidth-300) / window.innerHeight
       camera.updateProjectionMatrix();
-      Controls.controls.update()
     }
 }

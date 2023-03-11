@@ -4,7 +4,7 @@ import { MapControls, OrbitControls } from 'three/examples/jsm/controls/OrbitCon
 import * as ThreeScene from './threeScene'
 import * as App from './App'
 
-export let controls: MapControls
+export let controls: any
 
 const loader = new THREE.TextureLoader()
 
@@ -101,9 +101,11 @@ function setHoverTextures(){
     hoverBlock.material = materials
     hoverBlock.visible = true
     hoverHalfBlock.visible = false
+    hoverBlock.position.set(hoverHalfBlock.position.x, hoverHalfBlock.position.y, hoverHalfBlock.position.z)
   } else {
-      hoverHalfBlock.visible = false
-      hoverBlock.visible = true
+      hoverBlock.visible = false
+      hoverHalfBlock.visible = true
+      hoverHalfBlock.position.set(hoverBlock.position.x, hoverBlock.position.y, hoverBlock.position.z)
       hoverHalfBlock.children.forEach(child => {
         (child as MaterialObject3D).material = new THREE.MeshBasicMaterial({
             wireframe: false,
@@ -131,6 +133,9 @@ function setHoverTextures(){
     hoverBlock.material.forEach(e => e.needsUpdate = true)
     hoverBlock.visible = true
     hoverBlock.material.forEach(e => e.visible = true)
+  } else if (App.mode == 'Inspect') {
+    hoverBlock.visible = false
+    hoverHalfBlock.visible = false
   }
 }
 function createCube(x: number, y: number, z: number){
@@ -185,6 +190,7 @@ function createCube(x: number, y: number, z: number){
     cube.name = "block"
     ThreeScene.scene.add( cube );
     cube.position.set(x, y, z)
+    cube.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z)
   }
 
 let shiftDown = false; 
@@ -218,7 +224,6 @@ hoverBlock.name = "hoverBlock"
 export function createControls(){
   controls = new OrbitControls( ThreeScene.camera, ThreeScene.renderer.domElement );
   controls.target.set(0, 0, 0)
-  controls.update()
   controls.autoRotate = false
   controls.autoRotateSpeed = 1
   controls.enableDamping = true
@@ -244,6 +249,10 @@ export function createControls(){
       shiftDown = false;
       hoverBlock.visible = true
       hoverHalfBlock.visible = true
+      if (App.mode == 'Inspect') {
+        hoverBlock.visible = false
+        hoverHalfBlock.visible = false
+      }
       if (App.mode !== 'Inspect'){
         controls.mouseButtons = {
           LEFT: undefined,
@@ -282,16 +291,30 @@ export function createControls(){
   document.querySelector('canvas')?.addEventListener('wheel', blockRotate)
   document.querySelector('canvas')?.addEventListener('click', blockAdd)
   document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
+  // controls.update()
 }
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 function findPlace(event: { clientX: number; clientY: number; }){
-    pointer.x = ((event.clientX - (300)) / (window.innerWidth-300)  ) * 2 - 1;
+    pointer.x = ( (event.clientX - 300) / (window.innerWidth - 300) ) * 2 - 1;
     pointer.y = - ( (event.clientY) / window.innerHeight ) * 2 + 1;
     raycaster.setFromCamera( pointer, ThreeScene.camera );
     let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
     intersects = intersects.filter(e => e.object.name !== "hoverBlock")
     intersects = intersects.filter(e => (e.object as GeometryObject3D).geometry instanceof THREE.BoxGeometry)
+    if (intersects.length > 0) {
+      if (intersects[0].object.name !== 'helpPlane'){
+        let firstRotation = {
+          x: intersects[0].object.rotation.x,
+          y: intersects[0].object.rotation.y,
+          z: intersects[0].object.rotation.z,
+        }
+        intersects[0].object.rotation.set(0, 0, 0)
+        intersects[0].object.updateMatrixWorld(true)
+        intersects = raycaster.intersectObjects( [intersects[0].object] );
+        intersects[0].object.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+      }
+    }
     return intersects[0]
 }
 function blockAdd(event: { clientX: number; clientY: number; }){
@@ -336,16 +359,39 @@ function blockRemove(event: { clientX: number; clientY: number; }){
     }
   }
 }
-// let rotationStage = [
-//   {x: Math.PI/0.5, y: Math.PI/0.5, z: Math.PI/0.5, used: true},
-//   {x: Math.PI/0.5, y: Math.PI/2, z: Math.PI/2, used: false},
-//   {x: Math.PI/0.5, y: Math.PI/1, z: Math.PI/1, used: false},
-//   {x: Math.PI/0.5, y: Math.PI * 1.5, z: Math.PI * 1.5, used: false},
-// ]
-function blockRotate(){
-  // console.log('aaa')
+function blockRotate(event: { deltaY: any; }){
+  let indexOfVector = event.deltaY / Math.abs(event.deltaY)
   if (!shiftDown){
-    hoverBlock.rotation.set(hoverBlock.rotation.x  + Math.PI/2, hoverBlock.rotation.y, hoverBlock.rotation.z)
+  if (1 == indexOfVector){
+    if (hoverBlock.rotation.z < Math.PI*2){
+      hoverBlock.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z + Math.PI*0.5)
+    } else {
+      if (hoverBlock.rotation.y < Math.PI*2){
+        hoverBlock.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y + Math.PI*0.5, 0)
+      } else {
+        if (hoverBlock.rotation.x < Math.PI*2){
+          hoverBlock.rotation.set(hoverBlock.rotation.x + Math.PI*0.5, 0, 0)
+        } else {
+          hoverBlock.rotation.set(0, 0, 0)
+        }
+      }
+    }
+  } else {
+    if (hoverBlock.rotation.z > -Math.PI*2){
+      hoverBlock.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z - Math.PI*0.5)
+    } else {
+      if (hoverBlock.rotation.y > -Math.PI*2){
+        hoverBlock.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y - Math.PI*0.5, 0)
+      } else {
+        if (hoverBlock.rotation.x > -Math.PI*2){
+          hoverBlock.rotation.set(hoverBlock.rotation.x - Math.PI*0.5, 0, 0)
+        } else {
+          hoverBlock.rotation.set(0, 0, 0)
+        }
+      }
+    }
+  }
+    hoverHalfBlock.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z)
   }
 }
 let hover
@@ -456,6 +502,8 @@ function blockget(event: { clientX: number; clientY: number; }){
         }
         App.setNewPickedTexture((placeInfo.object as textureName).textureName)
         onTextureSwitch(textureCube)
+        hoverBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)
+        hoverHalfBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)
         setHoverTextures()
       }
     }
