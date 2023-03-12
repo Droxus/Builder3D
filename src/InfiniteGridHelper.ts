@@ -5,7 +5,7 @@ class InfiniteGridHelper extends Mesh {
     constructor(
         size1 : number = 1,
         size2 : number = 16,
-        color = new Color('grey'),
+        color = new Color('#727272'),
         distance : number = 2000
     ) {
 

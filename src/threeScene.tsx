@@ -8,7 +8,8 @@ export let gridHelper: any
 
 export function createScene(){
     scene = new THREE.Scene();
-    
+    scene.background = new THREE.Color('#C6C6C6')
+
     camera = new THREE.PerspectiveCamera( 60, (window.innerWidth-300) / window.innerHeight, 0.1, 1000 );
     camera.position.set(0, 3, 8)
     camera.rotation.order = 'YXZ'

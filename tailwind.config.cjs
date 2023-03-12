@@ -21,21 +21,21 @@ module.exports = {
         '120': '480px'
       },
       colors: {
-        'firstcolor'  : '#BCBCBC',
-        'secondcolor' : '#000000',
-        'thirdcolor'  : '#FFFFFF',
-        'fourthcolor' : '#454545',
+        'firstcolor'  : '#FFFFFF',
+        'secondcolor' : '#C6C6C6',
+        'thirdcolor'  : '#D1D1D1',
+        'fourthcolor' : '#282828',
       },
       backgroundColor: {
-        'firstcolor'  : '#BCBCBC',
-        'secondcolor' : '#000000',
-        'thirdcolor'  : '#FFFFFF',
-        'fourthcolor' : '#454545',
+        'firstcolor'  : '#FFFFFF',
+        'secondcolor' : '#C6C6C6',
+        'thirdcolor'  : '#D1D1D1',
+        'fourthcolor' : '#282828',
       },
       boxShadow: {
-        'forTopBlock' : 'rgba(69, 69, 69, 0.4) 0px 5px, rgba(69, 69, 69, 0.3) 0px 10px, rgba(69, 69, 69, 0.2) 0px 15px, rgba(69, 69, 69, 0.1) 0px 20px, rgba(69, 69, 69, 0.05) 0px 25px;',
-        'forLeftBlockTwo' : 'rgba(188, 188, 188, 0.7) 0px 15px, rgba(188, 188, 188, 0.6) 0px 30px, rgba(188, 188, 188, 0.5) 0px 45px, rgba(188, 188, 188, 0.4) 0px 60px, rgba(188, 188, 188, 0.3) 0px 75px,     rgba(188, 188, 188, 0.7) 0px -15px, rgba(188, 188, 188, 0.6) 0px -30px, rgba(188, 188, 188, 0.5) 0px -45px, rgba(188, 188, 188, 0.4) 0px -60px, rgba(188, 188, 188, 0.3) 0px -75px,   rgba(188, 188, 188, 0.4) 5px 0px, rgba(188, 188, 188, 0.3) 10px 0px, rgba(188, 188, 188, 0.2) 15px 0px, rgba(188, 188, 188, 0.1) 20px 0px, rgba(188, 188, 188, 0.05) 25px 0px;',
-        'forLeftBlockThree' : 'rgba(188, 188, 188, 0.4) 5px 0px, rgba(188, 188, 188, 0.3) 10px 0px, rgba(188, 188, 188, 0.2) 15px 0px, rgba(188, 188, 188, 0.1) 20px 0px, rgba(188, 188, 188, 0.05) 25px 0px;'
+        'forTopBlock' : 'rgba(40, 40, 40, 0.4) 0px 5px, rgba(40, 40, 40, 0.3) 0px 10px, rgba(40, 40, 40, 0.2) 0px 15px, rgba(40, 40, 40, 0.1) 0px 20px, rgba(40, 40, 40, 0.05) 0px 25px;',
+        'forLeftBlockTwo' : 'rgba(255, 255, 255, 0.7) 0px 15px, rgba(255, 255, 255, 0.6) 0px 30px, rgba(255, 255, 255, 0.5) 0px 45px, rgba(255, 255, 255, 0.4) 0px 60px, rgba(255, 255, 255, 0.3) 0px 75px,     rgba(255, 255, 255, 0.7) 0px -15px, rgba(255, 255, 255, 0.6) 0px -30px, rgba(255, 255, 255, 0.5) 0px -45px, rgba(255, 255, 255, 0.4) 0px -60px, rgba(255, 255, 255, 0.3) 0px -75px,   rgba(255, 255, 255, 0.4) 5px 0px, rgba(255, 255, 255, 0.3) 10px 0px, rgba(255, 255, 255, 0.2) 15px 0px, rgba(255, 255, 255, 0.1) 20px 0px, rgba(255, 255, 255, 0.05) 25px 0px;',
+        'forLeftBlockThree' : 'rgba(255, 255, 255, 0.4) 5px 0px, rgba(255, 255, 255, 0.3) 10px 0px, rgba(255, 255, 255, 0.2) 15px 0px, rgba(255, 255, 255, 0.1) 20px 0px, rgba(255, 255, 255, 0.05) 25px 0px;'
       }
     },
   },
