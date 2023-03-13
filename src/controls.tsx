@@ -99,10 +99,11 @@ function setHoverTextures(){
         new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 }),
         new THREE.MeshBasicMaterial({ map: textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 })
       ]
-      hoverBlock.material = materials
+      hoverBlock.children.forEach((child: any) => child.material = materials)
       hoverBlock.visible = true
       hoverHalfBlock.visible = false
       hoverBlock.position.set(hoverHalfBlock.position.x, hoverHalfBlock.position.y, hoverHalfBlock.position.z)
+      blockTypeSwich()
     } else {
         hoverBlock.visible = false
         hoverHalfBlock.visible = true
@@ -127,13 +128,14 @@ function setHoverTextures(){
           });
     }
     if (App.mode == 'Remove'){
-      hoverBlock.material.forEach(e => e.map = null)
-      hoverBlock.material.forEach(e => e.opacity = 1)
-      hoverBlock.material.forEach(e => e.transparent = true)
-      hoverBlock.material.forEach(e => e.wireframe = true)
-      hoverBlock.material.forEach(e => e.needsUpdate = true)
+      hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.map = null))
+
+      hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.opacity = 1))
+      hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.transparent = true))
+      hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.wireframe = true))
+      hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.needsUpdate = true));
+      hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.visible = true));
       hoverBlock.visible = true
-      hoverBlock.material.forEach(e => e.visible = true)
     } else if (App.mode == 'Inspect') {
       hoverBlock.visible = false
       hoverHalfBlock.visible = false
@@ -146,7 +148,6 @@ function setHoverTextures(){
 function createCube(x: number, y: number, z: number){
   let cube: any, helpedCube: any
     if (isFullBlock()){
-      console.log(App.blockType)
       if (textureCube){
         textureCube.wrapS = textureCube.wrapT = THREE.RepeatWrapping;
         textureCube.repeat.set(16 / textureCube.image.width, 16 / textureCube.image.height);
@@ -174,9 +175,23 @@ function createCube(x: number, y: number, z: number){
         cube = new THREE.Group();
         cube.add(slabs);
         cube.add(slabsHelped);
-        // cube.name = "helpedCube"
+        cube.name = "slabs"
       } else if (App.blockType == 'Stairs') {
-        
+        geometry = new THREE.BoxGeometry(1, 0.5, 1, 1, 1, 1);
+        let stairsHelped = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 1, 1, 1), new THREE.MeshBasicMaterial({ map: textureCube, opacity: 0, transparent: true, depthWrite: false }));
+        let stairsDown = new THREE.Mesh(geometry, sideMaterial);
+        geometry = new THREE.BoxGeometry(0.5, 0.5, 1, 1, 1, 1);
+        let stairsUp = new THREE.Mesh(geometry, sideMaterial);
+        stairsDown.position.set(0, -0.25, 0)
+        stairsUp.position.set(0.25, 0.25, 0)
+        stairsDown.name = "stairs"
+        stairsUp.name = "stairs"
+        stairsHelped.name = "stairsHelped"
+        cube = new THREE.Group();
+        cube.add(stairsDown);
+        cube.add(stairsUp);
+        cube.add(stairsHelped);
+        cube.name = "stairs"
       } else {
         geometry = new THREE.BoxGeometry(1, 1, 1, 1, 1, 1);
         geometry.groups.forEach((group, i) => {
@@ -214,8 +229,18 @@ let materialsForHoverBlock = [new THREE.MeshBasicMaterial( { color: 'white', wir
   new THREE.MeshBasicMaterial( { color: 'white', wireframe: true }), 
   new THREE.MeshBasicMaterial( { color: 'white', wireframe: true })
 ]
-let hoverBlock = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), materialsForHoverBlock )
-hoverBlock.geometry.groups.forEach((group, i) => {
+let hoverBlock = new THREE.Group();
+let hoverFullBlock = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), materialsForHoverBlock )
+let hoverSlabs = new THREE.Mesh(new THREE.BoxGeometry(1, 0.5, 1), materialsForHoverBlock);
+let hoverStairs = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 1), materialsForHoverBlock);
+hoverBlock.add(hoverFullBlock);
+hoverBlock.add(hoverSlabs);
+hoverBlock.add(hoverStairs);
+hoverSlabs.position.set(0, -0.25, 0);
+hoverStairs.position.set(0.25, 0.25, 0);
+hoverStairs.visible = false;
+hoverSlabs.visible = false;
+(hoverBlock.children as any).forEach((child: any) => child.geometry.groups.forEach((group: any, i: number) => {
   if (i === 2) {
     group.materialIndex = 1;
   } else if (i === 0 || i === 1 || i === 4 || i === 5) {
@@ -223,7 +248,7 @@ hoverBlock.geometry.groups.forEach((group, i) => {
   } else {
     group.materialIndex = 0;
   }
-});
+}));
 let hoverHalfBlock = new THREE.Group()
 let firstPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( {transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
 let secondPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( {transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
@@ -236,7 +261,10 @@ hoverHalfBlock.add(firstPlane)
 hoverHalfBlock.add(secondPlane)
 hoverHalfBlock.add(helpedCube)
 hoverHalfBlock.name = "hoverBlock"
+hoverFullBlock.name = "hoverBlock"
 hoverBlock.name = "hoverBlock"
+hoverSlabs.name = "hoverBlock"
+hoverStairs.name = "hoverBlock"
 export function createControls(){
   controls = new OrbitControls( ThreeScene.camera, ThreeScene.renderer.domElement );
   controls.target.set(0, 0, 0)
@@ -361,12 +389,12 @@ function findPlace(event: { clientX: number; clientY: number; }){
     pointer.y = - ( (event.clientY) / window.innerHeight ) * 2 + 1;
     raycaster.setFromCamera( pointer, ThreeScene.camera );
     let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
-    intersects = intersects.filter(e => e.object.name !== "hoverBlock")
+    intersects = intersects.filter(e => e.object.name !== "hoverBlock" && e.object.parent?.name !== "hoverBlock")
     intersects = intersects.filter(e => (e.object as GeometryObject3D).geometry instanceof THREE.BoxGeometry && e.object.name !== "helpedCube" && e.object.name !== "slabsHelped")
     if (intersects.length > 0) {
       let firstRotation
       if (intersects[0].object.name !== 'helpPlane'){
-        if (intersects[0].object.name !== "slabs"){
+        if (intersects[0].object.name !== "slabs" && intersects[0].object.name !== "stairs"){
           firstRotation = {
             x: intersects[0].object.rotation.x,
             y: intersects[0].object.rotation.y,
@@ -375,36 +403,46 @@ function findPlace(event: { clientX: number; clientY: number; }){
           intersects[0].object.rotation.set(0, 0, 0)
           intersects[0].object.updateMatrixWorld(true)
           intersects = raycaster.intersectObjects( [intersects[0].object] );
-          if (firstRotation.x && firstRotation.y && firstRotation.z){
+          if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
             intersects[0].object.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
           }
         } else {
-          firstRotation = {
-            x: intersects[0].object.parent?.rotation.x,
-            y: intersects[0].object.parent?.rotation.y,
-            z: intersects[0].object.parent?.rotation.z,
-          }
-          intersects[0].object.parent?.rotation.set(0, 0, 0)
-          intersects[0].object.parent?.updateMatrixWorld(true)
-          if (intersects[0].object.parent?.children[1]){
-            intersects = raycaster.intersectObjects( [intersects[0].object.parent?.children[1]] );
-            if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
-              intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+          if (intersects[0].object.name == "slabs"){
+            firstRotation = {
+              x: intersects[0].object.parent?.rotation.x,
+              y: intersects[0].object.parent?.rotation.y,
+              z: intersects[0].object.parent?.rotation.z,
+            }
+            intersects[0].object.parent?.rotation.set(0, 0, 0)
+            intersects[0].object.parent?.updateMatrixWorld(true)
+            if (intersects[0].object.parent?.children[1]){
+              let tryIntersects
+              if (raycaster.intersectObjects( [intersects[0].object] )[0] !== undefined){
+              tryIntersects = raycaster.intersectObjects( [intersects[0].object] )[0].face
+              }
+              if (tryIntersects && intersects[0].face){
+                intersects[0].face = tryIntersects
+              } else {
+                intersects[0].face = raycaster.intersectObjects( [intersects[0].object.parent?.children[1]] )[0].face;
+              }
+              if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
+                intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+              }
             }
           } else {
-            if (firstRotation.x && firstRotation.y && firstRotation.z){
-              intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+            firstRotation = {
+              x: intersects[0].object.parent?.rotation.x,
+              y: intersects[0].object.parent?.rotation.y,
+              z: intersects[0].object.parent?.rotation.z,
             }
-          }
-          if (intersects[0].object.parent){
-            console.log(intersects[0].object)
-            if (intersects[0].object.parent){
-              console.log(intersects[0].object.parent.position)
-              console.log(intersects[0].face?.normal)
+            intersects[0].object.parent?.rotation.set(0, 0, 0)
+            intersects[0].object.parent?.updateMatrixWorld(true)
+            if (intersects[0].object.parent?.children[2]){
+              intersects[0].face = raycaster.intersectObjects( [intersects[0].object.parent?.children[2]] )[0].face;
+              if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
+                intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+              }
             }
-          }
-          if (intersects[0].object.parent){
-            return {face: {normal: intersects[0].face?.normal}, object: {name: 'slabs', parent: {position: intersects[0].object.parent.position, children: {length: 2}} }}
           }
         }
       }
@@ -414,7 +452,6 @@ function findPlace(event: { clientX: number; clientY: number; }){
 function blockAdd(event: { clientX: number; clientY: number; }){
   if (!shiftDown && App.mode !== 'Inspect'){
     placeInfo = findPlace(event)
-    console.log(placeInfo)
     if (placeInfo){
       if (placeInfo.object.name == "helpPlane"){
         createCube(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
@@ -492,7 +529,6 @@ function blockRotate(event: { deltaY: any; }){
 let hover, placeInfo: any
 function showBlockHover(event: { clientX: number; clientY: number; }){
   if (!shiftDown){
-
     if (isFullBlock()){
       hover = hoverBlock
       hoverHalfBlock.visible = false
@@ -507,10 +543,10 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
     }
     if (!shiftDown && App.mode !== 'Inspect'){
       if (hover.children.length > 0){
-        if (hover.children)
-        hover.visible = true
-      } else {
-      }
+        if (hover.children){
+          hover.visible = true
+        }
+      } 
       placeInfo = findPlace(event)
       if (placeInfo){
         if (placeInfo.object.name == "helpPlane"){
@@ -526,7 +562,7 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
                 depthWrite: false,
                 side: THREE.DoubleSide
               });
-              if (hover.children.length > 0){
+              if (hover.children.length == 3){
                 hover.children.forEach(e => (e as MaterialObject3D).material = materials);
                 (hover.children[2] as MaterialObject3D).material = new THREE.MeshBasicMaterial({
                   wireframe: false,
@@ -536,7 +572,11 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
                   depthWrite: false
                 })
               } else {
-                (hover as MaterialsObject3D).material.forEach(e => e = materials)
+                if (Array.isArray(hover.children)){
+                  (hover as any).children.forEach((child: any) => child.material.forEach((e: any) => e = materials))
+                } else {
+                  (hover as any).material.forEach((e: any) => e = materials)
+                }
               }
             if (placeInfo.face){
               if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
@@ -564,7 +604,11 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
             if (hover.children.length > 0){
               hover.children.forEach(e => (e as MaterialsObject3D).material.forEach(e => e = materials))
             } else {
-              (hover as MaterialsObject3D).material.forEach(e => e = materials)
+              if (Array.isArray(hover.children)){
+                (hover as any).forEach((child: any) => child.material.forEach((e: any) => e = materials))
+              } else {
+                (hover as any).material.forEach((e: any) => e = materials)
+              }
             }
             if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
               hover.position.set(Math.round(placeInfo.object.parent.position.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001)), Math.round(placeInfo.object.parent.position.z))
@@ -593,16 +637,27 @@ function blockget(event: { clientX: number; clientY: number; }){
     placeInfo = findPlace(event)
     if (placeInfo){
       if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
-        const object3D = placeInfo.object
-        const materialObject3D = object3D as MaterialObject3D;
-        const material = materialObject3D.material;
-        const material3D = material as any
+        let object3D = placeInfo.object
+        if (placeInfo.object.name == "stairs" || placeInfo.object.name == "stairsHelped"  || placeInfo.object.name == "slabs"){
+          object3D = placeInfo.object.parent
+        } else {
+          object3D = placeInfo.object
+        }
+        let materialObject3D = object3D as MaterialObject3D;
+        let material = materialObject3D.material;
+        let material3D = material as any
         if (Array.isArray(material3D)){
           textureCube = material3D[1].map
         } else {
-          textureCube = material3D.map
+          if (placeInfo.object.parent.name == "stairs"){
+            textureCube = placeInfo.object.parent.children[2].material.map
+          } else if (placeInfo.object.parent.name == "slabs"){
+            textureCube = ((materialObject3D.children[1] as MaterialObject3D).material as any).map
+          } else {
+            textureCube = material3D.map
+          }
         }
-        App.setNewPickedTexture((placeInfo.object as textureName).textureName)
+        App.setNewPickedTexture((object3D as textureName).textureName)
         onTextureSwitch(textureCube)
         hoverBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)
         hoverHalfBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)
@@ -653,4 +708,24 @@ export function modeSwitch(){
         controls.enableZoom = false;
         break;
     }
+}
+export function blockTypeSwich(){
+  console.log(App.blockType)
+  switch (App.blockType) {
+    case 'Blocks':
+      hoverFullBlock.visible = true
+      hoverStairs.visible = false;
+      hoverSlabs.visible = false;
+      break;
+    case 'Slabs':
+      hoverFullBlock.visible = false
+      hoverStairs.visible = true;
+      hoverSlabs.visible = true;
+      break;
+    case 'Stairs':
+      hoverFullBlock.visible = false
+      hoverStairs.visible = true;
+      hoverSlabs.visible = true;
+      break;
+  }
 }
