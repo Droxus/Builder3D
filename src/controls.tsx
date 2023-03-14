@@ -92,6 +92,7 @@ function isFullBlock(): boolean{
   return isCube
 }
 function setHoverTextures(){
+  console.log(1)
   if (!shiftDown){
     if (isFullBlock()){
       let materials = [
@@ -103,7 +104,6 @@ function setHoverTextures(){
       hoverBlock.visible = true
       hoverHalfBlock.visible = false
       hoverBlock.position.set(hoverHalfBlock.position.x, hoverHalfBlock.position.y, hoverHalfBlock.position.z)
-      blockTypeSwich()
     } else {
         hoverBlock.visible = false
         hoverHalfBlock.visible = true
@@ -129,12 +129,14 @@ function setHoverTextures(){
     }
     if (App.mode == 'Remove'){
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.map = null))
-
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.opacity = 1))
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.transparent = true))
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.wireframe = true))
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.needsUpdate = true));
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.visible = true));
+      hoverFullBlock.visible = true
+      hoverStairs.visible = false;
+      hoverSlabs.visible = false;
       hoverBlock.visible = true
     } else if (App.mode == 'Inspect') {
       hoverBlock.visible = false
@@ -144,6 +146,7 @@ function setHoverTextures(){
     hoverBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
     hoverHalfBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
   }
+  // blockTypeSwich()
 }
 function createCube(x: number, y: number, z: number){
   let cube: any, helpedCube: any
@@ -566,7 +569,7 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
                 hover.children.forEach(e => (e as MaterialObject3D).material = materials);
                 (hover.children[2] as MaterialObject3D).material = new THREE.MeshBasicMaterial({
                   wireframe: false,
-                  opacity: 0,
+                  opacity: 0.5,
                   transparent: true,
                   map: textureCube,
                   depthWrite: false
@@ -623,6 +626,7 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
   } else {
     placeInfo = findPlace(event)
   }
+  // blockTypeSwich()
 }
 interface GeometryObject3D extends THREE.Object3D {
   geometry: THREE.PlaneGeometry | THREE.BoxGeometry;
@@ -680,6 +684,7 @@ export function modeSwitch(){
         document.querySelector('canvas')?.addEventListener('click', blockAdd)
         document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
         setHoverTextures()
+        blockTypeSwich()
         controls.enableZoom = false;
         break;
       case 'Inspect':
@@ -710,16 +715,16 @@ export function modeSwitch(){
     }
 }
 export function blockTypeSwich(){
-  console.log(App.blockType)
   switch (App.blockType) {
     case 'Blocks':
+      setHoverTextures()
       hoverFullBlock.visible = true
       hoverStairs.visible = false;
       hoverSlabs.visible = false;
       break;
     case 'Slabs':
       hoverFullBlock.visible = false
-      hoverStairs.visible = true;
+      hoverStairs.visible = false;
       hoverSlabs.visible = true;
       break;
     case 'Stairs':

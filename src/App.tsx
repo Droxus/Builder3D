@@ -140,7 +140,7 @@ function App() {
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
         <div className=' bg-fourthcolor z-50 grid grid-cols-[300px_25%_1fr_34%] text-secondcolor'>
           <div className='flex items-center'>
-            <img className='ml-8 aspect-square h-9 w-auto' src="./src/assets/img/whiteLogo.svg" alt="" />
+            <img className='ml-8 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/whiteLogo.svg" alt="" />
             <label className='text-xl ml-4 font-medium text-firstcolor'>Builder 3D</label>
           </div>
           <div className='flex items-center shadow-forTopBlock'>
@@ -164,9 +164,9 @@ function App() {
         <div className='leftBlock absolute grid grid-rows-[185px_1fr_135px] h-full w-300  bg-firstcolor text-fourthcolor'>
           <div className='pt-20 relative z-30 shadow-forLeftBlockTwo bg-firstcolor'>
             <div className='grid grid-cols-[40px_1fr_40px] '>
-              <button className='flex place-content-center items-center'><img className='h-5 w-auto' src="./src/assets/img/crossBlocks.svg" alt="" /></button>
+              <button className='flex place-content-center items-center'><img className='h-5 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/crossBlocks.svg" alt="" /></button>
               <input className='bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor' type="text" placeholder='Find Block' />
-              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="./src/assets/img/searchBlocks.svg" alt="" /></button>
+              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" alt="" /></button>
             </div>
             <div className='mt-2 flex'>
               <button className={` flex-1 focus:outline-none hover:border-0 transition-none ${blockTypeBtn == 'Blocks' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Blocks</button>
