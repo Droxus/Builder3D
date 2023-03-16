@@ -92,7 +92,7 @@ function isFullBlock(): boolean{
   return isCube
 }
 function setHoverTextures(){
-  console.log(1)
+  
   if (!shiftDown){
     if (isFullBlock()){
       let materials = [
@@ -146,10 +146,9 @@ function setHoverTextures(){
     hoverBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
     hoverHalfBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
   }
-  // blockTypeSwich()
 }
 function createCube(x: number, y: number, z: number){
-  let cube: any, helpedCube: any
+  let cube: any, helpedCube: any;
     if (isFullBlock()){
       if (textureCube){
         textureCube.wrapS = textureCube.wrapT = THREE.RepeatWrapping;
@@ -171,7 +170,16 @@ function createCube(x: number, y: number, z: number){
       if (App.blockType == 'Slabs'){
         geometry = new THREE.BoxGeometry(1, 0.5, 1, 1, 1, 1);
         let slabsHelped = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 1, 1, 1), new THREE.MeshBasicMaterial({ map: textureCube, opacity: 0, transparent: true, depthWrite: false }));
-        let slabs = new THREE.Mesh(geometry, sideMaterial);
+        let slabs = new THREE.Mesh(geometry, [topMaterial, sideMaterial, bottomMaterial]);
+        geometry.groups.forEach((group, i) => {
+          if (i === 2) {
+            group.materialIndex = 0;
+          } else if (i === 0 || i === 1 || i === 4 || i === 5) {
+            group.materialIndex = 1;
+          } else {
+            group.materialIndex = 2;
+          }
+        });
         slabs.position.set(0, -0.25, 0)
         slabs.name = "slabs"
         slabsHelped.name = "slabsHelped"
@@ -184,7 +192,16 @@ function createCube(x: number, y: number, z: number){
         let stairsHelped = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 1, 1, 1), new THREE.MeshBasicMaterial({ map: textureCube, opacity: 0, transparent: true, depthWrite: false }));
         let stairsDown = new THREE.Mesh(geometry, sideMaterial);
         geometry = new THREE.BoxGeometry(0.5, 0.5, 1, 1, 1, 1);
-        let stairsUp = new THREE.Mesh(geometry, sideMaterial);
+        let stairsUp = new THREE.Mesh(geometry, [topMaterial, sideMaterial, bottomMaterial]);
+        geometry.groups.forEach((group, i) => {
+          if (i === 2) {
+            group.materialIndex = 0;
+          } else if (i === 0 || i === 1 || i === 4 || i === 5) {
+            group.materialIndex = 1;
+          } else {
+            group.materialIndex = 2;
+          }
+        });
         stairsDown.position.set(0, -0.25, 0)
         stairsUp.position.set(0.25, 0.25, 0)
         stairsDown.name = "stairs"
@@ -557,30 +574,6 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
           hoverHalfBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
         } else {
           if (App.mode == 'Build'){
-              let materials = new THREE.MeshBasicMaterial({
-                wireframe: false,
-                opacity: 0.5,
-                transparent: true,
-                map: textureCube,
-                depthWrite: false,
-                side: THREE.DoubleSide
-              });
-              if (hover.children.length == 3){
-                hover.children.forEach(e => (e as MaterialObject3D).material = materials);
-                (hover.children[2] as MaterialObject3D).material = new THREE.MeshBasicMaterial({
-                  wireframe: false,
-                  opacity: 0.5,
-                  transparent: true,
-                  map: textureCube,
-                  depthWrite: false
-                })
-              } else {
-                if (Array.isArray(hover.children)){
-                  (hover as any).children.forEach((child: any) => child.material.forEach((e: any) => e = materials))
-                } else {
-                  (hover as any).material.forEach((e: any) => e = materials)
-                }
-              }
             if (placeInfo.face){
               if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
                 hoverBlock.position.set(Math.round(placeInfo.object.parent.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001 + placeInfo.face.normal.y)), 
@@ -598,21 +591,6 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
               }
             }
           } else {
-            let materials = new THREE.MeshBasicMaterial({
-              wireframe: true,
-              opacity: 1,
-              transparent: true,
-              map: null
-            });
-            if (hover.children.length > 0){
-              hover.children.forEach(e => (e as MaterialsObject3D).material.forEach(e => e = materials))
-            } else {
-              if (Array.isArray(hover.children)){
-                (hover as any).forEach((child: any) => child.material.forEach((e: any) => e = materials))
-              } else {
-                (hover as any).material.forEach((e: any) => e = materials)
-              }
-            }
             if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
               hover.position.set(Math.round(placeInfo.object.parent.position.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001)), Math.round(placeInfo.object.parent.position.z))
             } else {
@@ -626,7 +604,6 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
   } else {
     placeInfo = findPlace(event)
   }
-  // blockTypeSwich()
 }
 interface GeometryObject3D extends THREE.Object3D {
   geometry: THREE.PlaneGeometry | THREE.BoxGeometry;

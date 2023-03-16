@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, DetailedHTMLProps, LabelHTMLAttributes } from 'react'
+import { useState, useEffect, useRef, DetailedHTMLProps, LabelHTMLAttributes, DOMElement } from 'react'
 // import reactLogo from './assets/react.svg'
 import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 'react'
 import './App.css'
@@ -25,22 +25,12 @@ type Item = {
   name: string;
   download_url: string;
 };
-const AllBlocks = () => {
-  const [items, setItems] = useState<Item[]>([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await import('../textures.json');
-      let data = response.default;
-      data = data.filter(e => e.name.slice(-7) !== '.mcmeta')
-      allTextures = data
-      data = data.filter((e: any) => !e.name.includes('top') && !e.name.includes('bottom') && !e.name.includes('anvil') && !e.name.includes('bell') && !e.name.includes('candle')  && !e.name.includes('redstone_dust'))
-      const noCubeBlocksResponse = await import('../noCubeBlocks.json');
-      noCubeBlocks = noCubeBlocksResponse.default
-      setItems(data);
-    };
-    fetchData();
-  }, []);
-
+let filteredData: any[]
+interface AllBlocksProps {
+  items: Item[];
+}
+let filteredValue: string = 'a'
+const AllBlocks = ( { items } : AllBlocksProps) => {
   return (
     <div className='grid grid-cols-4 w-full'>
       {items.map((item) => (
@@ -135,10 +125,65 @@ function App() {
     blockType = event.target.innerText
     Controls.blockTypeSwich()
   }
+  function onBlockFind(event: any){
+    setQuery(event.target.value)
+  }
+  function onBlockFindFocus(){
+    Controls.controls.keys = {
+      LEFT: null,
+      UP: null, 
+      RIGHT: null, 
+      BOTTOM: null
+  };
+  }
+  function onBlockFindBlur(){
+    Controls.controls.keys = {
+      LEFT: 'KeyA',
+      UP: 'KeyW', 
+      RIGHT: 'KeyD', 
+      BOTTOM: 'KeyS'
+  };
+  }
+  const [query, setQuery] = useState('');
+  const [items, setItems] = useState<Item[]>([]);
+      useEffect(() => {
+        console.log('')
+          const fetchData = async () => {
+            const response = await import('../textures.json');
+            let data = response.default;
+            data = data.filter(e => e.name.slice(-7) !== '.mcmeta')
+            allTextures = data
+            data = data.filter((e: any) => !e.name.includes('top') && !e.name.includes('bottom') && !e.name.includes('anvil') && !e.name.includes('bell') && !e.name.includes('candle')  && !e.name.includes('redstone_dust')
+             && !e.name.includes('bamboo_singleleaf') && !e.name.includes('big_dripleaf_side') && !e.name.includes('chain') && !e.name.includes('lightning_rod') && !e.name.includes('grindstone') && !e.name.includes('small_dripleaf'))
+            const noCubeBlocksResponse = await import('../noCubeBlocks.json');
+            noCubeBlocks = noCubeBlocksResponse.default
+            filteredData = data
+            setItems(filteredData);
+          };
+          if (allTextures.length < 1){
+            fetchData();
+          } else if (query !== undefined || query !== null) {
+            if (query == ''){
+              filteredData = allTextures
+            } else {
+              filteredData = allTextures.filter((e: any) => String(e.name).toLowerCase().includes(String(query).toLowerCase()))
+            }
+              setItems(filteredData)
+          }
+      }, [query]);
+const [inputBlockSearchValue, inputBlockSearch] = useState('');
+
+function inputBlockSearchClear(){
+  inputBlockSearch('')
+  setQuery('')
+}
+function onInputBlockSearch(event: any){
+  inputBlockSearch(event.target.value)
+}
   return (
     <div className="App h-full w-full">
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
-        <div className=' bg-fourthcolor z-50 grid grid-cols-[300px_25%_1fr_34%] text-secondcolor'>
+        <div className=' bg-fourthcolor z-50 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor'>
           <div className='flex items-center'>
             <img className='ml-8 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/whiteLogo.svg" alt="" />
             <label className='text-xl ml-4 font-medium text-firstcolor'>Builder 3D</label>
@@ -164,9 +209,9 @@ function App() {
         <div className='leftBlock absolute grid grid-rows-[185px_1fr_135px] h-full w-300  bg-firstcolor text-fourthcolor'>
           <div className='pt-20 relative z-30 shadow-forLeftBlockTwo bg-firstcolor'>
             <div className='grid grid-cols-[40px_1fr_40px] '>
-              <button className='flex place-content-center items-center'><img className='h-5 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/crossBlocks.svg" alt="" /></button>
-              <input className='bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor' type="text" placeholder='Find Block' />
-              <button className='flex place-content-center items-center'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" alt="" /></button>
+              <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-5 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/crossBlocks.svg" alt="" onClick={() => {inputBlockSearchClear()}}/></button>
+              <input className='bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor focus:outline-none hover:border-b-2 transition-none'  type="text" placeholder='Find Block' value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind} onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}/>
+              <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" alt="" /></button>
             </div>
             <div className='mt-2 flex'>
               <button className={` flex-1 focus:outline-none hover:border-0 transition-none ${blockTypeBtn == 'Blocks' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Blocks</button>
@@ -175,7 +220,7 @@ function App() {
             </div>
           </div>
           <div className='texturePickBlock relative h-full overflow-scroll overflow-x-hidden z-10 mt-0 py-24 shadow-forLeftBlockThree'>
-            <AllBlocks />
+            <AllBlocks items={items} />
           </div>
           <div className='z-30 -mt-0 bg-firstcolor shadow-forLeftBlockTwo'>
             <div className=' pt-4 h-21'>
