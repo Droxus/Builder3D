@@ -296,6 +296,7 @@ export function createControls(){
   controls.enableZoom = false;
   document.addEventListener('keydown', event => {
     if (event.keyCode === 16) {
+      event.preventDefault()
       shiftDown = true;
       hoverBlock.visible = false
       hoverHalfBlock.visible = false

@@ -1,13 +1,17 @@
-import { useState, useEffect, useRef, DetailedHTMLProps, LabelHTMLAttributes, DOMElement } from 'react'
+import { useState, useEffect, createContext, useContext, useRef, DetailedHTMLProps, LabelHTMLAttributes, DOMElement, createRef, HtmlHTMLAttributes } from 'react'
 // import reactLogo from './assets/react.svg'
-import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 'react'
+// import { ReactElement, JSXElementConstructor, ReactFragment, ReactPortal } from 'react'
 import './App.css'
 import * as Controls from './controls'
 import * as ThreeScene from './threeScene'
+import ReactDOM from 'react-dom'
+import React from 'react'
 
 export let pickedTexture: any = 'deepslate_diamond_ore.png'
 export let noCubeBlocks: any = []
 export let allTextures: any = []
+let allFilteredTextures: any = []
+let recentlyUsedBlocks: any = []
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {
@@ -20,6 +24,23 @@ function updateAllTextures() {
 }
 export function setNewPickedTexture(newTexture: string){
   pickedTexture = newTexture
+
+  let thisTexture = pickedTexture
+  if (thisTexture.slice(-4) !== '.png'){
+    thisTexture = pickedTexture.replaceAll(' ', '_').concat('.png')
+  }
+  let textureElement 
+  document.querySelectorAll('.blocks').forEach(e => {
+    if (e.querySelectorAll('label')[0].id == pickedTexture){
+      textureElement = e
+      return e
+    }
+  })
+  document.querySelectorAll('.blocks').forEach(e => e.classList.remove('opacity-40'));
+  if (textureElement){
+    (textureElement as HTMLDivElement).classList.add('opacity-40');
+    (textureElement as HTMLDivElement).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+  }
 }
 type Item = {
   name: string;
@@ -28,13 +49,13 @@ type Item = {
 let filteredData: any[]
 interface AllBlocksProps {
   items: Item[];
+  texturePick: (event: any) => void;
 }
-let filteredValue: string = 'a'
-const AllBlocks = ( { items } : AllBlocksProps) => {
+const AllBlocks = ( { items, texturePick } : AllBlocksProps)  => {
   return (
-    <div className='grid grid-cols-4 w-full'>
+    <div className='grid grid-cols-4 w-full allBlocksDiv'>
       {items.map((item) => (
-        <div key={item.name} onClick={onTexturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer'>
+        <div key={item.name} onClick={texturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer blocks border-thirdcolor hover:border-2 '>
           <div className='w-full h-14 flex justify-center'>
             <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
           </div>
@@ -44,11 +65,24 @@ const AllBlocks = ( { items } : AllBlocksProps) => {
     </div>
   );
 };
-
-function onTexturePick(event: any){
-  Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
-  pickedTexture = event.currentTarget.querySelector('label').getAttribute('id')
-}
+const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
+  items = recentlyUsedBlocks
+    return (
+      <div>
+       <div hidden={items.length < 1} className='grid grid-cols-4 w-full'>
+         {items.map((item: any) => (
+           <div key={item.name} onClick={texturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer blocks border-thirdcolor hover:border-2'>
+             <div className='w-full h-14 flex justify-center'>
+               <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
+             </div>
+             <label id={item.name.slice(0, item.name.length-4).replaceAll('_', ' ')} className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ').replaceAll('side', '').replaceAll('log', '').replaceAll('front', '').replaceAll('end', '') }</label>
+           </div>
+         ))}
+       </div>
+       <h1 hidden={items.length > 0} className='opacity-60'>No blocks here</h1>
+     </div>
+);
+};
 export let mode: string = 'Build'
 export let controlsParametersChange: any
 export let blockType: string = 'Blocks'
@@ -147,7 +181,6 @@ function App() {
   const [query, setQuery] = useState('');
   const [items, setItems] = useState<Item[]>([]);
       useEffect(() => {
-        console.log('')
           const fetchData = async () => {
             const response = await import('../textures.json');
             let data = response.default;
@@ -157,6 +190,7 @@ function App() {
              && !e.name.includes('bamboo_singleleaf') && !e.name.includes('big_dripleaf_side') && !e.name.includes('chain') && !e.name.includes('lightning_rod') && !e.name.includes('grindstone') && !e.name.includes('small_dripleaf'))
             const noCubeBlocksResponse = await import('../noCubeBlocks.json');
             noCubeBlocks = noCubeBlocksResponse.default
+            allFilteredTextures = data
             filteredData = data
             setItems(filteredData);
           };
@@ -164,11 +198,13 @@ function App() {
             fetchData();
           } else if (query !== undefined || query !== null) {
             if (query == ''){
-              filteredData = allTextures
+              filteredData = allFilteredTextures
             } else {
               filteredData = allTextures.filter((e: any) => String(e.name).toLowerCase().includes(String(query).toLowerCase()))
             }
-              setItems(filteredData)
+            if (filteredData.length > 0){
+                setItems(filteredData)
+            }
           }
       }, [query]);
 const [inputBlockSearchValue, inputBlockSearch] = useState('');
@@ -180,6 +216,28 @@ function inputBlockSearchClear(){
 function onInputBlockSearch(event: any){
   inputBlockSearch(event.target.value)
 }
+const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
+    useEffect(() => {
+      setRecentlyUsedBlocks(recentlyUsedBlocks)
+    }, []);
+
+    function onTexturePick(event: any){
+      Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
+      pickedTexture = event.currentTarget.querySelector('label').getAttribute('id')
+     
+    
+      if (pickedTexture.slice(-4) !== '.png'){
+        recentlyUsedBlocks.push(allTextures.filter((e: any) => e.name == pickedTexture.replaceAll(' ', '_').concat('.png'))[0])
+      } else {
+        recentlyUsedBlocks.push(allTextures.filter((e: any) => e.name == pickedTexture)[0])
+      }
+      recentlyUsedBlocks = Array.from(new Set(recentlyUsedBlocks))
+      recentlyUsedBlocks = recentlyUsedBlocks.slice(-8)
+      setRecentlyUsedBlocks(recentlyUsedBlocks)
+      document.querySelectorAll('.blocks').forEach(e => e.classList.remove('opacity-40'));
+      event.currentTarget.classList.add('opacity-40')
+    }
+
   return (
     <div className="App h-full w-full">
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
@@ -220,7 +278,16 @@ function onInputBlockSearch(event: any){
             </div>
           </div>
           <div className='texturePickBlock relative h-full overflow-scroll overflow-x-hidden z-10 mt-0 py-24 shadow-forLeftBlockThree'>
-            <AllBlocks items={items} />
+            <div className=' grid grid-cols-[180px_1fr] items-center'>
+              <label className=' font-semibold'>Recently Used Blocks</label>
+              <hr className=' h-0.5 mr-2  bg-fourthcolor my-10'/>
+            </div>
+            <RecentlyUsedBlocks texturePick={onTexturePick} items={recentlyUsedBlocks} />
+            <div className=' grid grid-cols-[100px_1fr] items-center'>
+              <label className=' font-semibold'>All Blocks</label>
+              <hr className=' h-0.5 mr-2  bg-fourthcolor my-10'/>
+            </div>
+            <AllBlocks texturePick={onTexturePick} items={items} />
           </div>
           <div className='z-30 -mt-0 bg-firstcolor shadow-forLeftBlockTwo'>
             <div className=' pt-4 h-21'>
