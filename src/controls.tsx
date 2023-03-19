@@ -224,6 +224,7 @@ function createCube(x: number, y: number, z: number){
           }
         });
         cube = new THREE.Mesh(geometry, [topMaterial, sideMaterial, bottomMaterial]);
+        cube.name = "block"
       }
       ThreeScene.scene.add(cube);
       cube.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z)
@@ -400,8 +401,63 @@ document.addEventListener("keydown", (event) => {
     }
   })
   document.querySelector('canvas')?.addEventListener('wheel', blockRotate)
-  document.querySelector('canvas')?.addEventListener('click', blockAdd)
-  document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
+  document.querySelector('canvas')?.addEventListener('mousedown', onMouseDown)
+  document.querySelector('canvas')?.addEventListener('mouseup', onMouseUp)
+}
+let mouseBtns = {
+  leftBtn: false,
+  rightBtn: false,
+} 
+let buildInterval: any, removeInterval: any, buildTimer: any, removeTimer: any;
+function onMouseDown(event: any){
+  if (App.mode !== 'Inspect'){
+    let buildBtn = App.mode == 'Build' ? 0 : 2
+    let removeBtn = App.mode == 'Build' ? 2 : 0
+    switch (event.button) {
+      case buildBtn:
+        mouseBtns.leftBtn = true
+        blockAdd(event)
+        buildTimer = setTimeout(() => {
+          buildInterval = setInterval(() => {
+            if (mouseBtns.leftBtn){
+              blockAdd(eventMouseMove)
+            } else {
+              clearInterval(buildInterval)
+            }
+          }, 125)
+        }, 200)
+        break;
+      case removeBtn:
+        mouseBtns.rightBtn = true
+        blockRemove(event)
+        removeTimer = setTimeout(() => {
+          removeInterval = setInterval(() => {
+            if (mouseBtns.rightBtn){
+              blockRemove(eventMouseMove)
+            } else {
+              clearInterval(removeInterval)
+            }
+          }, 125)
+        }, 200)
+        break;
+    }
+  }
+}
+function onMouseUp(event: any){
+  let buildBtn = App.mode == 'Build' ? 0 : 2
+  let removeBtn = App.mode == 'Build' ? 2 : 0
+  switch (event.button) {
+    case buildBtn:
+      mouseBtns.leftBtn = false
+      clearTimeout(buildTimer)
+      clearInterval(buildInterval)
+      break;
+    case removeBtn:
+      mouseBtns.rightBtn = false
+      clearTimeout(removeTimer)
+      clearInterval(removeInterval)
+      break;
+  }
 }
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -547,8 +603,9 @@ function blockRotate(event: { deltaY: any; }){
     hoverHalfBlock.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z)
   }
 }
-let hover, placeInfo: any
+let hover, placeInfo: any, eventMouseMove: any
 function showBlockHover(event: { clientX: number; clientY: number; }){
+  eventMouseMove = event
   if (!shiftDown){
     if (isFullBlock()){
       hover = hoverBlock
@@ -618,6 +675,7 @@ interface MaterialObject3D extends THREE.Object3D {
 function blockget(event: { clientX: number; clientY: number; }){
     placeInfo = findPlace(event)
     if (placeInfo){
+      App.setNewBlockType(placeInfo.object.name)
       if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
         let object3D = placeInfo.object
         if (placeInfo.object.name == "stairs" || placeInfo.object.name == "stairsHelped"  || placeInfo.object.name == "slabs"){
@@ -655,12 +713,6 @@ export function modeSwitch(){
           MIDDLE: undefined,
           RIGHT: undefined
         };
-        document.querySelector('canvas')?.removeEventListener('click', blockAdd)
-        document.querySelector('canvas')?.removeEventListener('contextmenu', blockRemove)
-        document.querySelector('canvas')?.removeEventListener('click', blockRemove)
-        document.querySelector('canvas')?.removeEventListener('contextmenu', blockAdd)
-        document.querySelector('canvas')?.addEventListener('click', blockAdd)
-        document.querySelector('canvas')?.addEventListener('contextmenu', blockRemove)
         setHoverTextures()
         blockTypeSwich()
         controls.enableZoom = false;
@@ -681,12 +733,6 @@ export function modeSwitch(){
           MIDDLE: undefined,
           RIGHT: undefined
         };
-        document.querySelector('canvas')?.removeEventListener('click', blockAdd)
-        document.querySelector('canvas')?.removeEventListener('contextmenu', blockRemove)
-        document.querySelector('canvas')?.removeEventListener('click', blockRemove)
-        document.querySelector('canvas')?.removeEventListener('contextmenu', blockAdd)
-        document.querySelector('canvas')?.addEventListener('click', blockRemove)
-        document.querySelector('canvas')?.addEventListener('contextmenu', blockAdd)
         setHoverTextures()
         controls.enableZoom = false;
         break;

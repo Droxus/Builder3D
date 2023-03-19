@@ -83,6 +83,19 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
      </div>
 );
 };
+export function setNewBlockType(blockType: string){
+    switch (blockType) {
+      case 'slabs':
+        (document.querySelector('.slabsType') as HTMLButtonElement).click()
+        break;
+      case 'stairs':
+        (document.querySelector('.stairsType') as HTMLButtonElement).click()
+        break;
+      case 'block':
+        (document.querySelector('.blocksType') as HTMLButtonElement).click()
+        break;
+    }
+}
 export let mode: string = 'Build'
 export let controlsParametersChange: any
 export let blockType: string = 'Blocks'
@@ -200,7 +213,7 @@ function App() {
             if (query == ''){
               filteredData = allFilteredTextures
             } else {
-              filteredData = allTextures.filter((e: any) => String(e.name).toLowerCase().includes(String(query).toLowerCase()))
+              filteredData = allFilteredTextures.filter((e: any) => String(e.name).toLowerCase().includes(String(query).toLowerCase()))
             }
             if (filteredData.length > 0){
                 setItems(filteredData)
@@ -239,7 +252,7 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
     }
 
   return (
-    <div className="App h-full w-full">
+    <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full">
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
         <div className=' bg-fourthcolor z-50 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor'>
           <div className='flex items-center'>
@@ -272,9 +285,9 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
               <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" alt="" /></button>
             </div>
             <div className='mt-2 flex'>
-              <button className={` flex-1 focus:outline-none hover:border-0 transition-none ${blockTypeBtn == 'Blocks' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Blocks</button>
-              <button className={` flex-1 focus:outline-none hover:border-0 transition-none ${blockTypeBtn == 'Slabs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Slabs</button>
-              <button className={` flex-1 focus:outline-none hover:border-0 transition-none ${blockTypeBtn == 'Stairs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Stairs</button>
+              <button className={` flex-1 focus:outline-none hover:border-0 transition-none blocksType ${blockTypeBtn == 'Blocks' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Blocks</button>
+              <button className={` flex-1 focus:outline-none hover:border-0 transition-none slabsType ${blockTypeBtn == 'Slabs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Slabs</button>
+              <button className={` flex-1 focus:outline-none hover:border-0 transition-none stairsType ${blockTypeBtn == 'Stairs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Stairs</button>
             </div>
           </div>
           <div className='texturePickBlock relative h-full overflow-scroll overflow-x-hidden z-10 mt-0 py-24 shadow-forLeftBlockThree'>
