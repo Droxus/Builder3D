@@ -6,6 +6,18 @@ export let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.
 
 export let gridHelper: any
 
+interface localScene {
+  id: string,
+  name: string,
+  author: string,
+  rate: number,
+  contains: object[],
+}
+
+export let thisSceneLocal: localScene;
+
+export let sceneID: string
+
 export function createScene(){
     scene = new THREE.Scene();
     scene.background = new THREE.Color('#C6C6C6')
@@ -46,10 +58,22 @@ export function createScene(){
     },true);
     
     function onResize(){
-      const rect = renderer.domElement.getBoundingClientRect();
       renderer.setSize((window.innerWidth-300), window.innerHeight );
       renderer.setPixelRatio((window.innerWidth-300) / window.innerHeight )
       camera.aspect = (window.innerWidth-300) / window.innerHeight
       camera.updateProjectionMatrix();
     }
+    sceneID = '0000';
+    thisSceneLocal = JSON.parse( String( localStorage.getItem( sceneID ) ) );
+    if (!thisSceneLocal){
+      thisSceneLocal = {
+        id: sceneID,
+        name: 'Test Build',
+        author: 'Droxus228',
+        rate: 4,
+        contains: [],
+      }
+    }
+    localStorage.setItem(sceneID, JSON.stringify(thisSceneLocal))
+    console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )
 }

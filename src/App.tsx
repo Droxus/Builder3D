@@ -4,7 +4,6 @@ import { useState, useEffect, createContext, useContext, useRef, DetailedHTMLPro
 import './App.css'
 import * as Controls from './controls'
 import * as ThreeScene from './threeScene'
-import ReactDOM from 'react-dom'
 import React from 'react'
 
 export let pickedTexture: any = 'deepslate_diamond_ore.png'
@@ -21,6 +20,9 @@ function updateAllTextures() {
       // console.log(data)
       console.log('All textures reloaded')
   })
+}
+export function setPickedTexture(newTexture: string){
+  pickedTexture = newTexture
 }
 export function setNewPickedTexture(newTexture: string){
   pickedTexture = newTexture
@@ -83,6 +85,9 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
      </div>
 );
 };
+export function setBlockType(type: string){
+  blockType = type
+}
 export function setNewBlockType(blockType: string){
     switch (blockType) {
       case 'slabs':
