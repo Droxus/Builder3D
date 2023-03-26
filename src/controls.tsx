@@ -18,77 +18,111 @@ interface textureName extends THREE.Object3D {
   textureName: string;
 }
 
-loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/deepslate_diamond_ore.png')
+loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/debug.png')
 export async function loadPickedTexture(newTexture: string){
 loader.load( newTexture, (texture) =>  {
   if (texture){
-    console.log(texture)
+    // console.log(texture)
     onTextureSwitch(texture)
   }
 })
 }
-let isLoadedAllNotSideTextures: number = 0
-async function onTextureSwitch(texture: any){
-  textureCubeBottom = undefined
-  textureCubeTop = undefined
-    isLoadedAllNotSideTextures = 0  
-
-    if (App.pickedTexture.includes('side')){
-      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; isLoadedAllNotSideTextures++; setTextureCube(texture)}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube(texture)})
-      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; isLoadedAllNotSideTextures++; setTextureCube(texture)}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube(texture)})
-    } else if (App.pickedTexture.includes('log')) {
-      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; isLoadedAllNotSideTextures++; setTextureCube(texture)}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube(texture)})
-      loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; isLoadedAllNotSideTextures++; setTextureCube(texture)}, () => {}, () => {isLoadedAllNotSideTextures++; setTextureCube(texture)})
-    }else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))){
-      loader.load( textureCubeTop = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop;isLoadedAllNotSideTextures += 2; setTextureCube(texture)}, () => {}, () => {isLoadedAllNotSideTextures += 2; setTextureCube(texture)})
-    } else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))){
-      loader.load( textureCubeBottom = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom;isLoadedAllNotSideTextures += 2; setTextureCube(texture)}, () => {}, () => {isLoadedAllNotSideTextures += 2; setTextureCube(texture)})
+async function onTextureSwitch(texture: any, textureName?: string){
+  return new Promise((resolveInner) => {
+    if (textureName){
+      App.setPickedTexture(textureName)
     }
-    setTextureCube(texture)
-    function setTextureCube(texture: any){
-      if (isLoadedAllNotSideTextures > 1 || isFirstPick){
-        textureCube = texture
-        if (!textureCubeBottom){
-          textureCubeBottom = textureCubeTop || textureCube
+    textureCubeBottom = undefined
+    textureCubeTop = undefined
+    textureCube = texture
+  
+      textureCube.format = THREE.RGBAFormat
+      
+      textureCube.minFilter = THREE.NearestFilter;
+      textureCube.magFilter = THREE.NearestFilter;
+      textureCube.wrapS = THREE.RepeatWrapping;
+      textureCube.wrapT = THREE.RepeatWrapping;
+  
+        const geometryWidth = 16; 
+        const geometryHeight = 16; 
+        const textureWidth = textureCube.image.width;
+        const textureHeight = textureCube.image.height;
+        const textureAspect = textureWidth / textureHeight;
+        const geometryAspect = geometryWidth / geometryHeight; 
+        if (textureAspect > geometryAspect) {
+          textureCube.repeat.set(geometryWidth / textureWidth, 1);
+        } else {
+          textureCube.repeat.set(1, geometryHeight / textureHeight);
         }
-        if (!textureCubeTop){
-          textureCubeTop = textureCubeBottom || textureCube
-        }
-        let texturesArr = [textureCubeBottom, textureCubeTop, textureCube]
-        texture.format = THREE.RGBAFormat
-    
-        texturesArr.forEach((e:any) => {
-          if (e){
-            e.minFilter = THREE.NearestFilter;
-            e.magFilter = THREE.NearestFilter;
-            e.wrapS = THREE.RepeatWrapping;
-            e.wrapT = THREE.RepeatWrapping;
-          }
+  
+  
+  console.log(App.pickedTexture)
+      if (App.pickedTexture.includes('side')){
+        Promise.all([
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(true)}, () => {}, () => {resolve(true)})
+          }),
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(true)}, () => {}, () => {resolve(true)})
+          })
+        ]).then(() => {
+          return setTextureCube(texture)
         })
-    
-          const geometryWidth = 16; 
-          const geometryHeight = 16; 
-          const textureWidth = textureCube.image.width;
-          const textureHeight = textureCube.image.height;
-          const textureAspect = textureWidth / textureHeight;
-          const geometryAspect = geometryWidth / geometryHeight; 
-          if (textureAspect > geometryAspect) {
-            textureCube.repeat.set(geometryWidth / textureWidth, 1);
-          } else {
-            textureCube.repeat.set(1, geometryHeight / textureHeight);
-          }
-          setHoverTextures()
-          if (isFirstPick){
-            createControls()
-            isFirstPick = false
-            if (ThreeScene.thisSceneLocal.contains.length < 1){
-              createCube(0, 0, 0)
-            }
-          }
-          console.log('Like')
-          // tryToSetStartBlock()
-        }
+      } else if (App.pickedTexture.includes('log')) {
+        Promise.all([
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(true)}, () => {}, () => {resolve(true)})
+          }),
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(true)}, () => {}, () => {resolve(true)})
+          })
+        ]).then(() => {
+          return setTextureCube(texture)
+        })
+      }else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))){
+        new Promise((resolve) => {
+          loader.load( textureCubeTop = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(true)}, () => {}, () => {resolve(true)})
+        }).then(() => {
+          return setTextureCube(texture)
+        })
+      } else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))){
+        new Promise((resolve) => {
+          loader.load( textureCubeBottom = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(true)}, () => {}, () => {resolve(true)})
+        }).then(() => {
+          return setTextureCube(texture)
+        })
       }
+      function setTextureCube(thisTexture: any){
+          textureCube = thisTexture
+          // if (!textureCubeBottom){
+          //   textureCubeBottom = textureCubeTop || textureCube
+          // }
+          // if (!textureCubeTop){
+          //   textureCubeTop = textureCubeBottom || textureCube
+          // }
+          let texturesArr = [textureCubeBottom, textureCubeTop, textureCube]
+      
+          texturesArr.forEach((e:any) => {
+            if (e){
+              e.minFilter = THREE.NearestFilter;
+              e.magFilter = THREE.NearestFilter;
+              e.wrapS = THREE.RepeatWrapping;
+              e.wrapT = THREE.RepeatWrapping;
+            }
+          })
+            setHoverTextures()
+            if (isFirstPick){
+              createControls()
+              isFirstPick = false
+              if (ThreeScene.thisSceneLocal.contains.length < 1){
+                createCube(0, 0, 0)
+              }
+            }
+            console.log('Like')
+            resolveInner([textureCube, textureCubeTop, textureCubeBottom])
+
+        }
+  })
 }
 
 function isFullBlock(): boolean{
@@ -156,12 +190,15 @@ function setHoverTextures(){
   }
 }
 function createCube(x: number, y: number, z: number, texture?: string, type?: string, rotationX?: number, rotationY?: number, rotationZ?: number){
+  // console.log(textureCube, textureCubeBottom, textureCubeTop)
+  if (!thisSceneContains.find((e: any) => e.position.x == x && e.position.y == y && e.position.z == z)){
   let cube: any, helpedCube: any;
-  if (texture) {
-    textureCube = texture
-  }
-  if (type){
+  if (type !== undefined){
     App.setBlockType(type)
+    console.log(App.blockType)
+  }
+  if (texture !== undefined){
+    App.setPickedTexture(texture)
   }
     if (isFullBlock()){
       if (textureCube){
@@ -253,19 +290,30 @@ function createCube(x: number, y: number, z: number, texture?: string, type?: st
       cube.add(helpedCube);
       (helpedCube as textureName).textureName = App.pickedTexture;
       cube.rotation.set(hoverHalfBlock.rotation.x, hoverHalfBlock.rotation.y, hoverHalfBlock.rotation.z)
+      cube.name = "block"
     }
     cube.textureName = App.pickedTexture
     ThreeScene.scene.add( cube );
     cube.position.set(x, y, z)
-    thisSceneContains.push({
-      position: cube.position,
-      textureName: cube.textureName,
-      blockType: cube.name,
-      rotation: cube.rotation
-    })
-    ThreeScene.thisSceneLocal.contains = thisSceneContains
-    localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
-    // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
+    if (rotationX !== undefined && rotationY !== undefined && rotationZ !== undefined) {
+      cube.rotation.set(rotationX, rotationY, rotationZ)
+    }
+    console.log(thisSceneContains)
+    console.log(thisSceneContains.find((e: any) => e.position.x == x && e.position.y == y && e.position.z == z))
+    
+      console.log('sasa')
+      thisSceneContains.push({
+        position: cube.position,
+        textureName: App.pickedTexture,
+        blockType: cube.name ? cube.name[0].toUpperCase().concat('', cube.name.slice(1)) : 'Block',
+        rotation: cube.rotation
+      })
+      ThreeScene.thisSceneLocal.contains = thisSceneContains
+      localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
+      // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
+      textureCubeTop = undefined
+      textureCubeBottom = undefined
+    }
   }
 
 let shiftDown = false; 
@@ -434,22 +482,28 @@ document.addEventListener("keydown", (event) => {
       if (element.textureName.slice(-4) !== '.png'){
         element.textureName = element.textureName.replaceAll(' ', '_').concat('.png')
       }
+      // App.setPickedTexture(normalName)
+      
       loader.load( `https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${element.textureName}`, (texture) =>  {
         if (texture){
-          textureCube = texture
           // console.log(texture)
-          onTextureSwitch(texture).then(() => {
-            App.setPickedTexture(normalName)
-            setTimeout(() => {
+          element.textureName = normalName
+          onTextureSwitch(texture, element.textureName).then((e) => {
+            console.log(e)
+            // console.log(texture)
+            // console.log(normalName)
+
+            // setTimeout(() => {
+              // textureCube = texture
+                
               // set condition here
               // setInterval(() => {
-              element.textureName = texture
-              if (isLoadedAllNotSideTextures > 1){
                 console.log('HERE')
-                createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation.x, element.rotation.y, element.rotation.z)
-              }
-              // }, 5)
-            }, 2000)
+                // console.log(element)
+                createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
+
+                // }, 5)
+            // }, 500)
           })
         }
       })
@@ -586,27 +640,27 @@ function blockAdd(event: { clientX: number; clientY: number; }){
   if (!shiftDown && App.mode !== 'Inspect'){
     placeInfo = findPlace(event)
     if (placeInfo){
-      if (placeInfo.object.name == "helpPlane"){
-        createCube(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
-      } else {
-        if (App.mode == 'Build'){
-          if (placeInfo.face){
-            if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
-              createCube(Math.round(placeInfo.object.parent.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.parent.position.z + placeInfo.face.normal.z))
-            } else {
-              createCube(Math.round(placeInfo.object.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.position.z + placeInfo.face.normal.z))
-            }
-          }
+        if (placeInfo.object.name == "helpPlane"){
+            createCube(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
         } else {
-          if (placeInfo.face){
-            if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
-              createCube(Math.round(placeInfo.object.parent.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.parent.position.z + placeInfo.face.normal.z))
-            } else {
-              createCube(Math.round(placeInfo.object.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.position.z + placeInfo.face.normal.z))
+          if (App.mode == 'Build'){
+            if (placeInfo.face){
+              if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
+                createCube(Math.round(placeInfo.object.parent.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.parent.position.z + placeInfo.face.normal.z))
+              } else {
+                 createCube(Math.round(placeInfo.object.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.position.z + placeInfo.face.normal.z))
+              }
+            }
+          } else {
+            if (placeInfo.face){
+              if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
+                 createCube(Math.round(placeInfo.object.parent.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.parent.position.z + placeInfo.face.normal.z))
+                } else {
+                 createCube(Math.round(placeInfo.object.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.position.z + placeInfo.face.normal.z))
+               }
             }
           }
         }
-      }
     }
   }
 }
