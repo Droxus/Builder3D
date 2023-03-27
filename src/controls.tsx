@@ -18,30 +18,93 @@ interface textureName extends THREE.Object3D {
   textureName: string;
 }
 
-loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/debug.png')
+// loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/debug.png')
+
 export async function loadPickedTexture(newTexture: string){
-loader.load( newTexture, (texture) =>  {
-  if (texture){
-    // console.log(texture)
-    onTextureSwitch(texture)
-  }
-})
+    return onTextureSwitch(newTexture)
 }
-async function onTextureSwitch(texture: any, textureName?: string){
+async function onTextureSwitch(texture: string){
   return new Promise((resolveInner) => {
-    if (textureName){
-      App.setPickedTexture(textureName)
+    let normalTextureName = texture
+    if (normalTextureName){
+      normalTextureName.slice(0, texture.length-4)
+    }
+    if (texture.slice(-4) !== '.png'){
+      texture = texture.replaceAll(' ', '_').concat('.png')
     }
     textureCubeBottom = undefined
     textureCubeTop = undefined
-    textureCube = texture
-  
-      textureCube.format = THREE.RGBAFormat
-      
-      textureCube.minFilter = THREE.NearestFilter;
-      textureCube.magFilter = THREE.NearestFilter;
-      textureCube.wrapS = THREE.RepeatWrapping;
-      textureCube.wrapT = THREE.RepeatWrapping;
+    textureCube = undefined
+    
+      if (texture.includes('side')){
+        Promise.all([
+          new Promise((resolve) => {
+            loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
+          }),
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(texture.slice(0, texture.length-8).replaceAll(' ', '_') + 'bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
+          }),
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(texture.slice(0, texture.length-8).replaceAll(' ', '_') + 'top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
+          })
+        ]).then((e) => {
+          return setTextureCube(e[0], e[1], e[2])
+        })
+      } else if (texture.includes('log')) {
+        Promise.all([
+          new Promise((resolve) => {
+            loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
+          }),
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(normalTextureName.slice(0, texture.length-4).replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
+          }),
+          new Promise((resolve) => {
+            loader.load( App.allTextures.filter((e: any) => e.name.includes(normalTextureName.slice(0, texture.length-4).replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
+          })
+        ]).then((e) => {
+          return setTextureCube(e[0], e[1], e[2])
+        })
+      } else if (App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_top'))){
+        Promise.all([
+          new Promise((resolve) => {
+            loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
+          }),
+          new Promise((resolve) => {
+            loader.load( textureCubeTop = App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
+          })
+        ]).then((e) => {
+          return setTextureCube(e[0], undefined, e[1])
+        })
+      } else if (App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_bottom'))){
+        Promise.all([
+          new Promise((resolve) => {
+            loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
+          }),
+          new Promise((resolve) => {
+            loader.load( textureCubeBottom = App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
+          })
+        ]).then((e) => {
+          return setTextureCube(e[0], e[1], undefined)
+        })
+      } else {
+        new Promise((resolve) => {
+          loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
+        }).then((e) => {
+          return setTextureCube(e, undefined, undefined)
+        })
+      }
+      function setTextureCube(firstTexture: any, secondTexture: any, thirdTexture: any){
+        textureCube = firstTexture
+        textureCubeBottom = secondTexture
+        textureCubeTop = thirdTexture
+
+
+        textureCube.format = THREE.RGBAFormat
+        
+        textureCube.minFilter = THREE.NearestFilter;
+        textureCube.magFilter = THREE.NearestFilter;
+        textureCube.wrapS = THREE.RepeatWrapping;
+        textureCube.wrapT = THREE.RepeatWrapping;
   
         const geometryWidth = 16; 
         const geometryHeight = 16; 
@@ -54,52 +117,12 @@ async function onTextureSwitch(texture: any, textureName?: string){
         } else {
           textureCube.repeat.set(1, geometryHeight / textureHeight);
         }
-  
-  
-  console.log(App.pickedTexture)
-      if (App.pickedTexture.includes('side')){
-        Promise.all([
-          new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(true)}, () => {}, () => {resolve(true)})
-          }),
-          new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.slice(0, App.pickedTexture.length-4).replaceAll(' ', '_') + 'top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(true)}, () => {}, () => {resolve(true)})
-          })
-        ]).then(() => {
-          return setTextureCube(texture)
-        })
-      } else if (App.pickedTexture.includes('log')) {
-        Promise.all([
-          new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(true)}, () => {}, () => {resolve(true)})
-          }),
-          new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(true)}, () => {}, () => {resolve(true)})
-          })
-        ]).then(() => {
-          return setTextureCube(texture)
-        })
-      }else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))){
-        new Promise((resolve) => {
-          loader.load( textureCubeTop = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(true)}, () => {}, () => {resolve(true)})
-        }).then(() => {
-          return setTextureCube(texture)
-        })
-      } else if (App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))){
-        new Promise((resolve) => {
-          loader.load( textureCubeBottom = App.allTextures.filter((e: any) => e.name.includes(App.pickedTexture.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(true)}, () => {}, () => {resolve(true)})
-        }).then(() => {
-          return setTextureCube(texture)
-        })
-      }
-      function setTextureCube(thisTexture: any){
-          textureCube = thisTexture
-          // if (!textureCubeBottom){
-          //   textureCubeBottom = textureCubeTop || textureCube
-          // }
-          // if (!textureCubeTop){
-          //   textureCubeTop = textureCubeBottom || textureCube
-          // }
+          if (!textureCubeBottom){
+            textureCubeBottom = textureCubeTop || textureCube
+          }
+          if (!textureCubeTop){
+            textureCubeTop = textureCubeBottom || textureCube
+          }
           let texturesArr = [textureCubeBottom, textureCubeTop, textureCube]
       
           texturesArr.forEach((e:any) => {
@@ -118,9 +141,7 @@ async function onTextureSwitch(texture: any, textureName?: string){
                 createCube(0, 0, 0)
               }
             }
-            console.log('Like')
             resolveInner([textureCube, textureCubeTop, textureCubeBottom])
-
         }
   })
 }
@@ -135,12 +156,12 @@ function isFullBlock(): boolean{
   return isCube
 }
 function setHoverTextures(){
-  if (!shiftDown){
+  if (!shiftDown && textureCube){
     if (isFullBlock()){
       let materials = [
-        new THREE.MeshBasicMaterial({ map: textureCubeBottom || textureCubeTop || textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 }),
-        new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 }),
-        new THREE.MeshBasicMaterial({ map: textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.5 })
+        new THREE.MeshBasicMaterial({ map: textureCubeBottom || textureCubeTop || textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.0 }),
+        new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.0 }),
+        new THREE.MeshBasicMaterial({ map: textureCube, transparent: true, opacity: 0.5, wireframe: false, depthWrite: false, alphaTest: 0.0 })
       ]
       hoverBlock.children.forEach((child: any) => child.material = materials)
       hoverBlock.visible = true
@@ -190,12 +211,10 @@ function setHoverTextures(){
   }
 }
 function createCube(x: number, y: number, z: number, texture?: string, type?: string, rotationX?: number, rotationY?: number, rotationZ?: number){
-  // console.log(textureCube, textureCubeBottom, textureCubeTop)
   if (!thisSceneContains.find((e: any) => e.position.x == x && e.position.y == y && e.position.z == z)){
   let cube: any, helpedCube: any;
   if (type !== undefined){
     App.setBlockType(type)
-    console.log(App.blockType)
   }
   if (texture !== undefined){
     App.setPickedTexture(texture)
@@ -298,21 +317,23 @@ function createCube(x: number, y: number, z: number, texture?: string, type?: st
     if (rotationX !== undefined && rotationY !== undefined && rotationZ !== undefined) {
       cube.rotation.set(rotationX, rotationY, rotationZ)
     }
-    console.log(thisSceneContains)
-    console.log(thisSceneContains.find((e: any) => e.position.x == x && e.position.y == y && e.position.z == z))
-    
-      console.log('sasa')
       thisSceneContains.push({
-        position: cube.position,
+        position: {
+          x: cube.position.x,
+          y: cube.position.y,
+          z: cube.position.z
+        },
         textureName: App.pickedTexture,
         blockType: cube.name ? cube.name[0].toUpperCase().concat('', cube.name.slice(1)) : 'Block',
-        rotation: cube.rotation
+        rotation: {
+          _x: cube.rotation.x,
+          _y: cube.rotation.y,
+          _z: cube.rotation.z
+        }
       })
       ThreeScene.thisSceneLocal.contains = thisSceneContains
       localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
       // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
-      textureCubeTop = undefined
-      textureCubeBottom = undefined
     }
   }
 
@@ -475,41 +496,20 @@ document.addEventListener("keydown", (event) => {
   document.querySelector('canvas')?.addEventListener('mousedown', onMouseDown)
   document.querySelector('canvas')?.addEventListener('mouseup', onMouseUp)
 
+  let containSize: number = ThreeScene.thisSceneLocal.contains.length;
+  let fullContainSize: number = ThreeScene.thisSceneLocal.contains.length;
   if (ThreeScene.thisSceneLocal.contains.length > 0){
     ThreeScene.thisSceneLocal.contains.forEach(async (element: any) => {
-      // console.log(element)
-      let normalName = element.textureName;
-      if (element.textureName.slice(-4) !== '.png'){
-        element.textureName = element.textureName.replaceAll(' ', '_').concat('.png')
-      }
-      // App.setPickedTexture(normalName)
-      
-      loader.load( `https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${element.textureName}`, (texture) =>  {
-        if (texture){
-          // console.log(texture)
-          element.textureName = normalName
-          onTextureSwitch(texture, element.textureName).then((e) => {
-            console.log(e)
-            // console.log(texture)
-            // console.log(normalName)
-
-            // setTimeout(() => {
-              // textureCube = texture
-                
-              // set condition here
-              // setInterval(() => {
-                console.log('HERE')
-                // console.log(element)
-                createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
-
-                // }, 5)
-            // }, 500)
-          })
+      onTextureSwitch(element.textureName).then(() => {
+        createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
+        --containSize;
+        console.log((fullContainSize - containSize) / fullContainSize * 100)
+        App.setProgressSceneLoadingValue((fullContainSize - containSize) / fullContainSize * 100)
+        if (containSize < 1){
+          App.setIsSceneLoaded(true)
+          console.log('Loading Finished')
         }
       })
-      // await loadPickedTexture(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${element.textureName}`).then(() => {
-      //   createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation.x, element.rotation.y, element.rotation.z)
-      // })
     })
   }
 
@@ -677,6 +677,7 @@ function blockRemove(event: { clientX: number; clientY: number; }){
           ThreeScene.scene.remove(placeInfo.object)
         }
         ThreeScene.thisSceneLocal.contains = thisSceneContains
+        console.log(thisSceneContains)
         localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
         // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
       }
@@ -721,7 +722,6 @@ function blockRotate(event: { deltaY: any; }){
 let hover, placeInfo: any, eventMouseMove: any
 function showBlockHover(event: { clientX: number; clientY: number; }){
   eventMouseMove = event
-  if (!shiftDown){
     if (isFullBlock()){
       hover = hoverBlock
       hoverHalfBlock.visible = false
@@ -734,7 +734,7 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
       hoverHalfBlock.visible = false
       hoverBlock.visible = true
     }
-    if (!shiftDown && App.mode !== 'Inspect'){
+    if (App.mode !== 'Inspect'){
       if (hover.children.length > 0){
         if (hover.children){
           hover.visible = true
@@ -774,8 +774,9 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
   
       }
     }
-  } else {
-    placeInfo = findPlace(event)
+  if (shiftDown){
+    hoverHalfBlock.visible = false
+    hoverBlock.visible = false
   }
 }
 interface GeometryObject3D extends THREE.Object3D {
@@ -802,18 +803,18 @@ function blockget(event: { clientX: number; clientY: number; }){
         let material = materialObject3D.material;
         let material3D = material as any
         if (Array.isArray(material3D)){
-          textureCube = material3D[1].map
+            textureCube = material3D[1].map
         } else {
           if (placeInfo.object.parent.name == "stairs"){
-            textureCube = placeInfo.object.parent.children[2].material.map
+              textureCube = placeInfo.object.parent.children[2].material.map
           } else if (placeInfo.object.parent.name == "slabs"){
-            textureCube = ((materialObject3D.children[1] as MaterialObject3D).material as any).map
+              textureCube = ((materialObject3D.children[1] as MaterialObject3D).material as any).map
           } else {
             textureCube = material3D.map
           }
         }
         App.setNewPickedTexture((object3D as textureName).textureName)
-        onTextureSwitch(textureCube)
+        onTextureSwitch(App.pickedTexture)
         if (isFullBlock()){
           hoverBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)
           hoverHalfBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)

@@ -38,6 +38,11 @@ module.exports = {
         'forLeftBlockThree' : 'rgba(255, 255, 255, 0.4) 5px 0px, rgba(255, 255, 255, 0.3) 10px 0px, rgba(255, 255, 255, 0.2) 15px 0px, rgba(255, 255, 255, 0.1) 20px 0px, rgba(255, 255, 255, 0.05) 25px 0px;'
       }
     },
+    zIndex: {
+      '100': '100',
+      '200': '200',
+      '60' : '60'
+    },
   },
   plugins: [],
 }

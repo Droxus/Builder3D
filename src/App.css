@@ -13,6 +13,20 @@
   transition: .4s;
   user-select: none;
 }
+.superProgress::-webkit-progress-bar{
+  color: red;
+}
+.superProgress::-webkit-progress-bar {
+  background-color: #C6C6C6;
+}
+
+.superProgress::-webkit-progress-value {
+  background-color: #282828;
+}
+
+.superProgress::-moz-progress-bar {
+  background-color: #282828;
+}
 ::-webkit-scrollbar {
   width: 3px;
 }

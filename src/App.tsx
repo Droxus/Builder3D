@@ -5,12 +5,14 @@ import './App.css'
 import * as Controls from './controls'
 import * as ThreeScene from './threeScene'
 import React from 'react'
-
-export let pickedTexture: any = 'deepslate_diamond_ore.png'
+let progressSceneLoadingValue: number = 20
+export let pickedTexture: string = 'debug.png'
 export let noCubeBlocks: any = []
 export let allTextures: any = []
+export let isSceneLoaded: boolean = false
 let allFilteredTextures: any = []
 let recentlyUsedBlocks: any = []
+let firstTime = true
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {
@@ -23,6 +25,14 @@ function updateAllTextures() {
 }
 export function setPickedTexture(newTexture: string){
   pickedTexture = newTexture
+}
+export function setIsSceneLoaded(value: boolean){
+  isSceneLoaded = value;
+  (document.querySelector('#sceneLoader') as HTMLProgressElement).style.display = 'none'
+}
+export function setProgressSceneLoadingValue(value: number){
+  progressSceneLoadingValue = value;
+  (document.querySelector('#sceneProgressBar') as HTMLProgressElement).value = progressSceneLoadingValue
 }
 export function setNewPickedTexture(newTexture: string){
   pickedTexture = newTexture
@@ -59,7 +69,7 @@ const AllBlocks = ( { items, texturePick } : AllBlocksProps)  => {
       {items.map((item) => (
         <div key={item.name} onClick={texturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer blocks border-thirdcolor hover:border-2 '>
           <div className='w-full h-14 flex justify-center'>
-            <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
+            <img src={item.download_url} id={item.name} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
           </div>
           <label id={item.name.slice(0, item.name.length-4).replaceAll('_', ' ')} className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ').replaceAll('side', '').replaceAll('log', '').replaceAll('front', '').replaceAll('end', '') }</label>
         </div>
@@ -75,7 +85,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
          {items.map((item: any) => (
            <div key={item.name} onClick={texturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer blocks border-thirdcolor hover:border-2'>
              <div className='w-full h-14 flex justify-center'>
-               <img src={item.download_url} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
+               <img src={item.download_url} id={item.name} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
              </div>
              <label id={item.name.slice(0, item.name.length-4).replaceAll('_', ' ')} className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ').replaceAll('side', '').replaceAll('log', '').replaceAll('front', '').replaceAll('end', '') }</label>
            </div>
@@ -211,6 +221,10 @@ function App() {
             allFilteredTextures = data
             filteredData = data
             setItems(filteredData);
+            if (firstTime){
+              Controls.loadPickedTexture(pickedTexture)
+              firstTime = false
+            }
           };
           if (allTextures.length < 1){
             fetchData();
@@ -240,7 +254,7 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
     }, []);
 
     function onTexturePick(event: any){
-      Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('src'))
+      Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('id'))
       pickedTexture = event.currentTarget.querySelector('label').getAttribute('id')
      
     
@@ -255,11 +269,17 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
       document.querySelectorAll('.blocks').forEach(e => e.classList.remove('opacity-40'));
       event.currentTarget.classList.add('opacity-40')
     }
-
   return (
-    <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full">
-      <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr]'>
-        <div className=' bg-fourthcolor z-50 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor'>
+    <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full" >
+      <div className={`sceneLoader h-full w-full overflow-hidden absolute top-0 left-0 z-200 bg-white grid pointer-events-auto`} id='sceneLoader'>
+        <div className=' h-80 w-80 place-self-center grid '>
+        <img src="./src/assets/img/loaderScene.svg" alt="" className=' w-32 flex justify-self-center ' />
+        <label className=' text-xl text-fourthcolor'>Scene Loading</label>
+        <progress max="100" value={0} id="sceneProgressBar" className=' superProgress  w-52 flex justify-self-center appearance-none h-4'></progress>
+        </div>
+      </div>
+      <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr] z-100'>
+        <div className=' bg-fourthcolor z-60 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor'>
           <div className='flex items-center'>
             <img className='ml-8 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/whiteLogo.svg" alt="" />
             <label className='text-xl ml-4 font-medium text-firstcolor'>Builder 3D</label>
