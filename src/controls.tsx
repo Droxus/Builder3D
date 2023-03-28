@@ -12,7 +12,9 @@ let isFirstPick = true
 
 let textureCube: any = undefined, textureCubeTop: any, textureCubeBottom: any;
 
-let thisSceneContains: any = [];
+export let thisSceneContains: any = [];
+
+export let historyOfScene: any[] = [];
 
 interface textureName extends THREE.Object3D {
   textureName: string;
@@ -20,10 +22,13 @@ interface textureName extends THREE.Object3D {
 
 // loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/debug.png')
 
+export function setThisSceneContains(value: any){
+  thisSceneContains = value
+}
 export async function loadPickedTexture(newTexture: string){
     return onTextureSwitch(newTexture)
 }
-async function onTextureSwitch(texture: string){
+export async function onTextureSwitch(texture: string){
   return new Promise((resolveInner) => {
     let normalTextureName = texture
     if (normalTextureName){
@@ -135,10 +140,12 @@ async function onTextureSwitch(texture: string){
           })
             setHoverTextures()
             if (isFirstPick){
-              createControls()
               isFirstPick = false
               if (ThreeScene.thisSceneLocal.contains.length < 1){
                 createCube(0, 0, 0)
+                App.setIsSceneLoaded(true)
+              } else {
+                loadScene()
               }
             }
             resolveInner([textureCube, textureCubeTop, textureCubeBottom])
@@ -210,7 +217,7 @@ function setHoverTextures(){
     hoverHalfBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
   }
 }
-function createCube(x: number, y: number, z: number, texture?: string, type?: string, rotationX?: number, rotationY?: number, rotationZ?: number){
+export function createCube(x: number, y: number, z: number, texture?: string, type?: string, rotationX?: number, rotationY?: number, rotationZ?: number){
   if (!thisSceneContains.find((e: any) => e.position.x == x && e.position.y == y && e.position.z == z)){
   let cube: any, helpedCube: any;
   if (type !== undefined){
@@ -331,6 +338,9 @@ function createCube(x: number, y: number, z: number, texture?: string, type?: st
           _z: cube.rotation.z
         }
       })
+      historyOfScene.push({action: 'create', blockInfo: thisSceneContains[thisSceneContains.length-1]})
+      App.setIndexOfHistoryScene(historyOfScene.length-1)
+      console.log(historyOfScene)
       ThreeScene.thisSceneLocal.contains = thisSceneContains
       localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
       // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
@@ -495,7 +505,10 @@ document.addEventListener("keydown", (event) => {
   document.querySelector('canvas')?.addEventListener('wheel', blockRotate)
   document.querySelector('canvas')?.addEventListener('mousedown', onMouseDown)
   document.querySelector('canvas')?.addEventListener('mouseup', onMouseUp)
-
+  historyOfScene = []
+  App.setIndexOfHistoryScene(0) 
+}
+function loadScene(){
   let containSize: number = ThreeScene.thisSceneLocal.contains.length;
   let fullContainSize: number = ThreeScene.thisSceneLocal.contains.length;
   if (ThreeScene.thisSceneLocal.contains.length > 0){
@@ -503,16 +516,13 @@ document.addEventListener("keydown", (event) => {
       onTextureSwitch(element.textureName).then(() => {
         createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
         --containSize;
-        console.log((fullContainSize - containSize) / fullContainSize * 100)
         App.setProgressSceneLoadingValue((fullContainSize - containSize) / fullContainSize * 100)
         if (containSize < 1){
           App.setIsSceneLoaded(true)
-          console.log('Loading Finished')
         }
       })
     })
   }
-
 }
 let mouseBtns = {
   leftBtn: false,
@@ -670,15 +680,25 @@ function blockRemove(event: { clientX: number; clientY: number; }){
     if (placeInfo){
       if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
         if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
-          thisSceneContains = thisSceneContains.filter((e: any) => e.position !== placeInfo.object.parent.position)
+          let blockInfo = thisSceneContains.filter((e: any) => e.position.x == placeInfo.object.parent.position.x && e.position.y == placeInfo.object.parent.position.y && e.position.z == placeInfo.object.parent.position.z)
+          if (blockInfo[0]){
+            historyOfScene.push({action: 'remove', blockInfo: blockInfo[0]})
+          }
+          thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.parent.position.x || e.position.y !== placeInfo.object.parent.position.y || e.position.z !== placeInfo.object.parent.position.z)
           ThreeScene.scene.remove(placeInfo.object.parent)
         } else {
-          thisSceneContains = thisSceneContains.filter((e: any) => e.position !== placeInfo.object.position)
+          let blockInfo = thisSceneContains.filter((e: any) => e.position.x == placeInfo.object.position.x && e.position.y == placeInfo.object.position.y && e.position.z == placeInfo.object.position.z)
+          if (blockInfo[0]){
+            historyOfScene.push({action: 'remove', blockInfo: blockInfo[0]})
+          }
+          thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.position.x || e.position.y !== placeInfo.object.position.y || e.position.z !== placeInfo.object.position.z)
           ThreeScene.scene.remove(placeInfo.object)
         }
+        App.setIndexOfHistoryScene(historyOfScene.length-1)
         ThreeScene.thisSceneLocal.contains = thisSceneContains
         console.log(thisSceneContains)
         localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
+        console.log(historyOfScene)
         // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
       }
     }

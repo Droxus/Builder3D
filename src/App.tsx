@@ -5,11 +5,11 @@ import './App.css'
 import * as Controls from './controls'
 import * as ThreeScene from './threeScene'
 import React from 'react'
-let progressSceneLoadingValue: number = 20
 export let pickedTexture: string = 'debug.png'
 export let noCubeBlocks: any = []
 export let allTextures: any = []
 export let isSceneLoaded: boolean = false
+export let indexOfHistoryScene: number = 0
 let allFilteredTextures: any = []
 let recentlyUsedBlocks: any = []
 let firstTime = true
@@ -26,13 +26,20 @@ function updateAllTextures() {
 export function setPickedTexture(newTexture: string){
   pickedTexture = newTexture
 }
+export function setIndexOfHistoryScene(value: number){
+  indexOfHistoryScene = value
+}
 export function setIsSceneLoaded(value: boolean){
   isSceneLoaded = value;
-  (document.querySelector('#sceneLoader') as HTMLProgressElement).style.display = 'none'
+  if (loaderSceneDiv.current) {
+    loaderSceneDiv.current.style.display = 'none'
+  }
+  Controls.createControls()
 }
 export function setProgressSceneLoadingValue(value: number){
-  progressSceneLoadingValue = value;
-  (document.querySelector('#sceneProgressBar') as HTMLProgressElement).value = progressSceneLoadingValue
+  if (progressBarLoaderScene.current) {
+    progressBarLoaderScene.current.value = value;
+  }
 }
 export function setNewPickedTexture(newTexture: string){
   pickedTexture = newTexture
@@ -95,6 +102,26 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
      </div>
 );
 };
+const progressBarLoaderScene = createRef<HTMLProgressElement>();
+const loaderSceneDiv = createRef<HTMLDivElement>()
+class Loader extends React.Component {
+render () {
+  return (
+    <div ref={loaderSceneDiv} className='sceneLoader h-full w-full overflow-hidden absolute top-0 left-0 z-200 bg-white grid pointer-events-none' id='sceneLoader'>
+    <div className=' h-full w-96 place-self-center grid grid-rows-[40%_20%_5%_20%_20%]'>
+    <div></div>
+    <img src="https://raw.githubusercontent.com/Droxus/Builder3D/7ba1d995d58b0d5b5e68383ba3713c489af0311e/src/assets/img/loaderScene.svg" className=' w-32 flex justify-self-center ' />
+    <label className=' text-xl text-fourthcolor'>Scene Loading</label>
+    <progress ref={progressBarLoaderScene} max="100" value={0} id="sceneProgressBar" className=' superProgress w-60 flex justify-self-center appearance-none h-5'></progress>
+    <div className='flex items-center justify-center'>
+        <img className='aspect-square h-12 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/7ba1d995d58b0d5b5e68383ba3713c489af0311e/src/assets/img/logo.svg" />
+        <label className='text-xl ml-4 font-medium text-fourthcolor'>Builder 3D</label>
+      </div>
+    </div>
+  </div>
+  )
+}
+}
 export function setBlockType(type: string){
   blockType = type
 }
@@ -269,24 +296,43 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
       document.querySelectorAll('.blocks').forEach(e => e.classList.remove('opacity-40'));
       event.currentTarget.classList.add('opacity-40')
     }
+    function onUndoBtn(){
+      console.log(1)
+      if (Controls.historyOfScene[indexOfHistoryScene]){
+        if (Controls.historyOfScene[indexOfHistoryScene].action == 'remove'){
+          let element = Controls.historyOfScene[indexOfHistoryScene].blockInfo
+          Controls.onTextureSwitch(element.textureName).then(() => {
+            Controls.createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
+          })
+        } else if (Controls.historyOfScene[indexOfHistoryScene].action == 'create'){
+          let object: any = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x && e.position.y == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
+           && e.position.z == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.position.z)
+           if (object){
+              ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e !== object)
+              Controls.setThisSceneContains(ThreeScene.thisSceneLocal.contains)
+              localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
+              ThreeScene.scene.remove(object)
+           }
+        }
+      }
+      setIndexOfHistoryScene(Math.max(indexOfHistoryScene-1, 0))
+    }
+    function onRedoBtn(){
+      console.log(2)
+      setIndexOfHistoryScene(Math.min(indexOfHistoryScene+1, Controls.historyOfScene.length-1))
+    }
   return (
     <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full" >
-      <div className={`sceneLoader h-full w-full overflow-hidden absolute top-0 left-0 z-200 bg-white grid pointer-events-auto`} id='sceneLoader'>
-        <div className=' h-80 w-80 place-self-center grid '>
-        <img src="./src/assets/img/loaderScene.svg" alt="" className=' w-32 flex justify-self-center ' />
-        <label className=' text-xl text-fourthcolor'>Scene Loading</label>
-        <progress max="100" value={0} id="sceneProgressBar" className=' superProgress  w-52 flex justify-self-center appearance-none h-4'></progress>
-        </div>
-      </div>
+        <Loader />
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr] z-100'>
         <div className=' bg-fourthcolor z-60 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor'>
           <div className='flex items-center'>
-            <img className='ml-8 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/whiteLogo.svg" alt="" />
+            <img className='ml-8 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/whiteLogo.svg" />
             <label className='text-xl ml-4 font-medium text-firstcolor'>Builder 3D</label>
           </div>
           <div className='flex items-center shadow-forTopBlock'>
-            <button className='h-full w-24'>Undo</button>
-            <button className='h-full w-24'>Redo</button>
+            <button onClick={onUndoBtn} className='h-full w-24'>Undo</button>
+            <button onClick={onRedoBtn} className='h-full w-24'>Redo</button>
             <button className=' h-full w-24'>Create</button>
           </div>
           <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
@@ -305,9 +351,9 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
         <div className='leftBlock absolute grid grid-rows-[185px_1fr_135px] h-full w-300  bg-firstcolor text-fourthcolor'>
           <div className='pt-20 relative z-30 shadow-forLeftBlockTwo bg-firstcolor'>
             <div className='grid grid-cols-[40px_1fr_40px] '>
-              <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-5 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/crossBlocks.svg" alt="" onClick={() => {inputBlockSearchClear()}}/></button>
+              <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-5 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/crossBlocks.svg" onClick={() => {inputBlockSearchClear()}}/></button>
               <input className='bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor focus:outline-none hover:border-b-2 transition-none'  type="text" placeholder='Find Block' value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind} onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}/>
-              <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" alt="" /></button>
+              <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" /></button>
             </div>
             <div className='mt-2 flex'>
               <button className={` flex-1 focus:outline-none hover:border-0 transition-none blocksType ${blockTypeBtn == 'Blocks' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Blocks</button>
@@ -333,19 +379,19 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
               <div className='flex mt-2 h-full'>
                 <button className={` flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Build' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/build.svg" alt="" />
+                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/build.svg" />
                   </div>
                   <label>Build</label>
                 </button>
                 <button className={` flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Inspect' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/inspect.svg" alt="" />
+                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/inspect.svg" />
                   </div>
                   <label>Inspect</label>
                 </button>
                 <button className={` flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Remove' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                   <div className='w-full flex justify-center'>
-                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/remove.svg" alt="" />
+                    <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/remove.svg" />
                   </div>
                   <label>Remove</label>
                 </button>
