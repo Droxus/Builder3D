@@ -114,7 +114,7 @@ render () {
     <label className=' text-xl text-fourthcolor'>Scene Loading</label>
     <progress ref={progressBarLoaderScene} max="100" value={0} id="sceneProgressBar" className=' superProgress w-60 flex justify-self-center appearance-none h-5'></progress>
     <div className='flex items-center justify-center'>
-        <img className='aspect-square h-12 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/7ba1d995d58b0d5b5e68383ba3713c489af0311e/src/assets/img/logo.svg" />
+        <img className='aspect-square h-12 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/9ff281164d1c9ed9c617cf49285f033e79674502/src/assets/img/logo.svg" />
         <label className='text-xl ml-4 font-medium text-fourthcolor'>Builder 3D</label>
       </div>
     </div>
@@ -146,9 +146,11 @@ function App() {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
+    ThreeScene.thisSceneLocal.name = String(event.target.value)
+    localStorage.setItem(ThreeScene.thisSceneLocal.id, JSON.stringify(ThreeScene.thisSceneLocal))
   };
   if (!inputValue){
-    const initialValue = 'My first build';
+    const initialValue = ThreeScene.thisSceneLocal.name || 'Name of Scene';
     setInputValue(initialValue);
   }
 
@@ -296,43 +298,66 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
       document.querySelectorAll('.blocks').forEach(e => e.classList.remove('opacity-40'));
       event.currentTarget.classList.add('opacity-40')
     }
-    function onUndoBtn(){
-      console.log(1)
+    function onUndoBtn(event: any){
       if (Controls.historyOfScene[indexOfHistoryScene]){
         if (Controls.historyOfScene[indexOfHistoryScene].action == 'remove'){
           let element = Controls.historyOfScene[indexOfHistoryScene].blockInfo
+          let prevIndex: number = indexOfHistoryScene-1
           Controls.onTextureSwitch(element.textureName).then(() => {
             Controls.createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
+            setIndexOfHistoryScene(Math.max(prevIndex, 0))
           })
         } else if (Controls.historyOfScene[indexOfHistoryScene].action == 'create'){
-          let object: any = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x && e.position.y == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
-           && e.position.z == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.position.z)
+          let object: any = ThreeScene.scene.children.filter((e: any) => e.position.x == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x && e.position.y == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
+           && e.position.z == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.z)[0]
            if (object){
-              ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e !== object)
+              ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x || e.position.y !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
+              || e.position.z !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.z)
               Controls.setThisSceneContains(ThreeScene.thisSceneLocal.contains)
               localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
               ThreeScene.scene.remove(object)
            }
+           setIndexOfHistoryScene(Math.max(indexOfHistoryScene-1, 0))
         }
       }
-      setIndexOfHistoryScene(Math.max(indexOfHistoryScene-1, 0))
+      event.target.blur()
     }
-    function onRedoBtn(){
-      console.log(2)
-      setIndexOfHistoryScene(Math.min(indexOfHistoryScene+1, Controls.historyOfScene.length-1))
+    function onRedoBtn(event: any){
+      if (Controls.historyOfScene[indexOfHistoryScene]){
+        if (Controls.historyOfScene[indexOfHistoryScene].action == 'create'){
+          let element = Controls.historyOfScene[indexOfHistoryScene].blockInfo
+          let prevIndex: number = indexOfHistoryScene+1
+          Controls.onTextureSwitch(element.textureName).then(() => {
+            Controls.createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
+            setIndexOfHistoryScene(Math.min(prevIndex, Controls.historyOfScene.length-1))
+          })
+        } else if (Controls.historyOfScene[indexOfHistoryScene].action == 'remove'){
+          let object: any = ThreeScene.scene.children.filter((e: any) => e.position.x == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x && e.position.y == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
+           && e.position.z == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.z)[0]
+           if (object){
+              ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x || e.position.y !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
+              || e.position.z !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.z)
+              Controls.setThisSceneContains(ThreeScene.thisSceneLocal.contains)
+              localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
+              ThreeScene.scene.remove(object)
+           }
+           setIndexOfHistoryScene(Math.min(indexOfHistoryScene+1, Controls.historyOfScene.length-1))
+        }
+      }
+      event.target.blur()
     }
   return (
     <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full" >
         <Loader />
       <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr] z-100'>
-        <div className=' bg-fourthcolor z-60 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor'>
+        <div className=' bg-fourthcolor z-60 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
           <div className='flex items-center'>
             <img className='ml-8 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/whiteLogo.svg" />
             <label className='text-xl ml-4 font-medium text-firstcolor'>Builder 3D</label>
           </div>
           <div className='flex items-center shadow-forTopBlock'>
-            <button onClick={onUndoBtn} className='h-full w-24'>Undo</button>
-            <button onClick={onRedoBtn} className='h-full w-24'>Redo</button>
+            <button onClick={onUndoBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Undo</button>
+            <button onClick={onRedoBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Redo</button>
             <button className=' h-full w-24'>Create</button>
           </div>
           <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
@@ -348,11 +373,11 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
             <button className=' h-full w-24 '>Share</button>
           </div>
         </div>
-        <div className='leftBlock absolute grid grid-rows-[185px_1fr_135px] h-full w-300  bg-firstcolor text-fourthcolor'>
+        <div className='leftBlock absolute grid grid-rows-[185px_1fr_135px] h-full w-300  bg-firstcolor text-fourthcolor' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
           <div className='pt-20 relative z-30 shadow-forLeftBlockTwo bg-firstcolor'>
             <div className='grid grid-cols-[40px_1fr_40px] '>
               <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-5 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/crossBlocks.svg" onClick={() => {inputBlockSearchClear()}}/></button>
-              <input className='bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor focus:outline-none hover:border-b-2 transition-none'  type="text" placeholder='Find Block' value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind} onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}/>
+              <input className='bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor focus:outline-none hover:border-b-2 transition-none'  type="text" placeholder='Find Block' value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind}/>
               <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" /></button>
             </div>
             <div className='mt-2 flex'>

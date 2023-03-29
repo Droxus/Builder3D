@@ -5,6 +5,12 @@ import * as ThreeScene from './threeScene'
 import * as App from './App'
 
 export let controls: any
+export let keysPressed = {
+  LEFT: false,
+  UP: false,
+  RIGHT: false,
+  BOTTOM: false,
+};
 
 const loader = new THREE.TextureLoader()
 
@@ -339,8 +345,7 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
         }
       })
       historyOfScene.push({action: 'create', blockInfo: thisSceneContains[thisSceneContains.length-1]})
-      App.setIndexOfHistoryScene(historyOfScene.length-1)
-      console.log(historyOfScene)
+      App.setIndexOfHistoryScene(Math.max(historyOfScene.length-1, 0))
       ThreeScene.thisSceneLocal.contains = thisSceneContains
       localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
       // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
@@ -452,8 +457,10 @@ export function createControls(){
     RIGHT: 'KeyD', 
     BOTTOM: 'KeyS'
 };
+
 controls.listenToKeyEvents(window);
 controls.keyPanSpeed = 50;
+
 
 function rotateCamera(deltaAzimuth: any, deltaPolar: any, deltaRadius: any) {
   const spherical = new THREE.Spherical().setFromVector3(ThreeScene.camera.position.clone().sub(controls.target));
@@ -694,11 +701,9 @@ function blockRemove(event: { clientX: number; clientY: number; }){
           thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.position.x || e.position.y !== placeInfo.object.position.y || e.position.z !== placeInfo.object.position.z)
           ThreeScene.scene.remove(placeInfo.object)
         }
-        App.setIndexOfHistoryScene(historyOfScene.length-1)
+        App.setIndexOfHistoryScene(Math.max(historyOfScene.length-1, 0))
         ThreeScene.thisSceneLocal.contains = thisSceneContains
-        console.log(thisSceneContains)
         localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
-        console.log(historyOfScene)
         // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
       }
     }
