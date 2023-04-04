@@ -299,25 +299,23 @@ const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
       event.currentTarget.classList.add('opacity-40')
     }
     function onUndoBtn(event: any){
-      if (Controls.historyOfScene[indexOfHistoryScene]){
-        if (Controls.historyOfScene[indexOfHistoryScene].action == 'remove'){
-          let element = Controls.historyOfScene[indexOfHistoryScene].blockInfo
-          let prevIndex: number = indexOfHistoryScene-1
+      const undoneOperation = Controls.historyOfScene.pop();
+      if (undoneOperation){
+        const { action, blockInfo: element } = undoneOperation
+        if (action == 'remove'){
           Controls.onTextureSwitch(element.textureName).then(() => {
             Controls.createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
-            setIndexOfHistoryScene(Math.max(prevIndex, 0))
           })
-        } else if (Controls.historyOfScene[indexOfHistoryScene].action == 'create'){
-          let object: any = ThreeScene.scene.children.filter((e: any) => e.position.x == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x && e.position.y == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
-           && e.position.z == Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.z)[0]
+        } else if (action == 'create'){
+          let object: any = ThreeScene.scene.children.filter((e: any) => e.position.x == element.position.x && e.position.y == element.position.y
+           && e.position.z == element.position.z)[0]
            if (object){
-              ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.x || e.position.y !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.y
-              || e.position.z !== Controls.historyOfScene[indexOfHistoryScene].blockInfo.position.z)
+              ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x !== element.position.x || e.position.y !== element.position.y
+              || e.position.z !== element.position.z)
               Controls.setThisSceneContains(ThreeScene.thisSceneLocal.contains)
               localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
               ThreeScene.scene.remove(object)
            }
-           setIndexOfHistoryScene(Math.max(indexOfHistoryScene-1, 0))
         }
       }
       event.target.blur()
