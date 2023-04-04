@@ -19,6 +19,9 @@ export let thisSceneLocal: localScene;
 export let sceneID: string
 
 export function createScene(){
+  if (document.querySelector('canvas')){
+    document.querySelector('canvas')?.remove()
+  }
     scene = new THREE.Scene();
     scene.background = new THREE.Color('#C6C6C6')
 
@@ -43,14 +46,7 @@ export function createScene(){
     plane.name = "helpPlane"
     scene.add( plane );
     animate();
-    function animate() {
-        requestAnimationFrame(animate)
-        if (Controls.controls){
-          Controls.controls.update()
-        }
-        renderer.render( scene, camera );
-    };
-    
+
     window.addEventListener('resize', onResize)
     document.oncontextmenu = document.body.oncontextmenu = function() {return false;}
     window.addEventListener('beforeunload', function(e){
@@ -77,3 +73,28 @@ export function createScene(){
     localStorage.setItem(sceneID, JSON.stringify(thisSceneLocal))
     console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )
 }
+let shouldRender = true;
+export function animate() {
+  if (shouldRender) {
+    shouldRender = false;
+    requestAnimationFrame(() => {
+      renderer.render(scene, camera);
+        // if (Controls.controls){
+        //   Controls.controls.update()
+        // }
+      shouldRender = true;
+    });
+  }
+}
+// export function animate() {
+//   if (shouldRender) {
+//     shouldRender = false;
+//     requestAnimationFrame(() => {
+//       renderer.render(scene, camera);
+//         // if (Controls.controls){
+//         //   Controls.controls.update()
+//         // }
+//       shouldRender = true;
+//     });
+//   }
+// }

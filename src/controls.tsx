@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import * as ThreeScene from './threeScene'
 import * as App from './App'
+import * as Scene from './Scene'
 
 export let controls: any
 export let keysPressed = {
@@ -53,10 +54,10 @@ export async function onTextureSwitch(texture: string){
             loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
           }),
           new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(texture.slice(0, texture.length-8).replaceAll(' ', '_') + 'bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
+            loader.load( Scene.allTextures.filter((e: any) => e.name.includes(texture.slice(0, texture.length-8).replaceAll(' ', '_') + 'bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
           }),
           new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(texture.slice(0, texture.length-8).replaceAll(' ', '_') + 'top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
+            loader.load( Scene.allTextures.filter((e: any) => e.name.includes(texture.slice(0, texture.length-8).replaceAll(' ', '_') + 'top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
           })
         ]).then((e) => {
           return setTextureCube(e[0], e[1], e[2])
@@ -67,32 +68,32 @@ export async function onTextureSwitch(texture: string){
             loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
           }),
           new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(normalTextureName.slice(0, texture.length-4).replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
+            loader.load( Scene.allTextures.filter((e: any) => e.name.includes(normalTextureName.slice(0, texture.length-4).replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
           }),
           new Promise((resolve) => {
-            loader.load( App.allTextures.filter((e: any) => e.name.includes(normalTextureName.slice(0, texture.length-4).replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
+            loader.load( Scene.allTextures.filter((e: any) => e.name.includes(normalTextureName.slice(0, texture.length-4).replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
           })
         ]).then((e) => {
           return setTextureCube(e[0], e[1], e[2])
         })
-      } else if (App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_top'))){
+      } else if (Scene.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_top'))){
         Promise.all([
           new Promise((resolve) => {
             loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
           }),
           new Promise((resolve) => {
-            loader.load( textureCubeTop = App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
+            loader.load( textureCubeTop = Scene.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_top'))[0]?.download_url, (textureTop) => {textureCubeTop = textureTop; resolve(textureTop)}, () => {}, () => {resolve(undefined)})
           })
         ]).then((e) => {
           return setTextureCube(e[0], undefined, e[1])
         })
-      } else if (App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_bottom'))){
+      } else if (Scene.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_bottom'))){
         Promise.all([
           new Promise((resolve) => {
             loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
           }),
           new Promise((resolve) => {
-            loader.load( textureCubeBottom = App.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
+            loader.load( textureCubeBottom = Scene.allTextures.filter((e: any) => e.name.includes(normalTextureName.replaceAll(' ', '_') + '_bottom'))[0]?.download_url, (textureBottom) => {textureCubeBottom = textureBottom; resolve(textureBottom)}, () => {}, () => {resolve(undefined)})
           })
         ]).then((e) => {
           return setTextureCube(e[0], e[1], undefined)
@@ -149,7 +150,7 @@ export async function onTextureSwitch(texture: string){
               isFirstPick = false
               if (ThreeScene.thisSceneLocal.contains.length < 1){
                 createCube(0, 0, 0)
-                App.setIsSceneLoaded(true)
+                Scene.setIsSceneLoaded(true)
               } else {
                 loadScene()
               }
@@ -161,8 +162,8 @@ export async function onTextureSwitch(texture: string){
 
 function isFullBlock(): boolean{
   let isCube: boolean = true
-  App.noCubeBlocks.forEach((item: string) => {
-      if (App.pickedTexture.includes(item) && !App.pickedTexture.includes('block')) {
+  Scene.noCubeBlocks.forEach((item: string) => {
+      if (Scene.pickedTexture.includes(item) && !Scene.pickedTexture.includes('block')) {
         return isCube = false
       }
   })
@@ -203,7 +204,7 @@ function setHoverTextures(){
             depthWrite: false
           });
     }
-    if (App.mode == 'Remove'){
+    if (Scene.mode == 'Remove'){
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.map = null))
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.opacity = 1))
       hoverBlock.children.forEach((child: any) => child.material.forEach((e: any) => e.transparent = true))
@@ -214,7 +215,7 @@ function setHoverTextures(){
       hoverStairs.visible = false;
       hoverSlabs.visible = false;
       hoverBlock.visible = true
-    } else if (App.mode == 'Inspect') {
+    } else if (Scene.mode == 'Inspect') {
       hoverBlock.visible = false
       hoverHalfBlock.visible = false
     }
@@ -227,10 +228,10 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
   if (!thisSceneContains.find((e: any) => e.position.x == x && e.position.y == y && e.position.z == z)){
   let cube: any, helpedCube: any;
   if (type !== undefined){
-    App.setBlockType(type)
+    Scene.setBlockType(type)
   }
   if (texture !== undefined){
-    App.setPickedTexture(texture)
+    Scene.setPickedTexture(texture)
   }
     if (isFullBlock()){
       if (textureCube){
@@ -250,7 +251,7 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
       topMaterial = new THREE.MeshBasicMaterial({ map: textureCubeTop || textureCubeBottom || textureCube, transparent: true, side: THREE.DoubleSide });
       sideMaterial = new THREE.MeshBasicMaterial({ map: textureCube, transparent: true, side: THREE.DoubleSide });
       let geometry
-      if (App.blockType == 'Slabs'){
+      if (Scene.blockType == 'Slabs'){
         geometry = new THREE.BoxGeometry(1, 0.5, 1, 1, 1, 1);
         let slabsHelped = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 1, 1, 1), new THREE.MeshBasicMaterial({ map: textureCube, opacity: 0, transparent: true, depthWrite: false }));
         let slabs = new THREE.Mesh(geometry, [topMaterial, sideMaterial, bottomMaterial]);
@@ -270,7 +271,7 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
         cube.add(slabs);
         cube.add(slabsHelped);
         cube.name = "slabs"
-      } else if (App.blockType == 'Stairs') {
+      } else if (Scene.blockType == 'Stairs') {
         geometry = new THREE.BoxGeometry(1, 0.5, 1, 1, 1, 1);
         let stairsHelped = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 1, 1, 1), new THREE.MeshBasicMaterial({ map: textureCube, opacity: 0, transparent: true, depthWrite: false }));
         let stairsDown = new THREE.Mesh(geometry, sideMaterial);
@@ -310,6 +311,7 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
         cube.name = "block"
       }
       ThreeScene.scene.add(cube);
+      ThreeScene.animate()
       cube.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z)
     } else {
       let firstPlane = new THREE.Mesh( new THREE.PlaneGeometry(1,1), new THREE.MeshBasicMaterial( { map: textureCube, transparent: true, side: THREE.DoubleSide, depthWrite: false } ))
@@ -320,12 +322,13 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
       cube.add(firstPlane);
       cube.add(secondPlane);
       cube.add(helpedCube);
-      (helpedCube as textureName).textureName = App.pickedTexture;
+      (helpedCube as textureName).textureName = Scene.pickedTexture;
       cube.rotation.set(hoverHalfBlock.rotation.x, hoverHalfBlock.rotation.y, hoverHalfBlock.rotation.z)
       cube.name = "block"
     }
-    cube.textureName = App.pickedTexture
+    cube.textureName = Scene.pickedTexture
     ThreeScene.scene.add( cube );
+    ThreeScene.animate()
     cube.position.set(x, y, z)
     if (rotationX !== undefined && rotationY !== undefined && rotationZ !== undefined) {
       cube.rotation.set(rotationX, rotationY, rotationZ)
@@ -336,7 +339,7 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
           y: cube.position.y,
           z: cube.position.z
         },
-        textureName: App.pickedTexture,
+        textureName: Scene.pickedTexture,
         blockType: cube.name ? cube.name[0].toUpperCase().concat('', cube.name.slice(1)) : 'Block',
         rotation: {
           _x: cube.rotation.x,
@@ -345,7 +348,6 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
         }
       })
       historyOfScene.push({action: 'create', blockInfo: thisSceneContains[thisSceneContains.length-1]})
-      App.setIndexOfHistoryScene(Math.max(historyOfScene.length-1, 0))
       ThreeScene.thisSceneLocal.contains = thisSceneContains
       localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
       // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
@@ -408,7 +410,7 @@ export function createControls(){
       shiftDown = true;
       hoverBlock.visible = false
       hoverHalfBlock.visible = false
-      if (App.mode !== 'Inspect'){
+      if (Scene.mode !== 'Inspect'){
       controls.mouseButtons = {
         LEFT: 2,
         MIDDLE: 1,
@@ -423,11 +425,11 @@ export function createControls(){
       shiftDown = false;
       hoverBlock.visible = true
       hoverHalfBlock.visible = true
-      if (App.mode == 'Inspect') {
+      if (Scene.mode == 'Inspect') {
         hoverBlock.visible = false
         hoverHalfBlock.visible = false
       }
-      if (App.mode !== 'Inspect'){
+      if (Scene.mode !== 'Inspect'){
         controls.mouseButtons = {
           LEFT: undefined,
           MIDDLE: undefined,
@@ -460,7 +462,7 @@ export function createControls(){
 
 controls.listenToKeyEvents(window);
 controls.keyPanSpeed = 50;
-
+controls.addEventListener( 'change', ThreeScene.animate );
 
 function rotateCamera(deltaAzimuth: any, deltaPolar: any, deltaRadius: any) {
   const spherical = new THREE.Spherical().setFromVector3(ThreeScene.camera.position.clone().sub(controls.target));
@@ -495,14 +497,17 @@ document.addEventListener("keydown", (event) => {
       rotateCamera(0, 0, ZOOM_SPEED);
       break;
   }
+  ThreeScene.animate()
 });
   controls.rotateCamera = true;
+  (document.querySelector('#root') as HTMLDivElement).style.pointerEvents = 'none';
+  (document.querySelector('canvas') as HTMLCanvasElement).style.pointerEvents = 'all'
 
   document.querySelector('canvas')?.addEventListener('mousemove', showBlockHover)
   ThreeScene.scene.add(hoverBlock)
   ThreeScene.scene.add(hoverHalfBlock)
 
-  controls.addEventListener( 'change', () => {App.controlsParametersChange()} )
+  controls.addEventListener( 'change', () => {Scene.controlsParametersChange()} )
 
   document.querySelector('canvas')?.addEventListener('mousedown', (event) => {
     if (event.button == 1 || event.buttons == 4 ) {
@@ -513,7 +518,7 @@ document.addEventListener("keydown", (event) => {
   document.querySelector('canvas')?.addEventListener('mousedown', onMouseDown)
   document.querySelector('canvas')?.addEventListener('mouseup', onMouseUp)
   historyOfScene = []
-  App.setIndexOfHistoryScene(0) 
+  ThreeScene.animate()
 }
 function loadScene(){
   let containSize: number = ThreeScene.thisSceneLocal.contains.length;
@@ -523,9 +528,9 @@ function loadScene(){
       onTextureSwitch(element.textureName).then(() => {
         createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
         --containSize;
-        App.setProgressSceneLoadingValue((fullContainSize - containSize) / fullContainSize * 100)
+        Scene.setProgressSceneLoadingValue((fullContainSize - containSize) / fullContainSize * 100)
         if (containSize < 1){
-          App.setIsSceneLoaded(true)
+          Scene.setIsSceneLoaded(true)
         }
       })
     })
@@ -537,9 +542,9 @@ let mouseBtns = {
 } 
 let buildInterval: any, removeInterval: any, buildTimer: any, removeTimer: any;
 function onMouseDown(event: any){
-  if (App.mode !== 'Inspect'){
-    let buildBtn = App.mode == 'Build' ? 0 : 2
-    let removeBtn = App.mode == 'Build' ? 2 : 0
+  if (Scene.mode !== 'Inspect'){
+    let buildBtn = Scene.mode == 'Build' ? 0 : 2
+    let removeBtn = Scene.mode == 'Build' ? 2 : 0
     switch (event.button) {
       case buildBtn:
         mouseBtns.leftBtn = true
@@ -571,8 +576,8 @@ function onMouseDown(event: any){
   }
 }
 function onMouseUp(event: any){
-  let buildBtn = App.mode == 'Build' ? 0 : 2
-  let removeBtn = App.mode == 'Build' ? 2 : 0
+  let buildBtn = Scene.mode == 'Build' ? 0 : 2
+  let removeBtn = Scene.mode == 'Build' ? 2 : 0
   switch (event.button) {
     case buildBtn:
       mouseBtns.leftBtn = false
@@ -654,13 +659,13 @@ function findPlace(event: { clientX: number; clientY: number; }){
     return intersects[0]
 }
 function blockAdd(event: { clientX: number; clientY: number; }){
-  if (!shiftDown && App.mode !== 'Inspect'){
+  if (!shiftDown && Scene.mode !== 'Inspect'){
     placeInfo = findPlace(event)
     if (placeInfo){
         if (placeInfo.object.name == "helpPlane"){
             createCube(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
         } else {
-          if (App.mode == 'Build'){
+          if (Scene.mode == 'Build'){
             if (placeInfo.face){
               if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
                 createCube(Math.round(placeInfo.object.parent.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001 + placeInfo.face.normal.y)), Math.round(placeInfo.object.parent.position.z + placeInfo.face.normal.z))
@@ -682,7 +687,7 @@ function blockAdd(event: { clientX: number; clientY: number; }){
   }
 }
 function blockRemove(event: { clientX: number; clientY: number; }){
-  if (!shiftDown && App.mode !== 'Inspect'){
+  if (!shiftDown && Scene.mode !== 'Inspect'){
     placeInfo = findPlace(event)
     if (placeInfo){
       if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
@@ -701,13 +706,13 @@ function blockRemove(event: { clientX: number; clientY: number; }){
           thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.position.x || e.position.y !== placeInfo.object.position.y || e.position.z !== placeInfo.object.position.z)
           ThreeScene.scene.remove(placeInfo.object)
         }
-        App.setIndexOfHistoryScene(Math.max(historyOfScene.length-1, 0))
         ThreeScene.thisSceneLocal.contains = thisSceneContains
         localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
         // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
       }
     }
   }
+  ThreeScene.animate()
 }
 function blockRotate(event: { deltaY: any; }){
   let indexOfVector = event.deltaY / Math.abs(event.deltaY)
@@ -743,6 +748,7 @@ function blockRotate(event: { deltaY: any; }){
   }
     hoverHalfBlock.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z)
   }
+  ThreeScene.animate()
 }
 let hover, placeInfo: any, eventMouseMove: any
 function showBlockHover(event: { clientX: number; clientY: number; }){
@@ -754,12 +760,12 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
       hover = hoverHalfBlock
       hoverBlock.visible = false
     }
-    if (App.mode == 'Remove'){
+    if (Scene.mode == 'Remove'){
       hover = hoverBlock
       hoverHalfBlock.visible = false
       hoverBlock.visible = true
     }
-    if (App.mode !== 'Inspect'){
+    if (Scene.mode !== 'Inspect'){
       if (hover.children.length > 0){
         if (hover.children){
           hover.visible = true
@@ -771,7 +777,7 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
           hoverBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
           hoverHalfBlock.position.set(Math.round(placeInfo.point.x), Math.abs(Math.round(placeInfo.point.y+0.001)), Math.round(placeInfo.point.z))
         } else {
-          if (App.mode == 'Build'){
+          if (Scene.mode == 'Build'){
             if (placeInfo.face){
               if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
                 hoverBlock.position.set(Math.round(placeInfo.object.parent.position.x + placeInfo.face.normal.x), Math.abs(Math.round(placeInfo.object.parent.position.y+0.001 + placeInfo.face.normal.y)), 
@@ -803,6 +809,7 @@ function showBlockHover(event: { clientX: number; clientY: number; }){
     hoverHalfBlock.visible = false
     hoverBlock.visible = false
   }
+  ThreeScene.animate()
 }
 interface GeometryObject3D extends THREE.Object3D {
   geometry: THREE.PlaneGeometry | THREE.BoxGeometry;
@@ -816,7 +823,7 @@ interface MaterialObject3D extends THREE.Object3D {
 function blockget(event: { clientX: number; clientY: number; }){
     placeInfo = findPlace(event)
     if (placeInfo){
-      App.setNewBlockType(placeInfo.object.name)
+      Scene.setNewBlockType(placeInfo.object.name)
       if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
         let object3D = placeInfo.object
         if (placeInfo.object.name == "stairs" || placeInfo.object.name == "stairsHelped"  || placeInfo.object.name == "slabs"){
@@ -838,8 +845,8 @@ function blockget(event: { clientX: number; clientY: number; }){
             textureCube = material3D.map
           }
         }
-        App.setNewPickedTexture((object3D as textureName).textureName)
-        onTextureSwitch(App.pickedTexture)
+        Scene.setNewPickedTexture((object3D as textureName).textureName)
+        onTextureSwitch(Scene.pickedTexture)
         if (isFullBlock()){
           hoverBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)
           hoverHalfBlock.rotation.set(object3D.rotation.x, object3D.rotation.y, object3D.rotation.z)
@@ -852,7 +859,7 @@ function blockget(event: { clientX: number; clientY: number; }){
     }
 }
 export function modeSwitch(){
-    switch (App.mode) {
+    switch (Scene.mode) {
       case 'Build':
         controls.mouseButtons = {
           LEFT: undefined,
@@ -885,7 +892,7 @@ export function modeSwitch(){
     }
 }
 export function blockTypeSwich(){
-  switch (App.blockType) {
+  switch (Scene.blockType) {
     case 'Blocks':
       setHoverTextures()
       hoverFullBlock.visible = true
