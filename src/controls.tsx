@@ -345,7 +345,6 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
         }
       })
       historyOfScene.push({action: 'create', blockInfo: thisSceneContains[thisSceneContains.length-1]})
-      App.setIndexOfHistoryScene(Math.max(historyOfScene.length-1, 0))
       ThreeScene.thisSceneLocal.contains = thisSceneContains
       localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
       // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
@@ -513,7 +512,6 @@ document.addEventListener("keydown", (event) => {
   document.querySelector('canvas')?.addEventListener('mousedown', onMouseDown)
   document.querySelector('canvas')?.addEventListener('mouseup', onMouseUp)
   historyOfScene = []
-  App.setIndexOfHistoryScene(0) 
 }
 function loadScene(){
   let containSize: number = ThreeScene.thisSceneLocal.contains.length;
@@ -701,7 +699,6 @@ function blockRemove(event: { clientX: number; clientY: number; }){
           thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.position.x || e.position.y !== placeInfo.object.position.y || e.position.z !== placeInfo.object.position.z)
           ThreeScene.scene.remove(placeInfo.object)
         }
-        App.setIndexOfHistoryScene(Math.max(historyOfScene.length-1, 0))
         ThreeScene.thisSceneLocal.contains = thisSceneContains
         localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
         // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
