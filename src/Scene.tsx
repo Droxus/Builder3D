@@ -305,10 +305,9 @@ export default function Scene(){
         }
         let undoArr: any[] = []
         function onUndoBtn(event: any){
-          if (Controls.historyOfScene.length > 0){
             const undoneOperation = Controls.historyOfScene.pop();
-            undoArr.push(undoneOperation)
             if (undoneOperation){
+              undoArr.push(undoneOperation)
               const { action, blockInfo: element } = undoneOperation
               if (action == 'remove'){
                 Controls.onTextureSwitch(element.textureName).then(() => {
@@ -328,14 +327,10 @@ export default function Scene(){
                  }
               }
             }
-          }
           event.target.blur()
         }
-  
         function onRedoBtn(event: any){
-          if (undoArr.length > 0){
             const redoneOperation = undoArr.pop()
-            Controls.historyOfScene.push(redoneOperation);
             if (redoneOperation){
                 const { action, blockInfo: element } = redoneOperation
                 if (action == 'create'){
@@ -343,6 +338,7 @@ export default function Scene(){
                     Controls.createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
                   })
                 } else if (action == 'remove'){
+                  Controls.historyOfScene.push(redoneOperation);
                   let object: any = ThreeScene.scene?.children.filter((e: any) => e.position.x == element.position.x && e.position.y == element.position.y
                    && e.position.z == element.position.z)[0]
                    if (object){
@@ -354,9 +350,7 @@ export default function Scene(){
                       ThreeScene.animate()
                    }
                 }
-                Controls.historyOfScene.pop();
             }
-          }
           event.target.blur()
         }
       return (
