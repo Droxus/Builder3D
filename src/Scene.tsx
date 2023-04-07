@@ -338,17 +338,7 @@ export default function Scene(){
                     Controls.createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
                   })
                 } else if (action == 'remove'){
-                  Controls.historyOfScene.push(redoneOperation);
-                  let object: any = ThreeScene.scene?.children.filter((e: any) => e.position.x == element.position.x && e.position.y == element.position.y
-                   && e.position.z == element.position.z)[0]
-                   if (object){
-                      ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x !== element.position.x || e.position.y !== element.position.y
-                      || e.position.z !== element.position.z)
-                      Controls.setThisSceneContains(ThreeScene.thisSceneLocal.contains)
-                      localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
-                      ThreeScene.scene?.remove(object)
-                      ThreeScene.animate()
-                   }
+                  Controls.removeCube(element);
                 }
             }
           event.target.blur()
