@@ -26,7 +26,9 @@ export let historyOfScene: any[] = [];
 interface textureName extends THREE.Object3D {
   textureName: string;
 }
-
+export function setControls(value: any){
+  controls = value
+}
 // loadPickedTexture('https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/debug.png')
 
 export function setThisSceneContains(value: any){
@@ -310,7 +312,7 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
         cube = new THREE.Mesh(geometry, [topMaterial, sideMaterial, bottomMaterial]);
         cube.name = "block"
       }
-      ThreeScene.scene.add(cube);
+      ThreeScene.scene?.add(cube);
       ThreeScene.animate()
       cube.rotation.set(hoverBlock.rotation.x, hoverBlock.rotation.y, hoverBlock.rotation.z)
     } else {
@@ -327,7 +329,7 @@ export function createCube(x: number, y: number, z: number, texture?: string, ty
       cube.name = "block"
     }
     cube.textureName = Scene.pickedTexture
-    ThreeScene.scene.add( cube );
+    ThreeScene.scene?.add( cube );
     ThreeScene.animate()
     cube.position.set(x, y, z)
     if (rotationX !== undefined && rotationY !== undefined && rotationZ !== undefined) {
@@ -396,7 +398,9 @@ hoverBlock.name = "hoverBlock"
 hoverSlabs.name = "hoverBlock"
 hoverStairs.name = "hoverBlock"
 export function createControls(){
-  controls = new OrbitControls( ThreeScene.camera, ThreeScene.renderer.domElement );
+  if (ThreeScene.camera){
+    controls = new OrbitControls( ThreeScene.camera, ThreeScene.renderer?.domElement );
+  }
   controls.target.set(0, 0, 0)
   controls.autoRotate = false
   controls.autoRotateSpeed = 1
@@ -465,14 +469,16 @@ controls.keyPanSpeed = 50;
 controls.addEventListener( 'change', ThreeScene.animate );
 
 function rotateCamera(deltaAzimuth: any, deltaPolar: any, deltaRadius: any) {
-  const spherical = new THREE.Spherical().setFromVector3(ThreeScene.camera.position.clone().sub(controls.target));
-  spherical.theta += deltaAzimuth;
-  spherical.phi += deltaPolar;
-  spherical.radius += deltaRadius;
-  const EPS = 0.000001;
-  spherical.phi = Math.max(EPS, Math.min(Math.PI - EPS, spherical.phi));
-  ThreeScene.camera.position.setFromSpherical(spherical).add(controls.target);
-  ThreeScene.camera.lookAt(controls.target);
+  if (ThreeScene.camera){
+    const spherical = new THREE.Spherical().setFromVector3(ThreeScene.camera.position.clone().sub(controls.target));
+    spherical.theta += deltaAzimuth;
+    spherical.phi += deltaPolar;
+    spherical.radius += deltaRadius;
+    const EPS = 0.000001;
+    spherical.phi = Math.max(EPS, Math.min(Math.PI - EPS, spherical.phi));
+    ThreeScene.camera.position.setFromSpherical(spherical).add(controls.target);
+    ThreeScene.camera.lookAt(controls.target);
+  }
 }
 const ROTATION_SPEED = 0.1;
 const ZOOM_SPEED = 1;
@@ -504,8 +510,8 @@ document.addEventListener("keydown", (event) => {
   (document.querySelector('canvas') as HTMLCanvasElement).style.pointerEvents = 'all'
 
   document.querySelector('canvas')?.addEventListener('mousemove', showBlockHover)
-  ThreeScene.scene.add(hoverBlock)
-  ThreeScene.scene.add(hoverHalfBlock)
+  ThreeScene.scene?.add(hoverBlock)
+  ThreeScene.scene?.add(hoverHalfBlock)
 
   controls.addEventListener( 'change', () => {Scene.controlsParametersChange()} )
 
@@ -596,67 +602,69 @@ const pointer = new THREE.Vector2();
 function findPlace(event: { clientX: number; clientY: number; }){
     pointer.x = ( (event.clientX - 300) / (window.innerWidth - 300) ) * 2 - 1;
     pointer.y = - ( (event.clientY) / window.innerHeight ) * 2 + 1;
-    raycaster.setFromCamera( pointer, ThreeScene.camera );
-    let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
-    intersects = intersects.filter(e => e.object.name !== "hoverBlock" && e.object.parent?.name !== "hoverBlock")
-    intersects = intersects.filter(e => (e.object as GeometryObject3D).geometry instanceof THREE.BoxGeometry && e.object.name !== "helpedCube" && e.object.name !== "slabsHelped")
-    if (intersects.length > 0) {
-      let firstRotation
-      if (intersects[0].object.name !== 'helpPlane'){
-        if (intersects[0].object.name !== "slabs" && intersects[0].object.name !== "stairs"){
-          firstRotation = {
-            x: intersects[0].object.rotation.x,
-            y: intersects[0].object.rotation.y,
-            z: intersects[0].object.rotation.z,
-          }
-          intersects[0].object.rotation.set(0, 0, 0)
-          intersects[0].object.updateMatrixWorld(true)
-          intersects = raycaster.intersectObjects( [intersects[0].object] );
-          if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
-            intersects[0].object.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
-          }
-        } else {
-          if (intersects[0].object.name == "slabs"){
+    if (ThreeScene.camera && ThreeScene.scene){
+      raycaster.setFromCamera( pointer, ThreeScene.camera );
+      let intersects = raycaster.intersectObjects( ThreeScene.scene.children );
+      intersects = intersects.filter(e => e.object.name !== "hoverBlock" && e.object.parent?.name !== "hoverBlock")
+      intersects = intersects.filter(e => (e.object as GeometryObject3D).geometry instanceof THREE.BoxGeometry && e.object.name !== "helpedCube" && e.object.name !== "slabsHelped")
+      if (intersects.length > 0) {
+        let firstRotation
+        if (intersects[0].object.name !== 'helpPlane'){
+          if (intersects[0].object.name !== "slabs" && intersects[0].object.name !== "stairs"){
             firstRotation = {
-              x: intersects[0].object.parent?.rotation.x,
-              y: intersects[0].object.parent?.rotation.y,
-              z: intersects[0].object.parent?.rotation.z,
+              x: intersects[0].object.rotation.x,
+              y: intersects[0].object.rotation.y,
+              z: intersects[0].object.rotation.z,
             }
-            intersects[0].object.parent?.rotation.set(0, 0, 0)
-            intersects[0].object.parent?.updateMatrixWorld(true)
-            if (intersects[0].object.parent?.children[1]){
-              let tryIntersects
-              if (raycaster.intersectObjects( [intersects[0].object] )[0] !== undefined){
-              tryIntersects = raycaster.intersectObjects( [intersects[0].object] )[0].face
-              }
-              if (tryIntersects && intersects[0].face){
-                intersects[0].face = tryIntersects
-              } else {
-                intersects[0].face = raycaster.intersectObjects( [intersects[0].object.parent?.children[1]] )[0].face;
-              }
-              if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
-                intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
-              }
+            intersects[0].object.rotation.set(0, 0, 0)
+            intersects[0].object.updateMatrixWorld(true)
+            intersects = raycaster.intersectObjects( [intersects[0].object] );
+            if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
+              intersects[0].object.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
             }
           } else {
-            firstRotation = {
-              x: intersects[0].object.parent?.rotation.x,
-              y: intersects[0].object.parent?.rotation.y,
-              z: intersects[0].object.parent?.rotation.z,
-            }
-            intersects[0].object.parent?.rotation.set(0, 0, 0)
-            intersects[0].object.parent?.updateMatrixWorld(true)
-            if (intersects[0].object.parent?.children[2]){
-              intersects[0].face = raycaster.intersectObjects( [intersects[0].object.parent?.children[2]] )[0].face;
-              if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
-                intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+            if (intersects[0].object.name == "slabs"){
+              firstRotation = {
+                x: intersects[0].object.parent?.rotation.x,
+                y: intersects[0].object.parent?.rotation.y,
+                z: intersects[0].object.parent?.rotation.z,
+              }
+              intersects[0].object.parent?.rotation.set(0, 0, 0)
+              intersects[0].object.parent?.updateMatrixWorld(true)
+              if (intersects[0].object.parent?.children[1]){
+                let tryIntersects
+                if (raycaster.intersectObjects( [intersects[0].object] )[0] !== undefined){
+                tryIntersects = raycaster.intersectObjects( [intersects[0].object] )[0].face
+                }
+                if (tryIntersects && intersects[0].face){
+                  intersects[0].face = tryIntersects
+                } else {
+                  intersects[0].face = raycaster.intersectObjects( [intersects[0].object.parent?.children[1]] )[0].face;
+                }
+                if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
+                  intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+                }
+              }
+            } else {
+              firstRotation = {
+                x: intersects[0].object.parent?.rotation.x,
+                y: intersects[0].object.parent?.rotation.y,
+                z: intersects[0].object.parent?.rotation.z,
+              }
+              intersects[0].object.parent?.rotation.set(0, 0, 0)
+              intersects[0].object.parent?.updateMatrixWorld(true)
+              if (intersects[0].object.parent?.children[2]){
+                intersects[0].face = raycaster.intersectObjects( [intersects[0].object.parent?.children[2]] )[0].face;
+                if (firstRotation.x !== undefined && firstRotation.y !== undefined && firstRotation.z !== undefined){
+                  intersects[0].object.parent?.rotation.set(firstRotation.x, firstRotation.y, firstRotation.z)
+                }
               }
             }
           }
         }
       }
+      return intersects[0]
     }
-    return intersects[0]
 }
 function blockAdd(event: { clientX: number; clientY: number; }){
   if (!shiftDown && Scene.mode !== 'Inspect'){
@@ -697,14 +705,14 @@ function blockRemove(event: { clientX: number; clientY: number; }){
             historyOfScene.push({action: 'remove', blockInfo: blockInfo[0]})
           }
           thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.parent.position.x || e.position.y !== placeInfo.object.parent.position.y || e.position.z !== placeInfo.object.parent.position.z)
-          ThreeScene.scene.remove(placeInfo.object.parent)
+          ThreeScene.scene?.remove(placeInfo.object.parent)
         } else {
           let blockInfo = thisSceneContains.filter((e: any) => e.position.x == placeInfo.object.position.x && e.position.y == placeInfo.object.position.y && e.position.z == placeInfo.object.position.z)
           if (blockInfo[0]){
             historyOfScene.push({action: 'remove', blockInfo: blockInfo[0]})
           }
           thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.position.x || e.position.y !== placeInfo.object.position.y || e.position.z !== placeInfo.object.position.z)
-          ThreeScene.scene.remove(placeInfo.object)
+          ThreeScene.scene?.remove(placeInfo.object)
         }
         ThreeScene.thisSceneLocal.contains = thisSceneContains
         localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import * as Controls from './controls'
 import InfiniteGridHelper from './InfiniteGridHelper';
+import * as Controls from './controls'
 
-export let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer
+export let scene: THREE.Scene | null, camera: THREE.PerspectiveCamera | null, renderer: THREE.WebGLRenderer | null
 
 export let gridHelper: any
 
@@ -19,9 +19,8 @@ export let thisSceneLocal: localScene;
 export let sceneID: string
 
 export function createScene(){
-  if (document.querySelector('canvas')){
-    document.querySelector('canvas')?.remove()
-  }
+  sceneClear()
+
     scene = new THREE.Scene();
     scene.background = new THREE.Color('#C6C6C6')
 
@@ -54,10 +53,12 @@ export function createScene(){
     },true);
     
     function onResize(){
-      renderer.setSize((window.innerWidth-300), window.innerHeight );
-      renderer.setPixelRatio((window.innerWidth-300) / window.innerHeight )
-      camera.aspect = (window.innerWidth-300) / window.innerHeight
-      camera.updateProjectionMatrix();
+      if (camera && renderer){
+        renderer.setSize((window.innerWidth-300), window.innerHeight );
+        renderer.setPixelRatio((window.innerWidth-300) / window.innerHeight )
+        camera.aspect = (window.innerWidth-300) / window.innerHeight
+        camera.updateProjectionMatrix();
+      }
     }
     sceneID = '0000';
     thisSceneLocal = JSON.parse( String( localStorage.getItem( sceneID ) ) );
@@ -78,23 +79,49 @@ export function animate() {
   if (shouldRender) {
     shouldRender = false;
     requestAnimationFrame(() => {
-      renderer.render(scene, camera);
-        // if (Controls.controls){
-        //   Controls.controls.update()
-        // }
+      if (scene && camera){
+        renderer?.render(scene, camera);
+      }
       shouldRender = true;
     });
   }
 }
-// export function animate() {
-//   if (shouldRender) {
-//     shouldRender = false;
-//     requestAnimationFrame(() => {
-//       renderer.render(scene, camera);
-//         // if (Controls.controls){
-//         //   Controls.controls.update()
-//         // }
-//       shouldRender = true;
-//     });
-//   }
-// }
+export function sceneClear(){
+  renderer?.dispose()
+
+  const cleanMaterial = (material: any) => {
+    material.dispose()
+
+    // dispose textures
+    for (const key of Object.keys(material)) {
+      const value = material[key]
+      if (value && typeof value === 'object' && 'minFilter' in value) {
+        value.dispose()
+      }
+    }
+  }
+
+  scene?.traverse(object => {
+    if (!(object as THREE.Mesh).isMesh) return
+    
+    (object as THREE.Mesh).geometry.dispose()
+
+    if (((object as THREE.Mesh).material as THREE.Material).isMaterial) {
+      cleanMaterial((object as THREE.Mesh).material)
+    } else {
+      // an array of materials
+      for (const material of (object as any).material) cleanMaterial(material)
+    }
+  })
+
+
+  if (document.querySelector('canvas')){
+    document.querySelector('canvas')?.remove()
+  }
+  camera = null;
+  // renderer?.dispose();
+  renderer = null;
+
+  // Controls.controls.dispose();
+  Controls.setControls(null);
+}

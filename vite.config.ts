@@ -10,9 +10,12 @@ export default defineConfig({
   base: '/Builder3D/',
   build: {
     outDir: './docs',
-    target: 'esnext'
+    target: 'esnext',
   },
-  plugins: [react()],
+
+  plugins: [react({
+    include: "**/*.tsx",
+  })],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
