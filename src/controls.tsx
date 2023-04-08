@@ -694,33 +694,33 @@ function blockAdd(event: { clientX: number; clientY: number; }){
     }
   }
 }
+export function removeCube(element: any){
+  if (element){
+    let blockInfo = thisSceneContains.filter((e: any) => e.position.x == element.position.x && e.position.y == element.position.y && e.position.z == element.position.z)
+    if (blockInfo[0]){
+      historyOfScene.push({action: 'remove', blockInfo: blockInfo[0]})
+    }
+    thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== element.position.x || e.position.y !== element.position.y || e.position.z !== element.position.z)
+    ThreeScene.scene?.remove(element)
+    ThreeScene.thisSceneLocal.contains = thisSceneContains
+    localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
+    ThreeScene.animate()
+  }
+}
 function blockRemove(event: { clientX: number; clientY: number; }){
   if (!shiftDown && Scene.mode !== 'Inspect'){
     placeInfo = findPlace(event)
     if (placeInfo){
       if (placeInfo.object.name !== "helpPlane" && placeInfo.object.name !== "hoverBlock"){
+        let element = placeInfo.object
         if (placeInfo.object.parent && (placeInfo.object.parent.children.length == 3 || placeInfo.object.name == "slabs")){
-          let blockInfo = thisSceneContains.filter((e: any) => e.position.x == placeInfo.object.parent.position.x && e.position.y == placeInfo.object.parent.position.y && e.position.z == placeInfo.object.parent.position.z)
-          if (blockInfo[0]){
-            historyOfScene.push({action: 'remove', blockInfo: blockInfo[0]})
-          }
-          thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.parent.position.x || e.position.y !== placeInfo.object.parent.position.y || e.position.z !== placeInfo.object.parent.position.z)
-          ThreeScene.scene?.remove(placeInfo.object.parent)
-        } else {
-          let blockInfo = thisSceneContains.filter((e: any) => e.position.x == placeInfo.object.position.x && e.position.y == placeInfo.object.position.y && e.position.z == placeInfo.object.position.z)
-          if (blockInfo[0]){
-            historyOfScene.push({action: 'remove', blockInfo: blockInfo[0]})
-          }
-          thisSceneContains = thisSceneContains.filter((e: any) => e.position.x !== placeInfo.object.position.x || e.position.y !== placeInfo.object.position.y || e.position.z !== placeInfo.object.position.z)
-          ThreeScene.scene?.remove(placeInfo.object)
+          element = placeInfo.object.parent
         }
-        ThreeScene.thisSceneLocal.contains = thisSceneContains
-        localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
+        removeCube(element)
         // console.log( JSON.parse( String( localStorage.getItem( ThreeScene.sceneID ) ) ) )
       }
     }
   }
-  ThreeScene.animate()
 }
 function blockRotate(event: { deltaY: any; }){
   let indexOfVector = event.deltaY / Math.abs(event.deltaY)

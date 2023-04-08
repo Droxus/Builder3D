@@ -305,10 +305,9 @@ export default function Scene(){
         }
         let undoArr: any[] = []
         function onUndoBtn(event: any){
-          if (Controls.historyOfScene.length > 0){
             const undoneOperation = Controls.historyOfScene.pop();
-            undoArr.push(undoneOperation)
             if (undoneOperation){
+              undoArr.push(undoneOperation)
               const { action, blockInfo: element } = undoneOperation
               if (action == 'remove'){
                 Controls.onTextureSwitch(element.textureName).then(() => {
@@ -318,24 +317,15 @@ export default function Scene(){
               } else if (action == 'create'){
                 let object: any = ThreeScene.scene?.children.filter((e: any) => e.position.x == element.position.x && e.position.y == element.position.y
                  && e.position.z == element.position.z)[0]
-                 if (object){
-                    ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x !== element.position.x || e.position.y !== element.position.y
-                    || e.position.z !== element.position.z)
-                    Controls.setThisSceneContains(ThreeScene.thisSceneLocal.contains)
-                    localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
-                    ThreeScene.scene?.remove(object)
-                    ThreeScene.animate()
-                 }
+                Controls.removeCube(object)
+                Controls.historyOfScene.pop();
               }
             }
-          }
           event.target.blur()
         }
   
         function onRedoBtn(event: any){
-          if (undoArr.length > 0){
             const redoneOperation = undoArr.pop()
-            Controls.historyOfScene.push(redoneOperation);
             if (redoneOperation){
                 const { action, blockInfo: element } = redoneOperation
                 if (action == 'create'){
@@ -345,18 +335,9 @@ export default function Scene(){
                 } else if (action == 'remove'){
                   let object: any = ThreeScene.scene?.children.filter((e: any) => e.position.x == element.position.x && e.position.y == element.position.y
                    && e.position.z == element.position.z)[0]
-                   if (object){
-                      ThreeScene.thisSceneLocal.contains = ThreeScene.thisSceneLocal.contains.filter((e: any) => e.position.x !== element.position.x || e.position.y !== element.position.y
-                      || e.position.z !== element.position.z)
-                      Controls.setThisSceneContains(ThreeScene.thisSceneLocal.contains)
-                      localStorage.setItem( ThreeScene.sceneID, JSON.stringify( ThreeScene.thisSceneLocal ) )
-                      ThreeScene.scene?.remove(object)
-                      ThreeScene.animate()
-                   }
+                  Controls.removeCube(object)
                 }
-                Controls.historyOfScene.pop();
             }
-          }
           event.target.blur()
         }
       return (
