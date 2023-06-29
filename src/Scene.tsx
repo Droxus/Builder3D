@@ -14,9 +14,12 @@ export let allTextures: any = []
 export let isSceneLoaded: boolean = false
 export let indexOfHistoryScene: number = 0
 
+let isNeedToCreateScene: boolean = false
+let isTextureLoaded: boolean = false
+let loadedTexturesCounter = 0
 let allFilteredTextures: any = []
 let recentlyUsedBlocks: any = []
-let firstTime = true
+
 type Item = {
     name: string;
     download_url: string;
@@ -26,13 +29,24 @@ type Item = {
     items: Item[];
     texturePick: (event: any) => void;
   }
+  function onLoadTexture(){
+    loadedTexturesCounter++;
+    if (loadedTexturesCounter > filteredData.length-2) {
+      loadedTexturesCounter = 0  
+      if (isNeedToCreateScene) {
+        ThreeScene.createScene()
+      } else {
+        isTextureLoaded = true
+      }
+    }
+  }
   const AllBlocks = ( { items, texturePick } : AllBlocksProps)  => {
     return (
       <div className='grid grid-cols-4 w-full allBlocksDiv'>
         {items.map((item) => (
           <div key={item.name} onClick={texturePick} className='relative basis-1/3 flex flex-wrap justify-center cursor-pointer blocks border-thirdcolor hover:border-2 '>
             <div className='w-full h-14 flex justify-center'>
-              <img src={item.download_url} id={item.name} alt="block" className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
+              <img src={item.download_url} id={item.name} alt="block" onLoad={onLoadTexture} className='textures object-cover w-14 h-14 aspect-square select-none pointer-events-none'/>
             </div>
             <label id={item.name.slice(0, item.name.length-4).replaceAll('_', ' ')} className='break-words text-sm select-none'>{item.name.slice(0, item.name.length-4).replaceAll('_', ' ').replaceAll('side', '').replaceAll('log', '').replaceAll('front', '').replaceAll('end', '') }</label>
           </div>
@@ -112,7 +126,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
 
   function onExitFromScene(){
     (document.querySelector('#root') as HTMLDivElement).style.pointerEvents = 'all'
-    console.log('Exit')
+    // console.log('Exit')
   }
   export function setProgressSceneLoadingValue(value: number){
     if (progressBarLoaderScene.current) {
@@ -127,11 +141,11 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
       <div ref={loaderSceneDiv} className='sceneLoader h-full w-full overflow-hidden absolute top-0 left-0 z-200 bg-white grid pointer-events-none' id='sceneLoader'>
         <div className=' h-full w-96 place-self-center grid grid-rows-[40%_20%_5%_20%_20%]'>
           <div></div>
-          <img src="https://raw.githubusercontent.com/Droxus/Builder3D/7ba1d995d58b0d5b5e68383ba3713c489af0311e/src/assets/img/loaderScene.svg" className=' w-32 flex justify-self-center ' />
+          <img src="https://raw.githubusercontent.com/Droxus/Builder3D/7ba1d995d58b0d5b5e68383ba3713c489af0311e/src/assets/img/loaderScene.svg" className='eager img-importance-high w-32 flex justify-self-center ' />
           <label className=' text-xl text-fourthcolor'>Scene Loading</label>
           <progress ref={progressBarLoaderScene} max="100" value={0} id="sceneProgressBar" className=' superProgress w-60 flex justify-self-center appearance-none h-5'></progress>
           <div className='flex items-center justify-center'>
-            <img className='aspect-square h-12 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/9ff281164d1c9ed9c617cf49285f033e79674502/src/assets/img/logo.svg" />
+            <img className='eager img-importance-high aspect-square h-12 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/9ff281164d1c9ed9c617cf49285f033e79674502/src/assets/img/logo.svg" />
             <label className='text-xl ml-4 font-medium text-fourthcolor'>Builder 3D</label>
           </div>
         </div>
@@ -146,16 +160,18 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
   export let isSceneWasCreated = false
 export default function Scene(){
       const [inputValue, setInputValue] = useState("");
-  
+      
       const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(event.target.value);
         ThreeScene.thisSceneLocal.name = String(event.target.value)
         localStorage.setItem(ThreeScene.thisSceneLocal.id, JSON.stringify(ThreeScene.thisSceneLocal))
       };
       if (!inputValue){
-        ThreeScene.createScene()
-        const initialValue = ThreeScene.thisSceneLocal.name || 'Scene Name';
-        setInputValue(initialValue);
+        if (isTextureLoaded){
+          ThreeScene.createScene()
+        } else {
+          isNeedToCreateScene = true
+        }
       }
 
       const [scaleValue, setScaleInputValue] = useState("");
@@ -255,10 +271,6 @@ export default function Scene(){
                 allFilteredTextures = data
                 filteredData = data
                 setItems(filteredData);
-                if (firstTime){
-                  Controls.loadPickedTexture(pickedTexture)
-                  firstTime = false
-                }
               };
               if (allTextures.length < 1){
                 fetchData();
@@ -356,7 +368,7 @@ export default function Scene(){
             <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
               <button className='outline-none'>Droxus228</button>
               <label className=' mx-2'>/</label>
-              <input className=' bg-transparent outline-none' type="text" value={inputValue} onChange={handleInputChange} />
+              <input className='sceneName bg-transparent outline-none' type="text" value={inputValue} onChange={handleInputChange} />
             </div>
             <div className='flex items-center justify-end shadow-forTopBlock'>
               <button className='h-full w-24 '>Save</button>

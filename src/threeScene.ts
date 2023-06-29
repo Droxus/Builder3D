@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import InfiniteGridHelper from './InfiniteGridHelper';
 import * as Controls from './controls'
+import * as Scene from './Scene';
 
 export let scene: THREE.Scene | null, camera: THREE.PerspectiveCamera | null, renderer: THREE.WebGLRenderer | null
 
 export let gridHelper: any
+let isFirstTime = false
 
 interface localScene {
   id: string,
@@ -44,6 +46,13 @@ export function createScene(){
     plane.position.set(0, -0.5 , 0)
     plane.name = "helpPlane"
     scene.add( plane );
+
+    Controls.setThisSceneContains([])
+    Controls.setIsFirstPick(true)
+    Controls.loadPickedTexture('debug.png')
+
+    isFirstTime = true
+    shouldRender = true
     animate();
 
     window.addEventListener('resize', onResize)
@@ -71,6 +80,7 @@ export function createScene(){
         contains: [],
       }
     }
+    document.querySelector('.sceneName')?.setAttribute('value', thisSceneLocal.name)
     localStorage.setItem(sceneID, JSON.stringify(thisSceneLocal))
     console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )
 }

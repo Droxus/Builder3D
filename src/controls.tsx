@@ -26,6 +26,9 @@ export let historyOfScene: any[] = [];
 interface textureName extends THREE.Object3D {
   textureName: string;
 }
+export function setIsFirstPick(value: boolean){
+  isFirstPick = value
+}
 export function setControls(value: any){
   controls = value
 }
@@ -462,49 +465,49 @@ export function createControls(){
     UP: 'KeyW', 
     RIGHT: 'KeyD', 
     BOTTOM: 'KeyS'
-};
+  };
 
-controls.listenToKeyEvents(window);
-controls.keyPanSpeed = 50;
-controls.addEventListener( 'change', ThreeScene.animate );
+  controls.listenToKeyEvents(window);
+  controls.keyPanSpeed = 50;
+  controls.addEventListener( 'change', ThreeScene.animate );
 
-function rotateCamera(deltaAzimuth: any, deltaPolar: any, deltaRadius: any) {
-  if (ThreeScene.camera){
-    const spherical = new THREE.Spherical().setFromVector3(ThreeScene.camera.position.clone().sub(controls.target));
-    spherical.theta += deltaAzimuth;
-    spherical.phi += deltaPolar;
-    spherical.radius += deltaRadius;
-    const EPS = 0.000001;
-    spherical.phi = Math.max(EPS, Math.min(Math.PI - EPS, spherical.phi));
-    ThreeScene.camera.position.setFromSpherical(spherical).add(controls.target);
-    ThreeScene.camera.lookAt(controls.target);
+  function rotateCamera(deltaAzimuth: any, deltaPolar: any, deltaRadius: any) {
+    if (ThreeScene.camera){
+      const spherical = new THREE.Spherical().setFromVector3(ThreeScene.camera.position.clone().sub(controls.target));
+      spherical.theta += deltaAzimuth;
+      spherical.phi += deltaPolar;
+      spherical.radius += deltaRadius;
+      const EPS = 0.000001;
+      spherical.phi = Math.max(EPS, Math.min(Math.PI - EPS, spherical.phi));
+      ThreeScene.camera.position.setFromSpherical(spherical).add(controls.target);
+      ThreeScene.camera.lookAt(controls.target);
+    }
   }
-}
-const ROTATION_SPEED = 0.1;
-const ZOOM_SPEED = 1;
-document.addEventListener("keydown", (event) => {
-  switch (event.code) {
-    case 'ArrowLeft':
-      rotateCamera(-ROTATION_SPEED, 0, 0);
-      break;
-      case 'ArrowUp': 
-      rotateCamera(0, -ROTATION_SPEED, 0);
-      break;
-    case 'ArrowRight': 
-      rotateCamera(ROTATION_SPEED, 0, 0);
-      break;
-    case 'ArrowDown': 
-      rotateCamera(0, ROTATION_SPEED, 0);
-      break;
-    case 'KeyO':
-      rotateCamera(0, 0, -ZOOM_SPEED);
-      break;
-    case 'KeyP': 
-      rotateCamera(0, 0, ZOOM_SPEED);
-      break;
-  }
-  ThreeScene.animate()
-});
+  const ROTATION_SPEED = 0.1;
+  const ZOOM_SPEED = 1;
+  document.addEventListener("keydown", (event) => {
+    switch (event.code) {
+      case 'ArrowLeft':
+        rotateCamera(-ROTATION_SPEED, 0, 0);
+        break;
+        case 'ArrowUp': 
+        rotateCamera(0, -ROTATION_SPEED, 0);
+        break;
+      case 'ArrowRight': 
+        rotateCamera(ROTATION_SPEED, 0, 0);
+        break;
+      case 'ArrowDown': 
+        rotateCamera(0, ROTATION_SPEED, 0);
+        break;
+      case 'KeyO':
+        rotateCamera(0, 0, -ZOOM_SPEED);
+        break;
+      case 'KeyP': 
+        rotateCamera(0, 0, ZOOM_SPEED);
+        break;
+    }
+    ThreeScene.animate()
+  });
   controls.rotateCamera = true;
   (document.querySelector('#root') as HTMLDivElement).style.pointerEvents = 'none';
   (document.querySelector('canvas') as HTMLCanvasElement).style.pointerEvents = 'all'
@@ -526,21 +529,21 @@ document.addEventListener("keydown", (event) => {
   historyOfScene = []
   ThreeScene.animate()
 }
-function loadScene(){
+export function loadScene(){
   let containSize: number = ThreeScene.thisSceneLocal.contains.length;
   let fullContainSize: number = ThreeScene.thisSceneLocal.contains.length;
   if (ThreeScene.thisSceneLocal.contains.length > 0){
     ThreeScene.thisSceneLocal.contains.forEach(async (element: any) => {
-      onTextureSwitch(element.textureName).then(() => {
-        createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
-        --containSize;
-        Scene.setProgressSceneLoadingValue((fullContainSize - containSize) / fullContainSize * 100)
-        if (containSize < 1){
-          Scene.setIsSceneLoaded(true)
-        }
+        onTextureSwitch(element.textureName).then(() => {
+          createCube(element.position.x, element.position.y, element.position.z, element.textureName, element.blockType, element.rotation._x, element.rotation._y, element.rotation._z)
+          --containSize;
+          Scene.setProgressSceneLoadingValue((fullContainSize - containSize) / fullContainSize * 100)
+          if (containSize < 1){
+            Scene.setIsSceneLoaded(true)
+          }
+        })
       })
-    })
-  }
+    }
 }
 let mouseBtns = {
   leftBtn: false,
