@@ -95,3 +95,6 @@ canvas {
   z-index: 2;
   cursor: grab;
 }
+::selection {
+  background: black;
+}
