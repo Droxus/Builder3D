@@ -516,6 +516,7 @@ export function createControls(){
   ThreeScene.scene?.add(hoverBlock)
   ThreeScene.scene?.add(hoverHalfBlock)
 
+
   controls.addEventListener( 'change', () => {Scene.controlsParametersChange()} )
 
   document.querySelector('canvas')?.addEventListener('mousedown', (event) => {

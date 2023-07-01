@@ -157,25 +157,30 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
   ThreeScene.sceneClear()
   onExitFromScene()
   }
+  export const sceneNameValue = createRef<HTMLInputElement>()
   export let isSceneWasCreated = false
-export default function Scene(){
-      const [inputValue, setInputValue] = useState("");
-      
+  export function setSceneName(value: string){
+    if (sceneNameValue.current) {
+      sceneNameValue.current.value = value
+    }
+  }
+  export default function Scene(){
       const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setInputValue(event.target.value);
+        setSceneName(event.target.value)
         ThreeScene.thisSceneLocal.name = String(event.target.value)
         localStorage.setItem(ThreeScene.thisSceneLocal.id, JSON.stringify(ThreeScene.thisSceneLocal))
       };
-      if (!inputValue){
-        if (isTextureLoaded){
-          ThreeScene.createScene()
-        } else {
-          isNeedToCreateScene = true
+      if (sceneNameValue.current) {
+        if (!sceneNameValue.current.value){
+          if (isTextureLoaded){
+            ThreeScene.createScene()
+          } else {
+            isNeedToCreateScene = true
+          }
         }
       }
 
       const [scaleValue, setScaleInputValue] = useState("");
-    
       const scaleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
           setScaleInputValue(String(Math.max(Math.min(Number(event.target.value), Controls.controls.maxDistance), Controls.controls.minDistance)));
           ThreeScene.camera?.position.setLength(Number(Math.max(Math.min(Controls.controls.maxDistance - Number(event.target.value) + 0.5, Controls.controls.maxDistance), Controls.controls.minDistance)));
@@ -368,7 +373,7 @@ export default function Scene(){
             <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
               <button className='outline-none'>Droxus228</button>
               <label className=' mx-2'>/</label>
-              <input className='sceneName bg-transparent outline-none' type="text" value={inputValue} onChange={handleInputChange} />
+              <input className='sceneName bg-transparent outline-none' type="text" ref={sceneNameValue} onChange={handleInputChange} />
             </div>
             <div className='flex items-center justify-end shadow-forTopBlock'>
               <button className='h-full w-24 '>Save</button>

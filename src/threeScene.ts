@@ -80,7 +80,7 @@ export function createScene(){
         contains: [],
       }
     }
-    document.querySelector('.sceneName')?.setAttribute('value', thisSceneLocal.name)
+    Scene.setSceneName(thisSceneLocal.name)
     localStorage.setItem(sceneID, JSON.stringify(thisSceneLocal))
     console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )
 }
