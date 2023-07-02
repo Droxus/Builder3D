@@ -4,6 +4,8 @@ import React from 'react'
 import { Routes, Route, Link } from 'react-router-dom';
 import Scene from './Scene'
 import Home from './Home'
+import Profile from './Profile'
+import Help from './Help'
 
 // uncomment to update textures
 // updateAllTextures()
@@ -23,6 +25,8 @@ function App() {
       <Routes>
         <Route path="/Builder3D/" element={<Home />}></Route>
         <Route path="/Builder3D/scene" element={<Scene />}></Route>
+        <Route path="/Builder3D/profile" element={<Profile />}></Route>
+        <Route path="/Builder3D/help" element={<Help />}></Route>
         <Route path="*" element={<Home />}></Route>
       </Routes>
      </div>

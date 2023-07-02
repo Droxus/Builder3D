@@ -10,12 +10,16 @@ module.exports = {
         '14%': '14%',
         '120': '480px',
         '2.5vw' : '2.5vw',
-        '300' : '300px'
+        '300' : '300px',
+        '600' : '600px',
       },
       height: {
         'texturePick': 'calc(100% + 50px)',
         '2.5vw' : '2.5vw',
-        '21' : '84px'
+        '21' : '84px',
+        '500': '500px',
+        '800': '800px',
+        '400': '400px',
       },
       translate: {
         '120': '480px'
@@ -23,13 +27,13 @@ module.exports = {
       colors: {
         'firstcolor'  : '#FFFFFF',
         'secondcolor' : '#C6C6C6',
-        'thirdcolor'  : '#D1D1D1',
+        'thirdcolor'  : '#919191',
         'fourthcolor' : '#282828',
       },
       backgroundColor: {
         'firstcolor'  : '#FFFFFF',
         'secondcolor' : '#C6C6C6',
-        'thirdcolor'  : '#D1D1D1',
+        'thirdcolor'  : '#919191',
         'fourthcolor' : '#282828',
       },
       boxShadow: {
@@ -42,7 +46,7 @@ module.exports = {
       '100': '100',
       '200': '200',
       '60' : '60',
-      '30' : '30'
+      '30' : '30',
     },
   },
   plugins: [],

@@ -341,7 +341,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
           event.target.blur()
         }
   
-        function onRedoBtn(event: any){
+        function onRedoBtn(event: any) {
             const redoneOperation = undoArr.pop()
             if (redoneOperation){
                 const { action, blockInfo: element } = redoneOperation
@@ -357,10 +357,34 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
             }
           event.target.blur()
         }
+        function onCreateBtn(event: any) {
+          (document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'grid';
+          event.target.blur()
+        }
+        function onSaveBtn(event: any) {
+          (document.querySelector('.saveSceneBlock') as HTMLDivElement).style.display = 'grid';
+          event.target.blur()
+        }
+        function onSceneBtn(event: any) {
+          (document.querySelector('.settingSceneBlock') as HTMLDivElement).style.display = 'grid';
+          event.target.blur()
+        }
+        function onImportBtn(event: any) {
+          (document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'grid';
+          event.target.blur()
+        }
+        function onExportBtn(event: any) {
+          (document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'grid';
+          event.target.blur()
+        }
+        function onShareBtn(event: any) {
+          (document.querySelector('.shareSceneBlock') as HTMLDivElement).style.display = 'grid';
+          event.target.blur()
+        }
       return (
         <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr] z-100'>
           <LoaderScene />
-          <div className=' bg-fourthcolor z-60 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
+          <div className=' sceneHeader bg-fourthcolor z-60 grid grid-cols-[300px_25%_1fr_35%] text-secondcolor' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
           <Link to="/" className='flex items-center cursor-pointer' onClick={onSceneClose}>
               <img className='ml-8 aspect-square h-9 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/whiteLogo.svg" />
               <label className='text-xl ml-4 font-medium text-firstcolor cursor-pointer'>Builder 3D</label>
@@ -368,7 +392,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
             <div className='flex items-center shadow-forTopBlock'>
               <button onClick={onUndoBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Undo</button>
               <button onClick={onRedoBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Redo</button>
-              <button className=' h-full w-24'>Create</button>
+              <button onClick={onCreateBtn} className=' h-full w-24 focus:outline-none hover:border-0 transition-none'>Create</button>
             </div>
             <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
               <button className='outline-none'>Droxus228</button>
@@ -376,11 +400,11 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <input className='sceneName bg-transparent outline-none' type="text" ref={sceneNameValue} onChange={handleInputChange} />
             </div>
             <div className='flex items-center justify-end shadow-forTopBlock'>
-              <button className='h-full w-24 '>Save</button>
-              <button className='h-full w-24'>Scene</button>
-              <button className=' h-full w-24 '>Import</button>
-              <button className='h-full w-24'>Export</button>
-              <button className=' h-full w-24 '>Share</button>
+              <button onClick={onSaveBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Save</button>
+              <button onClick={onSceneBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Scene</button>
+              <button onClick={onImportBtn} className=' h-full w-24 focus:outline-none hover:border-0 transition-none'>Import</button>
+              <button onClick={onExportBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Export</button>
+              <button onClick={onShareBtn} className=' h-full w-24 focus:outline-none hover:border-0 transition-none'>Share</button>
             </div>
           </div>
           <div className='leftBlock absolute grid grid-rows-[185px_1fr_135px] h-full w-300  bg-firstcolor text-fourthcolor' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
@@ -448,6 +472,116 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <input className=' w-16 bg-transparent text-center' type="number" value={positionYValue} onChange={positionYChange}  />
               <label>z:</label>
               <input className=' w-16 bg-transparent text-center' type="number" value={positionZValue} onChange={positionZChange}  />
+            </div>
+          </div>
+          <div className='saveSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+            <div className=' bg-white w-600 h-500 grid items-center content-between border-4 rounded-none border-fourthcolor'>
+              <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Are you sure you want to save the scene?</label>
+              <div className=' grid grid-cols-[1fr_3fr] grid-rows-2 gap-y-8 px-10 items-center justify-items-center text-lg'>
+                <label className=' text-fourthcolor'>Scene name</label>
+                <label className=' bg-thirdcolor text-firstcolor  w-64 h-10 flex justify-center items-center'>First Home</label>
+                <label className=' text-fourthcolor'>Author name</label>
+                <label className=' bg-thirdcolor text-firstcolor w-64 h-10 flex justify-center items-center'>Droxus</label>
+              </div>
+              <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* The scene will be shown from the camera view and camera position when saving</label>
+              <div className=' flex justify-around py-8'>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center'>Yes, I am sure</button>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.saveSceneBlock') as HTMLDivElement).style.display = 'none'}}>No, I am not</button>
+              </div>
+            </div>
+          </div>
+          <div className='settingSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+            <div className=' bg-white w-600 h-800 grid items-center content-between border-4 rounded-none border-fourthcolor text-lg'>
+              <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Scene</label>
+              <div className=' grid grid-cols-[1fr_3fr] gap-y-8 px-10 items-center justify-items-center text-lg'>
+                <label className=' text-fourthcolor'>Scene name</label>
+                <input className=' bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-64 h-10 flex justify-center items-center' placeholder={'Name'}/>
+              </div>
+              <label className=' px-8 text-fourthcolor text-xl flex justify-center items-start'>Hot Keys</label>
+              <div className=' grid grid-cols-[1fr_2fr] px-12'>
+                <label className=' text-left'>Undo</label>
+                <label className=' text-left'><kbd>Ctrl</kbd> + <kbd>Z</kbd></label>
+              </div>
+              <div className=' grid grid-cols-[1fr_2fr] px-12'>
+                <label className=' text-left'>Redo</label>
+                <label className=' text-left'><kbd>Ctrl</kbd> + <kbd>X</kbd> or <kbd>Ctrl</kbd> + <kbd>Y</kbd></label>
+              </div>
+              <div className=' grid grid-cols-[1fr_2fr] px-12'>
+                <label className=' text-left'>Find Block</label>
+                <label className=' text-left'><kbd>Ctrl</kbd> + <kbd>F</kbd></label>
+              </div>
+              <div className=' grid grid-cols-[1fr_2fr] px-12'>
+                <label className=' text-left'>Save Scene</label>
+                <label className=' text-left'><kbd>Ctrl</kbd> + <kbd>S</kbd></label>
+              </div>
+              <div className=' grid grid-cols-[1fr_2fr] px-12'>
+                <label className=' text-left'>Switch Mode</label>
+                <label className=' text-left'><kbd>Ctrl</kbd> + <kbd>Q</kbd> and <kbd>Ctrl</kbd> + <kbd>E</kbd></label>
+              </div>
+              <div className=' grid grid-cols-[1fr_2fr] px-12'>
+                <label className=' text-left'>Switch Block Type</label>
+                <label className=' text-left'><kbd>Ctrl</kbd> + <kbd>A</kbd> and <kbd>Ctrl</kbd> + <kbd>D</kbd></label>
+              </div>
+              <div className=' flex justify-around py-8'>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center'>Apply and Save</button>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.settingSceneBlock') as HTMLDivElement).style.display = 'none'}}>Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div className='shareSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+            <div className=' bg-white w-600 h-800 grid items-center content-between border-4 rounded-none border-fourthcolor'>
+              <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Share</label>
+              <div className=' grid grid-cols-[1fr_3fr] grid-rows-2 gap-y-8 px-10 items-center justify-items-center text-lg'>
+                <label className=' text-fourthcolor'>Scene name</label>
+                <label className=' bg-thirdcolor text-firstcolor  w-64 h-10 flex justify-center items-center'>First Home</label>
+                <label className=' text-fourthcolor'>Author name</label>
+                <label className=' bg-thirdcolor text-firstcolor w-64 h-10 flex justify-center items-center'>Droxus</label>
+              </div>
+              <label className=' px-8 text-fourthcolor text-xl flex justify-center items-start'>Warning</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* The scene will be shown from the camera view and camera position when saving</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* The scene will be published and link to the scene will be copied</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* Everyone will be able to see your scene and everyone will be able to rate your scene</label>
+              <div className=' flex justify-around py-8'>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center'>Public</button>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.shareSceneBlock') as HTMLDivElement).style.display = 'none'}}>Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div className='unavailableSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+            <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
+              <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Create/Import/Export</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Sorry but this feature is not available yet</label>
+              <div className=' flex justify-around py-8'>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'none'}}>Okay</button>
+              </div>
+            </div>
+          </div>
+          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+            <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
+              <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Save</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Scene was successfully saved</label>
+              <div className=' flex justify-around py-8'>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'none'}}>Okay</button>
+              </div>
+            </div>
+          </div>
+          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+            <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
+              <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Share</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Scene was successfully published</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Link to the scene was copied</label>
+              <div className=' flex justify-around py-8'>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'none'}}>Okay</button>
+              </div>
+            </div>
+          </div>
+          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+            <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
+              <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Loading</label>
+              <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Please wait, it will take some time</label>
+              <div className=' flex justify-around py-8'>
+                <button className=' w-64 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'none'}}>Click to load faster  =&#10089;</button>
+              </div>
             </div>
           </div>
         </div>
