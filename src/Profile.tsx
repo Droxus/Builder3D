@@ -35,7 +35,7 @@ function Profile() {
       <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full z-60" >
         <Home.MenuHeader/>
         <ProfileInfo/>
-        <Home.ScenesBlock/>
+        <Home.ScenesBlock scenePick={Home.onScenePick} profilePick={Home.onProfilePick} scenes={Home.scenes}/>
       </div>
     )
   }

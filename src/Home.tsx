@@ -40,29 +40,46 @@ export const MenuHeader = ( )  => {
     </header>
     );
   };
-export const ScenesBlock = ( )  => {
+  type Item = {
+    id: number;
+    name: string;
+    rating: number;
+    author: string;
+  };
+  interface AllBlocksProps {
+    scenes: Item[];
+    scenePick: (event: any) => void;
+    profilePick: (event: any) => void;
+  }
+  export const scenes = [{id: 2130, name: 'asdsa', rating: 3.4, author: 'asd'}, {id: 7655, name: 'opa', rating: 4.2, author: 'asd'}]
+  export function onScenePick(event: any){
+    console.log('oap')
+  }
+  export function onProfilePick(event: any){
+    console.log('oap')
+  }
+export const ScenesBlock = ( {scenes, scenePick, profilePick}: AllBlocksProps )  => {
  return (
-         <main className=' max-h-max w-full grid grid-cols-3 gap-8 grid-flow-row text-firstcolor py-24 px-8'>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-            <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
-        </main>
+     <main className=' max-h-max w-full grid grid-cols-3 gap-8 grid-flow-row text-firstcolor py-24 px-8'>
+        {scenes.map((item: any) => (       
+            <div key={item.id} className=' border-fourthcolor rounded-none border-2 aspect-video grid'>
+                <div className=' h-full aspect-video bg-secondcolor cursor-pointer' onClick={scenePick}></div>
+                <div className=' w-full h-12 bg-fourthcolor flex text-lg'>
+                    <label className=' h-full w-1/2 flex items-center justify-center text-firstcolor'>{item.name}</label>
+                    <label className=' h-full w-1/3 flex items-center justify-center text-thirdcolor cursor-pointer' onClick={profilePick}>{item.author}</label>
+                    <label className=' h-full w-1/6 flex items-center justify-center text-red-400'>{item.rating}</label>
+                </div>
+            </div>
+        ))}
+    </main>
+
     );
 };
 function Home(){
     return (
         <div className=' w-screen h-screen overflow-hidden overflow-y-scroll '>
             <MenuHeader/>
-            <ScenesBlock/>
+            <ScenesBlock scenePick={onScenePick} profilePick={onProfilePick} scenes={scenes}/>
         </div>
     )
 }

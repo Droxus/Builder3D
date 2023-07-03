@@ -34,7 +34,9 @@ type Item = {
     if (loadedTexturesCounter > filteredData.length-2) {
       loadedTexturesCounter = 0  
       if (isNeedToCreateScene) {
-        ThreeScene.createScene()
+        if (document.getElementsByTagName('canvas').length < 1){
+          ThreeScene.createScene()
+        }
       } else {
         isTextureLoaded = true
       }
@@ -126,6 +128,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
 
   function onExitFromScene(){
     (document.querySelector('#root') as HTMLDivElement).style.pointerEvents = 'all'
+    document.removeEventListener('keydown', onHotKeys)
     // console.log('Exit')
   }
   export function setProgressSceneLoadingValue(value: number){
@@ -158,13 +161,66 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
   onExitFromScene()
   }
   export const sceneNameValue = createRef<HTMLInputElement>()
+  export const sceneSettingNameValue = createRef<HTMLInputElement>()
   export let isSceneWasCreated = false
   export function setSceneName(value: string){
     if (sceneNameValue.current) {
       sceneNameValue.current.value = value
     }
+    if (sceneSettingNameValue.current){
+      sceneSettingNameValue.current.value = value
+    }
+  }
+  function onHotKeys(event: any){
+    let arr = []
+    let index
+    if (event.ctrlKey){
+      event.preventDefault()
+      switch (event.which) {
+        case 90: //z
+          (document.querySelector('.undobtn') as HTMLButtonElement).click()
+          break;
+        case 88: //x
+          (document.querySelector('.redobtn') as HTMLButtonElement).click()
+          break;
+        case 89: //y
+          (document.querySelector('.redobtn') as HTMLButtonElement).click()
+          break;
+        case 70: //f
+          (document.querySelector('.findblockinp') as HTMLButtonElement).focus()
+          break;
+        case 83: //s
+          (document.querySelector('.savebtn') as HTMLButtonElement).click()
+          break;
+        case 81: //q
+          arr = Array.from(document.querySelectorAll('.modeswitchbtns'))
+          index = arr.findIndex((e: any) => e.classList.contains('opacity-100')) - 1
+          if (index < 0) index = 2;
+          (arr[index] as HTMLButtonElement).click()
+          break;
+        case 69: //e
+          arr = Array.from(document.querySelectorAll('.modeswitchbtns'))
+          index = arr.findIndex((e: any) => e.classList.contains('opacity-100')) + 1
+          if (index > 2) index = 0;
+          (arr[index] as HTMLButtonElement).click()
+          break;
+        case 65: //a
+          arr = Array.from(document.querySelectorAll('.blocktypeswitchbtns'))
+          index = arr.findIndex((e: any) => e.classList.contains('opacity-100')) - 1
+          if (index < 0) index = 2;
+          (arr[index] as HTMLButtonElement).click()
+          break;
+        case 68: //d
+          arr = Array.from(document.querySelectorAll('.blocktypeswitchbtns'))
+          index = arr.findIndex((e: any) => e.classList.contains('opacity-100')) + 1
+          if (index > 2) index = 0;
+          (arr[index] as HTMLButtonElement).click()
+          break;
+      }
+    }
   }
   export default function Scene(){
+    document.addEventListener('keydown', onHotKeys)
       const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSceneName(event.target.value)
         ThreeScene.thisSceneLocal.name = String(event.target.value)
@@ -173,13 +229,14 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
       if (sceneNameValue.current) {
         if (!sceneNameValue.current.value){
           if (isTextureLoaded){
-            ThreeScene.createScene()
+            if (document.getElementsByTagName('canvas').length < 1){
+              ThreeScene.createScene()
+            }
           } else {
             isNeedToCreateScene = true
           }
         }
       }
-
       const [scaleValue, setScaleInputValue] = useState("");
       const scaleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
           setScaleInputValue(String(Math.max(Math.min(Number(event.target.value), Controls.controls.maxDistance), Controls.controls.minDistance)));
@@ -390,8 +447,8 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <label className='text-xl ml-4 font-medium text-firstcolor cursor-pointer'>Builder 3D</label>
           </Link>
             <div className='flex items-center shadow-forTopBlock'>
-              <button onClick={onUndoBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Undo</button>
-              <button onClick={onRedoBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Redo</button>
+              <button onClick={onUndoBtn} className=' undobtn h-full w-24 focus:outline-none hover:border-0 transition-none'>Undo</button>
+              <button onClick={onRedoBtn} className=' redobtn h-full w-24 focus:outline-none hover:border-0 transition-none'>Redo</button>
               <button onClick={onCreateBtn} className=' h-full w-24 focus:outline-none hover:border-0 transition-none'>Create</button>
             </div>
             <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
@@ -400,7 +457,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <input className='sceneName bg-transparent outline-none' type="text" ref={sceneNameValue} onChange={handleInputChange} />
             </div>
             <div className='flex items-center justify-end shadow-forTopBlock'>
-              <button onClick={onSaveBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Save</button>
+              <button onClick={onSaveBtn} className=' savebtn h-full w-24 focus:outline-none hover:border-0 transition-none'>Save</button>
               <button onClick={onSceneBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Scene</button>
               <button onClick={onImportBtn} className=' h-full w-24 focus:outline-none hover:border-0 transition-none'>Import</button>
               <button onClick={onExportBtn} className='h-full w-24 focus:outline-none hover:border-0 transition-none'>Export</button>
@@ -411,13 +468,13 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
             <div className='pt-20 relative z-30 shadow-forLeftBlockTwo bg-firstcolor'>
               <div className='grid grid-cols-[40px_1fr_40px] '>
                 <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-5 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/crossBlocks.svg" onClick={() => {inputBlockSearchClear()}}/></button>
-                <input className='bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor focus:outline-none hover:border-b-2 transition-none'  type="text" placeholder='Find Block' value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind}/>
+                <input className=' findblockinp bg-transparent px-2 h-10 outline-none text-center text-lg border-fourthcolor border-b-2 bg-firstcolor focus:outline-none hover:border-b-2 transition-none'  type="text" placeholder='Find Block' value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind}/>
                 <button className='flex place-content-center items-center focus:outline-none hover:border-0 transition-none'><img className='h-6 w-auto' src="https://raw.githubusercontent.com/Droxus/Builder3D/f4f29d3e38a622e9a547d37c766d7a7308ba2dbc/src/assets/img/searchBlocks.svg" /></button>
               </div>
               <div className='mt-2 flex'>
-                <button className={` flex-1 focus:outline-none hover:border-0 transition-none blocksType ${blockTypeBtn == 'Blocks' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Blocks</button>
-                <button className={` flex-1 focus:outline-none hover:border-0 transition-none slabsType ${blockTypeBtn == 'Slabs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Slabs</button>
-                <button className={` flex-1 focus:outline-none hover:border-0 transition-none stairsType ${blockTypeBtn == 'Stairs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Stairs</button>
+                <button className={` blocktypeswitchbtns flex-1 focus:outline-none hover:border-0 transition-none blocksType ${blockTypeBtn == 'Blocks' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Blocks</button>
+                <button className={` blocktypeswitchbtns flex-1 focus:outline-none hover:border-0 transition-none slabsType ${blockTypeBtn == 'Slabs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Slabs</button>
+                <button className={` blocktypeswitchbtns flex-1 focus:outline-none hover:border-0 transition-none stairsType ${blockTypeBtn == 'Stairs' ? ' opacity-100' : 'opacity-40'}`} onClick={onBlockTypeSwitch}>Stairs</button>
               </div>
             </div>
             <div className='texturePickBlock relative h-full overflow-scroll overflow-x-hidden z-10 mt-0 py-24 shadow-forLeftBlockThree'>
@@ -436,19 +493,19 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <div className=' pt-4 h-21'>
                 <label className=' text-lg font-medium'>Mods</label>
                 <div className='flex mt-2 h-full'>
-                  <button className={` flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Build' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
+                  <button className={` modeswitchbtns flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Build' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                     <div className='w-full flex justify-center'>
                       <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/build.svg" />
                     </div>
                     <label>Build</label>
                   </button>
-                  <button className={` flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Inspect' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
+                  <button className={` modeswitchbtns flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Inspect' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                     <div className='w-full flex justify-center'>
                       <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/inspect.svg" />
                     </div>
                     <label>Inspect</label>
                   </button>
-                  <button className={` flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Remove' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
+                  <button className={` modeswitchbtns flex-1 rounded-none focus:outline-none hover:border-0 transition-none ${selectedModeBtn == 'Remove' ? ' opacity-100' : 'opacity-40'}`} onClick={onModeSwitch}>
                     <div className='w-full flex justify-center'>
                       <img className='w-10 h-10 select-none pointer-events-none' src="https://raw.githubusercontent.com/Droxus/Builder3D/bc30f49445a6704a15da644ace2337ee5e86b47b/src/assets/img/remove.svg" />
                     </div>
@@ -474,7 +531,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <input className=' w-16 bg-transparent text-center' type="number" value={positionZValue} onChange={positionZChange}  />
             </div>
           </div>
-          <div className='saveSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+          <div className='saveSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-500 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Are you sure you want to save the scene?</label>
               <div className=' grid grid-cols-[1fr_3fr] grid-rows-2 gap-y-8 px-10 items-center justify-items-center text-lg'>
@@ -490,12 +547,12 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               </div>
             </div>
           </div>
-          <div className='settingSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+          <div className='settingSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-800 grid items-center content-between border-4 rounded-none border-fourthcolor text-lg'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Scene</label>
               <div className=' grid grid-cols-[1fr_3fr] gap-y-8 px-10 items-center justify-items-center text-lg'>
                 <label className=' text-fourthcolor'>Scene name</label>
-                <input className=' bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-64 h-10 flex justify-center items-center' placeholder={'Name'}/>
+                <input className=' sceneName bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-64 h-10 flex justify-center items-center' ref={sceneSettingNameValue} onChange={handleInputChange} placeholder={'Name'}/>
               </div>
               <label className=' px-8 text-fourthcolor text-xl flex justify-center items-start'>Hot Keys</label>
               <div className=' grid grid-cols-[1fr_2fr] px-12'>
@@ -528,7 +585,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               </div>
             </div>
           </div>
-          <div className='shareSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+          <div className='shareSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-800 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Share</label>
               <div className=' grid grid-cols-[1fr_3fr] grid-rows-2 gap-y-8 px-10 items-center justify-items-center text-lg'>
@@ -547,7 +604,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               </div>
             </div>
           </div>
-          <div className='unavailableSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+          <div className='unavailableSceneBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Create/Import/Export</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Sorry but this feature is not available yet</label>
@@ -556,7 +613,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               </div>
             </div>
           </div>
-          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Save</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Scene was successfully saved</label>
@@ -565,7 +622,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               </div>
             </div>
           </div>
-          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Share</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Scene was successfully published</label>
@@ -575,7 +632,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               </div>
             </div>
           </div>
-          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center'>
+          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Loading</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Please wait, it will take some time</label>
