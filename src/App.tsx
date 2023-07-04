@@ -7,6 +7,10 @@ import Home from './Home'
 import Profile from './Profile'
 import Help from './Help'
 
+export let isLogined: boolean = Boolean(localStorage.getItem('isLogined'))
+export function setIsLogined(value: boolean) {
+  isLogined = value
+}
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {
