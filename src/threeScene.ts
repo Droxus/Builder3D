@@ -20,6 +20,10 @@ export let thisSceneLocal: localScene;
 
 export let sceneID: string
 
+export function setSceneID(value: any) {
+  sceneID = value
+}
+
 export function createScene(){
   sceneClear()
 
@@ -75,8 +79,8 @@ export function createScene(){
       thisSceneLocal = {
         id: sceneID,
         name: 'Test Build',
-        author: 'Droxus228',
-        rate: 4,
+        author: String(localStorage.getItem('nickName')),
+        rate: 0,
         contains: [],
       }
     }

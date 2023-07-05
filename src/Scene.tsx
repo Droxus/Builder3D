@@ -7,6 +7,7 @@ import * as Controls from './controls'
 import * as ThreeScene from './threeScene'
 import { Link } from 'react-router-dom';
 import { Material, MaterialParameters, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import * as firebase from './firebase'
 
 export let pickedTexture: string = 'debug.png'
 export let noCubeBlocks: any = []
@@ -170,6 +171,9 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
     if (sceneSettingNameValue.current){
       sceneSettingNameValue.current.value = value
     }
+    Array.from(document.querySelectorAll('.sceneNameLbls')).forEach((lbl) => {
+      (lbl as HTMLLabelElement).innerText = value
+    })
   }
   function onHotKeys(event: any){
     let arr = []
@@ -236,6 +240,9 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
             isNeedToCreateScene = true
           }
         }
+        Array.from(document.querySelectorAll('.sceneNameLbls')).forEach((lbl) => {
+          (lbl as HTMLLabelElement).innerText = String(sceneNameValue.current?.value)
+        })
       }
       const [scaleValue, setScaleInputValue] = useState("");
       const scaleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -414,6 +421,22 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
             }
           event.target.blur()
         }
+        function onSaveSceneBtn() {
+          (document.querySelector('.saveSceneBlock') as HTMLDivElement).style.display = 'none';
+          (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'grid';
+          firebase.saveData(`users/${localStorage.getItem('nickName')}/scenes/${ThreeScene.sceneID}`, JSON.parse(String(localStorage.getItem( ThreeScene.sceneID)))).then(() => {
+            (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'none';
+            (document.querySelector('.sceneSavedBlock') as HTMLDivElement).style.display = 'grid';
+          })
+        }
+        function onPublicSceneBtn() {
+          (document.querySelector('.shareSceneBlock') as HTMLDivElement).style.display = 'none';
+          (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'grid';
+          firebase.saveData(`scenes/${ThreeScene.sceneID}`, JSON.parse(String(localStorage.getItem( ThreeScene.sceneID)))).then(() => {
+            (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'none';
+            (document.querySelector('.scenePublishedBlock') as HTMLDivElement).style.display = 'grid';
+          })
+        }
         function onCreateBtn(event: any) {
           (document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'grid';
           event.target.blur()
@@ -452,7 +475,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <button onClick={onCreateBtn} className=' h-full w-24 focus:outline-none hover:border-0 transition-none'>Create</button>
             </div>
             <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
-              <button className='outline-none'>Droxus228</button>
+              <button className='outline-none'>{String(localStorage.getItem('nickName'))}</button>
               <label className=' mx-2'>/</label>
               <input className='sceneName bg-transparent outline-none' type="text" ref={sceneNameValue} onChange={handleInputChange} />
             </div>
@@ -536,13 +559,13 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Are you sure you want to save the scene?</label>
               <div className=' grid grid-cols-[1fr_3fr] grid-rows-2 gap-y-8 px-10 items-center justify-items-center text-lg'>
                 <label className=' text-fourthcolor'>Scene name</label>
-                <label className=' bg-thirdcolor text-firstcolor  w-64 h-10 flex justify-center items-center'>First Home</label>
+                <label className=' sceneNameLbls bg-thirdcolor text-firstcolor  w-64 h-10 flex justify-center items-center'></label>
                 <label className=' text-fourthcolor'>Author name</label>
-                <label className=' bg-thirdcolor text-firstcolor w-64 h-10 flex justify-center items-center'>Droxus</label>
+                <label className=' bg-thirdcolor text-firstcolor w-64 h-10 flex justify-center items-center'>{String(localStorage.getItem('nickName'))}</label>
               </div>
               <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* The scene will be shown from the camera view and camera position when saving</label>
               <div className=' flex justify-around py-8'>
-                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center'>Yes, I am sure</button>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={onSaveSceneBtn}>Yes, I am sure</button>
                 <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.saveSceneBlock') as HTMLDivElement).style.display = 'none'}}>No, I am not</button>
               </div>
             </div>
@@ -590,16 +613,16 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Share</label>
               <div className=' grid grid-cols-[1fr_3fr] grid-rows-2 gap-y-8 px-10 items-center justify-items-center text-lg'>
                 <label className=' text-fourthcolor'>Scene name</label>
-                <label className=' bg-thirdcolor text-firstcolor  w-64 h-10 flex justify-center items-center'>First Home</label>
+                <label className=' sceneNameLbls bg-thirdcolor text-firstcolor  w-64 h-10 flex justify-center items-center'></label>
                 <label className=' text-fourthcolor'>Author name</label>
-                <label className=' bg-thirdcolor text-firstcolor w-64 h-10 flex justify-center items-center'>Droxus</label>
+                <label className=' bg-thirdcolor text-firstcolor w-64 h-10 flex justify-center items-center'>{String(localStorage.getItem('nickName'))}</label>
               </div>
               <label className=' px-8 text-fourthcolor text-xl flex justify-center items-start'>Warning</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* The scene will be shown from the camera view and camera position when saving</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* The scene will be published and link to the scene will be copied</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* Everyone will be able to see your scene and everyone will be able to rate your scene</label>
               <div className=' flex justify-around py-8'>
-                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center'>Public</button>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={onPublicSceneBtn}>Public</button>
                 <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.shareSceneBlock') as HTMLDivElement).style.display = 'none'}}>Cancel</button>
               </div>
             </div>
@@ -613,31 +636,31 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               </div>
             </div>
           </div>
-          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
+          <div className='sceneSavedBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Save</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Scene was successfully saved</label>
               <div className=' flex justify-around py-8'>
-                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'none'}}>Okay</button>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.sceneSavedBlock') as HTMLDivElement).style.display = 'none'}}>Okay</button>
               </div>
             </div>
           </div>
-          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
+          <div className='scenePublishedBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Share</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Scene was successfully published</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Link to the scene was copied</label>
               <div className=' flex justify-around py-8'>
-                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'none'}}>Okay</button>
+                <button className=' w-48 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.scenePublishedBlock') as HTMLDivElement).style.display = 'none';}}>Okay</button>
               </div>
             </div>
           </div>
-          <div className='opa hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
+          <div className='sceneSaveLoaderBlock hidden w-screen h-screen absolute top-0 left-0 z-200 backdrop-blur-sm backdrop-brightness-50 items-center justify-center' onFocus={onBlockFindFocus} onBlur={onBlockFindBlur}>
             <div className=' bg-white w-600 h-400 grid items-center content-between border-4 rounded-none border-fourthcolor'>
               <label className=' h-16 text-center flex justify-center items-center text-fourthcolor text-2xl'>Loading</label>
               <label className=' px-12 text-thirdcolor text-base flex justify-center items-center'>Please wait, it will take some time</label>
               <div className=' flex justify-around py-8'>
-                <button className=' w-64 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'none'}}>Click to load faster  =&#10089;</button>
+                <button className=' w-64 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center'>Click to load faster  =&#10089;</button>
               </div>
             </div>
           </div>

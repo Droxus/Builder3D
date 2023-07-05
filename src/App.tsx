@@ -11,6 +11,15 @@ export let isLogined: boolean = Boolean(localStorage.getItem('isLogined'))
 export function setIsLogined(value: boolean) {
   isLogined = value
 }
+export let globalScenes = [];
+export let localScenes = [];
+
+export function setGlobalScenes(value: any) {
+  globalScenes = value
+}
+export function setLocalScenes(value: any) {
+  localScenes = value
+}
 // uncomment to update textures
 // updateAllTextures()
 function updateAllTextures() {

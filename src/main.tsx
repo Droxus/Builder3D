@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 // firebase.readData('cities/New York').then((result) => {
 //   console.log(result)
 // })
-// firebase.readAllData('cities').then((result) => {
+// firebase.readAllData('scenes').then((result) => {
 //   console.log(result)
 // })
 firebase.checkSigning()

@@ -17,11 +17,11 @@ const ProfileInfo = ( )  => {
       <div className='grid items-center justify-center text-lg font-medium'>
         <div className=' w-72 h-4/5 grid grid-cols-2 items-center content-evenly'>
           <label className=' flex justify-start'>Nickname:</label>
-          <label className=' flex justify-start'>Droxus228</label>
+          <label className=' flex justify-start'>{String(localStorage.getItem('nickName'))}</label>
           <label className=' flex justify-start'>Scene created:</label>
-          <label className=' flex justify-start'>9</label>
+          <label className=' sceneCreatedLbl flex justify-start'>0</label>
           <label className=' flex justify-start'>Average rating:</label>
-          <label className=' flex justify-start'>4.2</label>
+          <label className=' avgRatingLbl flex justify-start'>0.0</label>
         </div>
       </div>
       <div className=' border-fourthcolor rounded-none border-2 aspect-video'></div>
@@ -35,7 +35,7 @@ function Profile() {
       <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full z-60" >
         <Home.MenuHeader/>
         <ProfileInfo/>
-        <Home.ScenesBlock scenePick={Home.onScenePick} profilePick={Home.onProfilePick} scenes={Home.scenes}/>
+        <Home.ScenesBlock profilePick={Home.onProfilePick} path={`users/${String(localStorage.getItem('nickName'))}/scenes`}/>
       </div>
     )
   }

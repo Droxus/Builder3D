@@ -53,6 +53,7 @@ export async function signUpUser(login: string, password: string) {
             const user = userCredential.user;
             console.log('Signed in')
             App.setIsLogined(true)
+            localStorage.setItem('nickName', String(user.email).slice(0, -12))
             localStorage.setItem('isLogined', 'true')
             resolve(user)
             // ...
@@ -74,6 +75,7 @@ export async function signInUser(login: string, password: string) {
             const user = userCredential.user;
             console.log('Signed in')
             App.setIsLogined(true)
+            localStorage.setItem('nickName', String(user.email).slice(0, -12))
             localStorage.setItem('isLogined', 'true')
             resolve(user)
             // ...
@@ -93,6 +95,7 @@ export async function checkSigning() {
           // https://firebase.google.com/docs/reference/js/auth.user
           const uid = user.uid;
           App.setIsLogined(true)
+          localStorage.setItem('nickName', String(user.email).slice(0, -12))
           localStorage.setItem('isLogined', 'true')
           console.log('Signed in')
           // ...
