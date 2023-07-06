@@ -527,6 +527,9 @@ export function createControls(){
   document.querySelector('canvas')?.addEventListener('wheel', blockRotate)
   document.querySelector('canvas')?.addEventListener('mousedown', onMouseDown)
   document.querySelector('canvas')?.addEventListener('mouseup', onMouseUp)
+  if (App.isViewOnlyMode) {
+    modeSwitch()
+  }
   historyOfScene = []
   ThreeScene.animate()
 }

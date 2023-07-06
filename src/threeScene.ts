@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import InfiniteGridHelper from './InfiniteGridHelper';
 import * as Controls from './controls'
 import * as Scene from './Scene';
+import * as App from './App'
+import * as firebase from './firebase'
 
 export let scene: THREE.Scene | null, camera: THREE.PerspectiveCamera | null, renderer: THREE.WebGLRenderer | null
 
@@ -12,7 +14,7 @@ interface localScene {
   id: string,
   name: string,
   author: string,
-  rate: number,
+  rate: number[],
   contains: object[],
 }
 
@@ -21,6 +23,9 @@ export let thisSceneLocal: localScene;
 export let sceneID: string
 
 export function setSceneID(value: any) {
+  if (!value){
+    value = String(Math.floor(Math.random() * Math.pow(10, 8)))
+  }
   sceneID = value
 }
 
@@ -73,17 +78,46 @@ export function createScene(){
         camera.updateProjectionMatrix();
       }
     }
-    sceneID = '0000';
     thisSceneLocal = JSON.parse( String( localStorage.getItem( sceneID ) ) );
+    if (!thisSceneLocal) {
+        if (App.localScenes.length < 1) {
+          firebase.readAllData(`users/${String(localStorage.getItem('nickName'))}/scenes`).then((result) => {
+            App.setLocalScenes(result)
+            let possibleLocalScene = App.localScenes.find((e: any) => e.id == sceneID)
+            if (possibleLocalScene !== undefined) {
+              thisSceneLocal = possibleLocalScene
+            } else {
+              let possibleGlobalScene = App.globalScenes.find((e: any) => e.id == sceneID)
+              if (possibleGlobalScene !== undefined) {
+                thisSceneLocal = possibleGlobalScene
+              }
+            }
+          })
+        } else {
+          let possibleLocalScene = App.localScenes.find((e: any) => e.id == sceneID)
+          if (possibleLocalScene !== undefined) {
+            thisSceneLocal = possibleLocalScene
+          } else {
+            let possibleGlobalScene = App.globalScenes.find((e: any) => e.id == sceneID)
+            if (possibleGlobalScene !== undefined) {
+              thisSceneLocal = possibleGlobalScene
+            }
+          }
+        }
+    }
+    if (sceneID == undefined || !sceneID) {
+      sceneID = String(Math.floor(Math.random() * Math.pow(10, 8)))
+    }
     if (!thisSceneLocal){
       thisSceneLocal = {
         id: sceneID,
         name: 'Test Build',
         author: String(localStorage.getItem('nickName')),
-        rate: 0,
+        rate: [],
         contains: [],
       }
     }
+    (document.querySelector('.sceneAuthorBtn') as HTMLButtonElement).innerText = thisSceneLocal.author
     Scene.setSceneName(thisSceneLocal.name)
     localStorage.setItem(sceneID, JSON.stringify(thisSceneLocal))
     console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )

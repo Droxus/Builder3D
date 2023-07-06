@@ -130,7 +130,6 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
   function onExitFromScene(){
     (document.querySelector('#root') as HTMLDivElement).style.pointerEvents = 'all'
     document.removeEventListener('keydown', onHotKeys)
-    // console.log('Exit')
   }
   export function setProgressSceneLoadingValue(value: number){
     if (progressBarLoaderScene.current) {
@@ -167,6 +166,9 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
   export function setSceneName(value: string){
     if (sceneNameValue.current) {
       sceneNameValue.current.value = value
+      if (App.isViewOnlyMode) {
+        (document.querySelector('.sceneName') as HTMLInputElement).style.pointerEvents = 'none'
+      }
     }
     if (sceneSettingNameValue.current){
       sceneSettingNameValue.current.value = value
@@ -224,7 +226,9 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
     }
   }
   export default function Scene(){
-    document.addEventListener('keydown', onHotKeys)
+    if (!App.isViewOnlyMode){
+      document.addEventListener('keydown', onHotKeys)
+    }
       const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSceneName(event.target.value)
         ThreeScene.thisSceneLocal.name = String(event.target.value)
@@ -292,18 +296,22 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
         setSelectedModeBtn('Build')
       }
       function onModeSwitch(event: any){
-        setSelectedModeBtn(event.currentTarget.querySelector('label').innerText)
-        mode = event.currentTarget.querySelector('label').innerText
-        Controls.modeSwitch()
+        if (!App.isViewOnlyMode){
+          setSelectedModeBtn(event.currentTarget.querySelector('label').innerText)
+          mode = event.currentTarget.querySelector('label').innerText
+          Controls.modeSwitch()
+        }
       }
       const [blockTypeBtn, setBlockTypeBtn] = useState('');
       if (!blockTypeBtn){
         setBlockTypeBtn('Blocks')
       }
       function onBlockTypeSwitch(event: any){
-        setBlockTypeBtn(event.target.innerText)
-        blockType = event.target.innerText
-        Controls.blockTypeSwich()
+        if (!App.isViewOnlyMode){
+          setBlockTypeBtn(event.target.innerText)
+          blockType = event.target.innerText
+          Controls.blockTypeSwich()
+        }
       }
       function onBlockFind(event: any){
         setQuery(event.target.value)
@@ -365,24 +373,36 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
     }
     const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
         useEffect(() => {
+          if (App.isViewOnlyMode) {
+            (document.querySelector('.rateSceneBlock') as HTMLDivElement).style.display = 'grid'
+            mode = 'Inspect'
+            if (!selectedModeBtn){
+              setSelectedModeBtn(mode)
+            }
+          } else {
+            (document.querySelector('.rateSceneBlock') as HTMLDivElement).style.display = 'none'
+            mode = 'Build'
+          }
           setRecentlyUsedBlocks(recentlyUsedBlocks)
         }, []);
     
         function onTexturePick(event: any){
-          Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('id'))
-          pickedTexture = event.currentTarget.querySelector('label').getAttribute('id')
-         
-        
-          if (pickedTexture.slice(-4) !== '.png'){
-            recentlyUsedBlocks.push(allTextures.filter((e: any) => e.name == pickedTexture.replaceAll(' ', '_').concat('.png'))[0])
-          } else {
-            recentlyUsedBlocks.push(allTextures.filter((e: any) => e.name == pickedTexture)[0])
+          if (!App.isViewOnlyMode){
+            Controls.loadPickedTexture(event.currentTarget.querySelector('img').getAttribute('id'))
+            pickedTexture = event.currentTarget.querySelector('label').getAttribute('id')
+           
+          
+            if (pickedTexture.slice(-4) !== '.png'){
+              recentlyUsedBlocks.push(allTextures.filter((e: any) => e.name == pickedTexture.replaceAll(' ', '_').concat('.png'))[0])
+            } else {
+              recentlyUsedBlocks.push(allTextures.filter((e: any) => e.name == pickedTexture)[0])
+            }
+            recentlyUsedBlocks = Array.from(new Set(recentlyUsedBlocks))
+            recentlyUsedBlocks = recentlyUsedBlocks.slice(-8)
+            setRecentlyUsedBlocks(recentlyUsedBlocks)
+            document.querySelectorAll('.blocks').forEach(e => e.classList.remove('opacity-40'));
+            event.currentTarget.classList.add('opacity-40')
           }
-          recentlyUsedBlocks = Array.from(new Set(recentlyUsedBlocks))
-          recentlyUsedBlocks = recentlyUsedBlocks.slice(-8)
-          setRecentlyUsedBlocks(recentlyUsedBlocks)
-          document.querySelectorAll('.blocks').forEach(e => e.classList.remove('opacity-40'));
-          event.currentTarget.classList.add('opacity-40')
         }
         let undoArr: any[] = []
         function onUndoBtn(event: any){
@@ -422,44 +442,75 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
           event.target.blur()
         }
         function onSaveSceneBtn() {
-          (document.querySelector('.saveSceneBlock') as HTMLDivElement).style.display = 'none';
-          (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'grid';
-          firebase.saveData(`users/${localStorage.getItem('nickName')}/scenes/${ThreeScene.sceneID}`, JSON.parse(String(localStorage.getItem( ThreeScene.sceneID)))).then(() => {
-            (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'none';
-            (document.querySelector('.sceneSavedBlock') as HTMLDivElement).style.display = 'grid';
-          })
+          if (!App.isViewOnlyMode){
+            (document.querySelector('.saveSceneBlock') as HTMLDivElement).style.display = 'none';
+            (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'grid';
+            firebase.saveData(`users/${localStorage.getItem('nickName')}/scenes/${ThreeScene.sceneID}`, JSON.parse(String(localStorage.getItem( ThreeScene.sceneID)))).then(() => {
+              (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'none';
+              (document.querySelector('.sceneSavedBlock') as HTMLDivElement).style.display = 'grid';
+            })
+          }
         }
         function onPublicSceneBtn() {
-          (document.querySelector('.shareSceneBlock') as HTMLDivElement).style.display = 'none';
-          (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'grid';
-          firebase.saveData(`scenes/${ThreeScene.sceneID}`, JSON.parse(String(localStorage.getItem( ThreeScene.sceneID)))).then(() => {
-            (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'none';
-            (document.querySelector('.scenePublishedBlock') as HTMLDivElement).style.display = 'grid';
-          })
+          if (!App.isViewOnlyMode){
+            (document.querySelector('.shareSceneBlock') as HTMLDivElement).style.display = 'none';
+            (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'grid';
+            firebase.saveData(`scenes/${ThreeScene.sceneID}`, JSON.parse(String(localStorage.getItem( ThreeScene.sceneID)))).then(() => {
+              (document.querySelector('.sceneSaveLoaderBlock') as HTMLDivElement).style.display = 'none';
+              (document.querySelector('.scenePublishedBlock') as HTMLDivElement).style.display = 'grid';
+            })
+          }
         }
         function onCreateBtn(event: any) {
+          if (!App.isViewOnlyMode)
           (document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'grid';
           event.target.blur()
         }
         function onSaveBtn(event: any) {
+          if (!App.isViewOnlyMode)
           (document.querySelector('.saveSceneBlock') as HTMLDivElement).style.display = 'grid';
           event.target.blur()
         }
         function onSceneBtn(event: any) {
+          if (!App.isViewOnlyMode)
           (document.querySelector('.settingSceneBlock') as HTMLDivElement).style.display = 'grid';
           event.target.blur()
         }
         function onImportBtn(event: any) {
+          if (!App.isViewOnlyMode)
           (document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'grid';
           event.target.blur()
         }
         function onExportBtn(event: any) {
+          if (!App.isViewOnlyMode)
           (document.querySelector('.unavailableSceneBlock') as HTMLDivElement).style.display = 'grid';
           event.target.blur()
         }
         function onShareBtn(event: any) {
+          if (!App.isViewOnlyMode)
           (document.querySelector('.shareSceneBlock') as HTMLDivElement).style.display = 'grid';
           event.target.blur()
+        }
+        function onRateNumberClick(event: any) {
+          Array.from(document.querySelectorAll('.rateNumber')).forEach((e: any) =>  {
+            (e as HTMLButtonElement).classList.remove('bg-fourthcolor');
+            (e as HTMLButtonElement).classList.remove('text-white');
+          });
+          (event.target as HTMLButtonElement).classList.add('bg-fourthcolor');
+          (event.target as HTMLButtonElement).classList.add('text-white');
+          event.target.blur()
+        }
+        function onRateSceneBlock() {
+          let ratedButton = Array.from(document.querySelectorAll('.rateNumber')).find((e: any) => e.classList.contains('bg-fourthcolor'));
+          let ratedNumber = Number((ratedButton as HTMLButtonElement).innerText);
+          firebase.setRatingNumber(ratedNumber, ThreeScene.thisSceneLocal.id, ThreeScene.thisSceneLocal.author);
+          (document.querySelector('.rateSceneBlock') as HTMLButtonElement).style.display = 'none';
+        }
+        if (App.isViewOnlyMode) {
+          mode = 'Inspect'
+          if (!selectedModeBtn){
+            setSelectedModeBtn(mode)
+          }
         }
       return (
         <div className='threeSceneInterface h-full w-full overflow-hidden pointer-events-none grid grid-rows-[52px_1fr] z-100'>
@@ -475,7 +526,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <button onClick={onCreateBtn} className=' h-full w-24 focus:outline-none hover:border-0 transition-none'>Create</button>
             </div>
             <div className='flex items-center justify-center text-firstcolor shadow-forTopBlock'>
-              <button className='outline-none'>{String(localStorage.getItem('nickName'))}</button>
+              <button className=' sceneAuthorBtn outline-none'>{String(localStorage.getItem('nickName'))}</button>
               <label className=' mx-2'>/</label>
               <input className='sceneName bg-transparent outline-none' type="text" ref={sceneNameValue} onChange={handleInputChange} />
             </div>
@@ -662,6 +713,20 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
               <div className=' flex justify-around py-8'>
                 <button className=' w-64 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center'>Click to load faster  =&#10089;</button>
               </div>
+            </div>
+          </div>
+          <div className=' rateSceneBlock absolute bottom-8 left-1/2 z-50 -ml-40 bg-white w-80 h-40 grid items-center content-between border-4 rounded-none border-fourthcolor'>
+            <label className=' h-8 text-center flex justify-center items-center text-fourthcolor text-lg'>Rate this scene</label>
+            <div className=' flex justify-evenly'>
+              <button className=' rateNumber bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-10 h-8 flex justify-center items-center text-lg' onClick={onRateNumberClick}>1</button>
+              <button className=' rateNumber bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-10 h-8 flex justify-center items-center text-lg' onClick={onRateNumberClick}>2</button>
+              <button className=' rateNumber bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-10 h-8 flex justify-center items-center text-lg' onClick={onRateNumberClick}>3</button>
+              <button className=' rateNumber bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-10 h-8 flex justify-center items-center text-lg' onClick={onRateNumberClick}>4</button>
+              <button className=' rateNumber bg-firstcolor text-fourthcolor border-2 rounded-none outline-none border-fourthcolor text-center w-10 h-8 flex justify-center items-center text-lg' onClick={onRateNumberClick}>5</button>
+            </div>
+            <div className=' flex justify-around py-4'>
+              <button className=' w-28 h-8 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={onRateSceneBlock}>Rate</button>
+              <button className=' w-28 h-8 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.rateSceneBlock') as HTMLButtonElement).style.display = 'none'}}>Close</button>
             </div>
           </div>
         </div>

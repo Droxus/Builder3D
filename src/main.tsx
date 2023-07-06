@@ -13,13 +13,5 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     </Router>
   </React.StrictMode>
 )
-// firebase.saveData('cities/New York', { capital: true }).then((result) => {
-//   console.log(result)
-// })
-// firebase.readData('cities/New York').then((result) => {
-//   console.log(result)
-// })
-// firebase.readAllData('scenes').then((result) => {
-//   console.log(result)
-// })
 firebase.checkSigning()
+

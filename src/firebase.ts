@@ -1,8 +1,8 @@
 import * as App from './App'
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, arrayUnion } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfmgQo7ftZ_ScvGCWecO57GFNLZtRwA3c",
@@ -44,6 +44,20 @@ export async function readAllData(dbPath: string) {
         dataArr.push(doc.data())
     });
     return dataArr
+}
+export async function setRatingNumber(value: number, sceneName: string, author: string) {
+    await updateDoc(doc(db, `scenes/${sceneName}`), {
+        rate: arrayUnion({
+            nickaname: String(localStorage.getItem('nickName')),
+            number: value
+        })
+    });
+    await updateDoc(doc(db, `users/${String(localStorage.getItem('nickName'))}/scenes/${sceneName}`), {
+        rate: arrayUnion({
+            nickaname: String(localStorage.getItem('nickName')),
+            number: value
+        })
+    });
 }
 export async function signUpUser(login: string, password: string) {
     return new Promise((resolve) => {
@@ -106,19 +120,3 @@ export async function checkSigning() {
         }
       });
 }
-// export async function autoSigning() {
-//     setPersistence(auth, browserLocalPersistence)
-//     .then(() => {
-//         // Existing and future Auth states are now persisted in the current
-//         // session only. Closing the window would clear any existing state even
-//         // if a user forgets to sign out.
-//         // ...
-//         // New sign-in will be persisted with session persistence.
-//         return signInWithEmailAndPassword(auth, email, password);
-//     })
-//     .catch((error) => {
-//         // Handle Errors here.
-//         const errorCode = error.code;
-//         const errorMessage = error.message;
-//     });
-// }

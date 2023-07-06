@@ -7,16 +7,19 @@ import Home from './Home'
 import Profile from './Profile'
 import Help from './Help'
 
+export let isViewOnlyMode: boolean = true;
+export function setIsViewOnlyMode(value: boolean) {
+  isViewOnlyMode = value
+}
 export let isLogined: boolean = Boolean(localStorage.getItem('isLogined'))
 export function setIsLogined(value: boolean) {
   isLogined = value
 }
 export let globalScenes = [];
-export let localScenes = [];
-
 export function setGlobalScenes(value: any) {
   globalScenes = value
 }
+export let localScenes = [];
 export function setLocalScenes(value: any) {
   localScenes = value
 }
