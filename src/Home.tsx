@@ -7,15 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import * as ThreeScene from './threeScene'
 import * as Scene from './Scene'
 
-let filteredElements: any[] = []
 export const MenuHeader = ( )  => {
-        const [searchTerm, setSearchTerm] = useState('');
-      
-        const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-          setSearchTerm(event.target.value);
-        };
-        filteredElements = App.globalScenes.filter((element: any) => {element.name.toLowerCase().includes(searchTerm.toLowerCase())})
-      
     return (
         <header className=' h-16 w-full bg-fourthcolor fixed'>
         <div className=' h-full w-full grid grid-cols-3 gap-8 text-firstcolor'>
@@ -30,7 +22,7 @@ export const MenuHeader = ( )  => {
                     <button>
                         <img className=' w-7' src="https://raw.githubusercontent.com/Droxus/Builder3D/adf3374aa802ac59bf64cb0dbfbbd51f2dce38a0/src/assets/img/crossScenes.svg"/>
                     </button>
-                    <input className=' w-full bg-transparent text-center outline-none' placeholder='Find Scene' type="search" autoComplete='off' name='aslmasf' value={searchTerm} onChange={handleInputChange} />
+                    <input className=' w-full bg-transparent text-center outline-none' placeholder='Find Scene' type="search" autoComplete='off' name='aslmasf' />
                     <button>
                         <img className=' w-7' src="https://raw.githubusercontent.com/Droxus/Builder3D/adf3374aa802ac59bf64cb0dbfbbd51f2dce38a0/src/assets/img/searchScenes.svg"/>
                     </button>
@@ -41,9 +33,6 @@ export const MenuHeader = ( )  => {
                     <Link className=' flex w-16 h-10 items-center justify-center text-xl font-normal' to="/Builder3D/help">?</Link>
                 </button>
                 {App.isLogined ? (
-                    // <button className=' w-40 h-10 border-firstcolor rounded-none border-2'>
-                    //     <Link className=' flex w-40 h-10 items-center justify-center text-lg font-normal' to="/Builder3D/scene">Create Scene</Link>
-                    // </button>
                     <button className=' w-40 h-10 border-firstcolor rounded-none border-2' onClick={() => {(document.querySelector('.createSceneBlock') as HTMLDivElement).style.display = 'grid';}}>
                         <label className=' cursor-pointer flex w-40 h-10 items-center justify-center text-lg font-normal'>Create Scene</label>
                     </button>
@@ -207,7 +196,6 @@ export const ScenesBlock = ( {path, profilePick}: AllBlocksProps )  => {
           try {
             const result = await firebase.readAllData(path);
             path == 'scenes' ? App.setGlobalScenes(result) : App.setLocalScenes(result);
-            filteredElements = App.globalScenes
             if (path !== 'scenes') {
                 (document.querySelector('.sceneCreatedLbl') as HTMLLabelElement).innerText = String(App.localScenes.length)
                 let allRates = App.localScenes.map((e: any) => e.rate)
@@ -230,8 +218,8 @@ export const ScenesBlock = ( {path, profilePick}: AllBlocksProps )  => {
       }, []);
  return (
      <main className=' max-h-max w-full grid grid-cols-3 gap-8 grid-flow-row text-firstcolor py-24 px-8'>
-        {filteredElements.length > 0 ? (
-        filteredElements.map((item: any) => (       
+        {content.length > 0 ? (
+        content.map((item: any) => (       
             <div key={item.id} className=' border-fourthcolor rounded-none border-2 aspect-video grid'>
                 <div className=' h-full aspect-video bg-secondcolor cursor-pointer' id={item.id} onClick={onScenePick}></div>
                 <div className=' w-full h-11 bg-fourthcolor flex text-lg'>
