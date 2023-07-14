@@ -83,7 +83,7 @@ img{
 .read-the-docs {
   color: #888;
 }
-canvas {
+.interactiveCanvas {
   width: 86%;
   height: 100%;
   position: absolute;

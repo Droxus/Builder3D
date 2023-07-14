@@ -1,4 +1,4 @@
-import { useState, useEffect, createRef } from 'react'
+import { useState, useEffect, createRef, useRef, CSSProperties } from 'react'
 import React from 'react'
 import './App.css'
 import * as App from './App'
@@ -6,6 +6,7 @@ import * as firebase from './firebase'
 import { Link, useNavigate } from 'react-router-dom';
 import * as ThreeScene from './threeScene'
 import * as Scene from './Scene'
+import ScenesToShow from './ScenesToShow'
 
 export const MenuHeader = ( )  => {
     return (
@@ -71,7 +72,7 @@ export const MenuHeader = ( )  => {
     </header>
     );
   };
-  function onCreateNewSceneBtn () {
+  function onCreateNewSceneBtn() {
     ThreeScene.setSceneID(String(Math.floor(Math.random() * Math.pow(10, 8))));
     localStorage.removeItem(String(localStorage.getItem('lastSceneId')));
     localStorage.setItem('lastSceneId', ThreeScene.sceneID)
@@ -167,7 +168,6 @@ function onRegisterError(errorMessage: string) {
     path: string;
     profilePick: (event: any) => void;
   }
-  export const scenes = [{id: 2130, name: 'asdsa', rating: 3.4, author: 'asd'}, {id: 7655, name: 'opa', rating: 4.2, author: 'asd'}]
   export function onProfilePick(event: any){
     console.log('oap')
   }
@@ -178,54 +178,55 @@ function onRegisterError(errorMessage: string) {
     author: string;
     rate: number | string;
   }
-
 export const ScenesBlock = ( {path, profilePick}: AllBlocksProps )  => {
     const [content, setContent] = useState<Content[]>([]);
     const navigate = useNavigate();
     const onScenePick = (event: any) => {
-        if (path == 'scenes') {
-            App.setIsViewOnlyMode(true)
-        } else {
-            App.setIsViewOnlyMode(false)
-        }
+        App.setIsViewOnlyMode(path == 'scenes')
         ThreeScene.setSceneID(event.currentTarget.id)
         navigate('/Builder3D/scene');
     };
+
     useEffect(() => {
         const fetchData = async () => {
-          try {
-            const result = await firebase.readAllData(path);
-            path == 'scenes' ? App.setGlobalScenes(result) : App.setLocalScenes(result);
-            if (path !== 'scenes') {
-                (document.querySelector('.sceneCreatedLbl') as HTMLLabelElement).innerText = String(App.localScenes.length)
-                let allRates = App.localScenes.map((e: any) => e.rate)
-                allRates.forEach((rate: any, index) => {
-                    allRates[index] = rate.map((e: any) => e.number)
-                })
-                let sceneRates: any[] = [];
-                allRates.forEach((e: any) => {
-                    sceneRates.push(e.reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0) / e.length)
-                })
-                let sumRates = sceneRates.reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0);
-                (document.querySelector('.avgRatingLbl') as HTMLLabelElement).innerText = String((sumRates / sceneRates.length).toFixed(1))
-            }
-            setContent(result);
-          } catch (error) {
-            console.error('Error fetching data:', error);
-          }
+            firebase.readAllData(path).then((result) => {
+                path == 'scenes' ? App.setGlobalScenes(result) : App.setLocalScenes(result);
+                if (path !== 'scenes') {
+                    (document.querySelector('.sceneCreatedLbl') as HTMLLabelElement).innerText = String(App.localScenes.length)
+                    let allRates = App.localScenes.map((e: any) => e.rate)
+                    allRates.forEach((rate: any, index) => {
+                        allRates[index] = rate.map((e: any) => e.number)
+                    })
+                    let sceneRates: any[] = [];
+                    allRates.forEach((e: any) => {
+                        if (e.length > 0) {
+                            sceneRates.push(e.reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0) / e.length)
+                        }
+                    })
+                    let sumRates = sceneRates.reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0);
+                    (document.querySelector('.avgRatingLbl') as HTMLLabelElement).innerText = String((sumRates / sceneRates.length).toFixed(1))
+                }
+                setContent(result);
+                // ThreeScene.createToShowScenes('homePageSceneBlock')     
+                console.log(document.getElementsByClassName('homePageSceneBlock')[0].children)
+            }).catch((error) => {
+                console.error('Error fetching data:', error);
+            })
         };
         fetchData();
       }, []);
  return (
-     <main className=' max-h-max w-full grid grid-cols-3 gap-8 grid-flow-row text-firstcolor py-24 px-8'>
+     <main className=' homePageSceneBlock max-h-max w-full grid grid-cols-3 gap-8 grid-flow-row text-firstcolor py-24 px-8'>
         {content.length > 0 ? (
         content.map((item: any) => (       
             <div key={item.id} className=' border-fourthcolor rounded-none border-2 aspect-video grid'>
-                <div className=' h-full aspect-video bg-secondcolor cursor-pointer' id={item.id} onClick={onScenePick}></div>
+                <div className=' toShowCanvasBlock h-full aspect-video bg-secondcolor cursor-pointer' id={item.id} onClick={onScenePick} onLoad={() => console.log(item.id)}>
+                    <ScenesToShow sceneContains={item.contains}/>
+                </div>
                 <div className=' w-full h-11 bg-fourthcolor flex text-lg'>
                     <label className=' h-full w-1/2 flex items-center justify-center text-firstcolor'>{item.name}</label>
                     <label className=' h-full w-1/3 flex items-center justify-center text-thirdcolor cursor-pointer' onClick={profilePick}>{item.author}</label>
-                    <label className=' h-full w-1/6 flex items-center justify-center text-red-300'>{Number(item.rate.map((e: any) => e.number).reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0) / item.rate.length).toFixed(1)}</label>
+                    <label className=' h-full w-1/6 flex items-center justify-center text-red-300'>{item.rate.length > 0 ? Number(item.rate.map((e: any) => e.number).reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0) / item.rate.length).toFixed(1) : '0.0'}</label>
                 </div>
             </div>
         ))

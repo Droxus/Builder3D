@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^9.78.2",
     "firebase": "^9.23.0",
     "fs-extra": "^11.1.0",
     "graceful-fs": "^4.2.10",

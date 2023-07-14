@@ -4,7 +4,6 @@ import * as Controls from './controls'
 import * as Scene from './Scene';
 import * as App from './App'
 import * as firebase from './firebase'
-
 export let scene: THREE.Scene | null, camera: THREE.PerspectiveCamera | null, renderer: THREE.WebGLRenderer | null
 
 export let gridHelper: any
@@ -46,6 +45,7 @@ export function createScene(){
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     document.body.appendChild( renderer.domElement );
+    document.getElementsByTagName('canvas')[0].classList.add('interactiveCanvas')
     const gridHelper = new InfiniteGridHelper();
     gridHelper.position.set(8.5, -0.5, 8.5)
     scene.add( gridHelper );
