@@ -17,7 +17,7 @@ const loader = new THREE.TextureLoader()
 
 let isFirstPick = true
 
-let textureCube: any = undefined, textureCubeTop: any, textureCubeBottom: any;
+export let textureCube: any = undefined, textureCubeTop: any, textureCubeBottom: any;
 
 export let thisSceneContains: any = [];
 
@@ -40,7 +40,7 @@ export function setThisSceneContains(value: any){
 export async function loadPickedTexture(newTexture: string){
     return onTextureSwitch(newTexture)
 }
-export async function onTextureSwitch(texture: string){
+export async function onTextureSwitch(texture: string, exported: boolean = false){
   return new Promise((resolveInner) => {
     let normalTextureName = texture
     if (normalTextureName){
@@ -52,8 +52,7 @@ export async function onTextureSwitch(texture: string){
     textureCubeBottom = undefined
     textureCubeTop = undefined
     textureCube = undefined
-    
-      if (texture.includes('side')){
+    if (texture.includes('side')){
         Promise.all([
           new Promise((resolve) => {
             loader.load(`https://raw.githubusercontent.com/Droxus/Builder3D/main/src/assets/textures/${texture}`, (textCube) => {textureCube = textCube; resolve(textCube)}, () => {}, () => {resolve(undefined)})
@@ -150,6 +149,7 @@ export async function onTextureSwitch(texture: string){
               e.wrapT = THREE.RepeatWrapping;
             }
           })
+          if (!exported) {
             setHoverTextures()
             if (isFirstPick){
               isFirstPick = false
@@ -160,6 +160,7 @@ export async function onTextureSwitch(texture: string){
                 loadScene()
               }
             }
+          }
             resolveInner([textureCube, textureCubeTop, textureCubeBottom])
         }
   })

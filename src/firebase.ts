@@ -52,7 +52,7 @@ export async function setRatingNumber(value: number, sceneName: string, author: 
             number: value
         })
     });
-    await updateDoc(doc(db, `users/${String(localStorage.getItem('nickName'))}/scenes/${sceneName}`), {
+    await updateDoc(doc(db, `users/${author}/scenes/${sceneName}`), {
         rate: arrayUnion({
             nickaname: String(localStorage.getItem('nickName')),
             number: value

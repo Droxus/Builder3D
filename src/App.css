@@ -111,3 +111,7 @@ kbd {
   padding: 4px 8px;
   white-space: nowrap;
 }
+.loadingSceneGradient {
+  background: linear-gradient(90deg, #F44336, #E91E63, #00BCD4, #4CAF50, #FFEB3B, #FF5722);
+  transition: 1.5s !important;
+}

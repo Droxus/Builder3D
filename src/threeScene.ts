@@ -120,7 +120,7 @@ export function createScene(){
     (document.querySelector('.sceneAuthorBtn') as HTMLButtonElement).innerText = thisSceneLocal.author
     Scene.setSceneName(thisSceneLocal.name)
     localStorage.setItem(sceneID, JSON.stringify(thisSceneLocal))
-    console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )
+    // console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )
 }
 let shouldRender = true;
 export function animate() {

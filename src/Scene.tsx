@@ -8,6 +8,7 @@ import * as ThreeScene from './threeScene'
 import { Link } from 'react-router-dom';
 import { Material, MaterialParameters, Mesh, MeshBasicMaterial, Object3D } from 'three'
 import * as firebase from './firebase'
+import * as ScenesToShow from './ScenesToShow'
 
 export let pickedTexture: string = 'debug.png'
 export let noCubeBlocks: any = []
@@ -29,6 +30,9 @@ type Item = {
   interface AllBlocksProps {
     items: Item[];
     texturePick: (event: any) => void;
+  }
+  export function setAllTextures(value: any) {
+    allTextures = value
   }
   function onLoadTexture(){
     loadedTexturesCounter++;
@@ -373,6 +377,7 @@ const RecentlyUsedBlocks = ( {items, texturePick}: AllBlocksProps ) => {
     }
     const [recentlyUsedBlocksThis, setRecentlyUsedBlocks] = useState<Item[]>([]);
         useEffect(() => {
+          ScenesToShow.setIsFocusOnScene(false)
           if (App.isViewOnlyMode) {
             (document.querySelector('.rateSceneBlock') as HTMLDivElement).style.display = 'grid'
             mode = 'Inspect'

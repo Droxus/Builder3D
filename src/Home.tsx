@@ -207,8 +207,6 @@ export const ScenesBlock = ( {path, profilePick}: AllBlocksProps )  => {
                     (document.querySelector('.avgRatingLbl') as HTMLLabelElement).innerText = String((sumRates / sceneRates.length).toFixed(1))
                 }
                 setContent(result);
-                // ThreeScene.createToShowScenes('homePageSceneBlock')     
-                console.log(document.getElementsByClassName('homePageSceneBlock')[0].children)
             }).catch((error) => {
                 console.error('Error fetching data:', error);
             })
