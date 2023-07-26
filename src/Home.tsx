@@ -9,6 +9,22 @@ import * as Scene from './Scene'
 import ScenesToShow from './ScenesToShow'
 
 export const MenuHeader = ( )  => {
+    const [inputBlockSearchValue, inputBlockSearch] = useState('');
+    const [query, setQuery] = useState('');
+    function inputBlockSearchClear(){
+      inputBlockSearch('');
+      setQuery('');
+      (document.querySelector('.fakeSearchScenesInp') as HTMLInputElement).value = '';
+      (document.querySelector('.fakeSearchScenesInp') as HTMLInputElement).dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    function onInputBlockSearch(event: any){
+        inputBlockSearch(event.target.value);
+    }
+    function onBlockFind(event: any){
+        setQuery(event.target.value);
+        (document.querySelector('.fakeSearchScenesInp') as HTMLInputElement).value = event.target.value;
+        (document.querySelector('.fakeSearchScenesInp') as HTMLInputElement).dispatchEvent(new Event('input', { bubbles: true }));
+    }
     return (
         <header className=' h-16 w-full bg-fourthcolor fixed'>
         <div className=' h-full w-full grid grid-cols-3 gap-8 text-firstcolor'>
@@ -20,10 +36,10 @@ export const MenuHeader = ( )  => {
             </div>
             <div className=' flex items-center justify-evenly px-12'>
                 <div className=' flex h-10 w-full border-firstcolor rounded-none border-2'>
-                    <button>
+                    <button onClick={inputBlockSearchClear}>
                         <img className=' w-7' src="https://raw.githubusercontent.com/Droxus/Builder3D/adf3374aa802ac59bf64cb0dbfbbd51f2dce38a0/src/assets/img/crossScenes.svg"/>
                     </button>
-                    <input className=' w-full bg-transparent text-center outline-none' placeholder='Find Scene' type="search" autoComplete='off' name='aslmasf' />
+                    <input className=' findSceneInp w-full bg-transparent text-center outline-none' placeholder='Find Scene' type="search" autoComplete='off' name='aslmasf' onLoad={inputBlockSearchClear} value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind} />
                     <button>
                         <img className=' w-7' src="https://raw.githubusercontent.com/Droxus/Builder3D/adf3374aa802ac59bf64cb0dbfbbd51f2dce38a0/src/assets/img/searchScenes.svg"/>
                     </button>
@@ -31,7 +47,7 @@ export const MenuHeader = ( )  => {
             </div>
             <div className=' flex items-center justify-evenly'>
                 <button className=' w-16 h-10 border-firstcolor rounded-none border-2'>
-                    <Link className=' flex w-16 h-10 items-center justify-center text-xl font-normal' to="/Builder3D/help">?</Link>
+                    <Link className=' flex w-16 h-10 items-center justify-center text-xl font-normal' to="/help">?</Link>
                 </button>
                 {App.isLogined ? (
                     <button className=' w-40 h-10 border-firstcolor rounded-none border-2' onClick={() => {(document.querySelector('.createSceneBlock') as HTMLDivElement).style.display = 'grid';}}>
@@ -44,7 +60,7 @@ export const MenuHeader = ( )  => {
                 )}
                 {App.isLogined ? (
                     <button className=' w-40 h-10 border-firstcolor rounded-none border-2'>
-                        <Link className=' flex w-40 h-10 items-center justify-center text-lg font-normal' to="/Builder3D/profile">Your Profile</Link>
+                        <Link className=' flex w-40 h-10 items-center justify-center text-lg font-normal' to="/profile">Your Profile</Link>
                     </button>
                 ) : (
                     <button className=' w-40 h-10 border-firstcolor rounded-none border-2' onClick={() => {document.querySelector('.regBlock')?.classList.remove('hidden'); document.querySelector('.regBlock')?.classList.add('grid')}}>
@@ -60,10 +76,10 @@ export const MenuHeader = ( )  => {
               <label className=' px-12 text-thirdcolor text-base flex justify-start items-start'>* If you are going to create a new one, all unsaved changes will be deleted</label>
               <div className=' flex justify-around py-8 px-8'>
                 <button className=' w-36 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={onCreateNewSceneBtn}>
-                    <Link className=' flex w-40 h-10 items-center justify-center text-lg font-normal' to="/Builder3D/scene">Create New</Link>
+                    <Link className=' flex w-40 h-10 items-center justify-center text-lg font-normal' to="/scene">Create New</Link>
                 </button>
                 <button className=' w-36 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {ThreeScene.setSceneID(String(localStorage.getItem('lastSceneId'))); App.setIsViewOnlyMode(false)}}>
-                    <Link className=' flex w-40 h-10 items-center justify-center text-lg font-normal' to="/Builder3D/scene">Resume</Link>
+                    <Link className=' flex w-40 h-10 items-center justify-center text-lg font-normal' to="/scene">Resume</Link>
                 </button>
                 <button className=' w-36 h-10 outline-none rounded-none bg-fourthcolor text-firstcolor text-lg flex justify-center items-center' onClick={() => {(document.querySelector('.createSceneBlock') as HTMLDivElement).style.display = 'none'}}>Close</button>
               </div>
@@ -169,7 +185,9 @@ function onRegisterError(errorMessage: string) {
     profilePick: (event: any) => void;
   }
   export function onProfilePick(event: any){
-    console.log('oap')
+    (document.querySelector('.findSceneInp') as HTMLInputElement).value = event.target.innerText;
+    (document.querySelector('.fakeSearchScenesInp') as HTMLInputElement).value = event.target.innerText;
+    (document.querySelector('.fakeSearchScenesInp') as HTMLInputElement).dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   interface Content {
@@ -178,19 +196,36 @@ function onRegisterError(errorMessage: string) {
     author: string;
     rate: number | string;
   }
+  let scenesToShow: any
 export const ScenesBlock = ( {path, profilePick}: AllBlocksProps )  => {
     const [content, setContent] = useState<Content[]>([]);
     const navigate = useNavigate();
     const onScenePick = (event: any) => {
         App.setIsViewOnlyMode(path == 'scenes')
         ThreeScene.setSceneID(event.currentTarget.id)
-        navigate('/Builder3D/scene');
+        navigate('/scene');
     };
+
+
+
+    const [inputBlockSearchValue, inputBlockSearch] = useState('');
+    const [query, setQuery] = useState('');
+    function inputBlockSearchClear(){
+      inputBlockSearch('');
+      setQuery('');
+    }
+    function onInputBlockSearch(event: any){
+    }
+    function onBlockFind(event: any){
+        setQuery(event.target.value);
+    }
+
 
     useEffect(() => {
         const fetchData = async () => {
             firebase.readAllData(path).then((result) => {
                 path == 'scenes' ? App.setGlobalScenes(result) : App.setLocalScenes(result);
+                scenesToShow = result
                 if (path !== 'scenes') {
                     (document.querySelector('.sceneCreatedLbl') as HTMLLabelElement).innerText = String(App.localScenes.length)
                     let allRates = App.localScenes.map((e: any) => e.rate)
@@ -206,19 +241,41 @@ export const ScenesBlock = ( {path, profilePick}: AllBlocksProps )  => {
                     let sumRates = sceneRates.reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0);
                     (document.querySelector('.avgRatingLbl') as HTMLLabelElement).innerText = String((sumRates / sceneRates.length).toFixed(1))
                 }
-                setContent(result);
+                if (query !== undefined || query !== null) {
+                    if (query !== ''){ 
+                        let notFiltered = scenesToShow.filter((e: any) => !String(e.name).toLowerCase().includes(String(query).toLowerCase()))
+                        scenesToShow = scenesToShow.filter((e: any) => String(e.name).toLowerCase().includes(String(query).toLowerCase()))
+                        let filteredByAuthor = notFiltered.filter((e: any) => String(e.author).toLowerCase().includes(String(query).toLowerCase()))
+                        scenesToShow = scenesToShow.concat(filteredByAuthor)
+                }}
+                setContent(scenesToShow);
             }).catch((error) => {
                 console.error('Error fetching data:', error);
             })
         };
         fetchData();
-      }, []);
+        if (query !== undefined || query !== null) {
+            if (query == ''){
+                scenesToShow = scenesToShow
+            } else {
+                let notFiltered = scenesToShow.filter((e: any) => !String(e.name).toLowerCase().includes(String(query).toLowerCase()))
+                scenesToShow = scenesToShow.filter((e: any) => String(e.name).toLowerCase().includes(String(query).toLowerCase()))
+                let filteredByAuthor = notFiltered.filter((e: any) => String(e.author).toLowerCase().includes(String(query).toLowerCase()))
+                scenesToShow = scenesToShow.concat(filteredByAuthor)
+            }
+            if (scenesToShow) {
+                if (scenesToShow.length > 0){
+                    setContent(scenesToShow)
+                }
+            }
+        }
+      }, [query]);
  return (
      <main className=' homePageSceneBlock max-h-max w-full grid grid-cols-3 gap-8 grid-flow-row text-firstcolor py-24 px-8'>
         {content.length > 0 ? (
         content.map((item: any) => (       
             <div key={item.id} className=' border-fourthcolor rounded-none border-2 aspect-video grid'>
-                <div className=' toShowCanvasBlock h-full aspect-video bg-secondcolor cursor-pointer' id={item.id} onClick={onScenePick} onLoad={() => console.log(item.id)}>
+                <div className=' toShowCanvasBlock h-full aspect-video bg-secondcolor cursor-pointer' id={item.id} onClick={onScenePick}>
                     <ScenesToShow sceneContains={item.contains}/>
                 </div>
                 <div className=' w-full h-11 bg-fourthcolor flex text-lg'>
@@ -233,6 +290,7 @@ export const ScenesBlock = ( {path, profilePick}: AllBlocksProps )  => {
             <img key={item} src="https://raw.githubusercontent.com/Droxus/Builder3D/7ba1d995d58b0d5b5e68383ba3713c489af0311e/src/assets/img/loaderScene.svg" className='eager img-importance-high w-32 flex justify-self-center ' />
         ))
       )}
+      <input type="text" className='hidden fakeSearchScenesInp' value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind}  />
     </main>
 
     );

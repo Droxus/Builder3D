@@ -39,11 +39,13 @@ function App() {
   return (
     <div onMouseDown={(event: any) => {if (event.shiftKey) { event.preventDefault() }}} className="App h-full w-full z-60" >
       <Routes>
-        <Route path="/Builder3D/" element={<Home />}></Route>
-        <Route path="/Builder3D/scene" element={<Scene />}></Route>
-        <Route path="/Builder3D/profile" element={<Profile />}></Route>
-        <Route path="/Builder3D/help" element={<Help />}></Route>
+        <Route path="/" element={<Home />}></Route>
+        <Route path="/scene" element={<Scene />}></Route>
+        <Route path="/profile" element={<Profile />}></Route>
+        <Route path="/help" element={<Help />}></Route>
         <Route path="*" element={<Home />}></Route>
+        <Route path="/" element={<Home />}></Route>
+        <Route element={<Home />}></Route>
       </Routes>
      </div>
   )

@@ -78,6 +78,10 @@ export function createScene(){
         camera.updateProjectionMatrix();
       }
     }
+    if (sceneID == undefined || !sceneID) {
+      sceneID = String(JSON.parse( String( localStorage.getItem( 'sceneID' ) ) ))
+    }
+    console.log(sceneID)
     thisSceneLocal = JSON.parse( String( localStorage.getItem( sceneID ) ) );
     if (!thisSceneLocal) {
         if (App.localScenes.length < 1) {
@@ -120,6 +124,7 @@ export function createScene(){
     (document.querySelector('.sceneAuthorBtn') as HTMLButtonElement).innerText = thisSceneLocal.author
     Scene.setSceneName(thisSceneLocal.name)
     localStorage.setItem(sceneID, JSON.stringify(thisSceneLocal))
+    localStorage.setItem('sceneID', sceneID)
     // console.log( JSON.parse( String( localStorage.getItem( sceneID ) ) ) )
 }
 let shouldRender = true;

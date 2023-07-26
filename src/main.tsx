@@ -8,7 +8,7 @@ import * as firebase from './firebase'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <Router>
+    <Router basename='/Builder3D'>
       <App />    
     </Router>
   </React.StrictMode>
