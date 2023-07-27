@@ -39,7 +39,7 @@ export const MenuHeader = ( )  => {
                     <button onClick={inputBlockSearchClear}>
                         <img className=' w-7' src="https://raw.githubusercontent.com/Droxus/Builder3D/adf3374aa802ac59bf64cb0dbfbbd51f2dce38a0/src/assets/img/crossScenes.svg"/>
                     </button>
-                    <input className=' findSceneInp w-full bg-transparent text-center outline-none' placeholder='Find Scene' type="search" autoComplete='off' name='aslmasf' onLoad={inputBlockSearchClear} value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind} />
+                    <input className=' findSceneInp w-full bg-transparent text-center outline-none' placeholder='Find Scene' type="search" autoComplete='off' name='aslmasf' onLoad={inputBlockSearchClear} value={inputBlockSearchValue} onChange={onInputBlockSearch} onInput={onBlockFind}   onFocus={(event) => {event.currentTarget.removeAttribute('readonly')}} readOnly={true} />
                     <button>
                         <img className=' w-7' src="https://raw.githubusercontent.com/Droxus/Builder3D/adf3374aa802ac59bf64cb0dbfbbd51f2dce38a0/src/assets/img/searchScenes.svg"/>
                     </button>
